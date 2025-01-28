@@ -33,7 +33,15 @@ export default function FindTeamId() {
         }
         const usernames = users.map(getDisplayName);
         const newTeamId = usernames.findIndex(
-            (u) => u.toLowerCase().trim() === teamName.toLowerCase().trim()
+            (u) =>
+                u
+                    .toLowerCase()
+                    .trim()
+                    .replace(/[^a-z0-9]/g, "") ===
+                teamName
+                    .toLowerCase()
+                    .trim()
+                    .replace(/[^a-z0-9]/g, "")
         );
         if (newTeamId === -1) {
             setTeamId(-1);
