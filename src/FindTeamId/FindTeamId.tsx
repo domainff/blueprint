@@ -39,7 +39,7 @@ export default function FindTeamId() {
             setTeamId(-1);
             alert(
                 `Team not found for '${teamName}'.\nAllowed names: ${usernames.reduce(
-                    (prev, curr) => `${prev}\n'${curr}'`,
+                    (prev, curr, idx) => `${prev}\n${idx}: '${curr}'`,
                     ""
                 )}`
             );
