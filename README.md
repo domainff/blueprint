@@ -48,3 +48,5 @@ export default tseslint.config({
   },
 })
 ```
+
+edit readme to trigger deploy from domainff
