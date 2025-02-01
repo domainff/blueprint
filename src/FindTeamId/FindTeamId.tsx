@@ -12,6 +12,21 @@ type User = {
         team_name?: string;
     };
 };
+type Roster = {
+    starters: string[];
+    roster_id: string;
+    players: string[];
+    owner_id: string;
+    settings: {
+        wins: number;
+        ties: number;
+        losses: number;
+        fpts: number;
+
+        waiver_position: number;
+        waiver_budget_used: number;
+    };
+};
 
 export default function FindTeamId() {
     const [teamId, setTeamId] = useState(-1);
@@ -24,8 +39,18 @@ export default function FindTeamId() {
         );
         return response.data;
     }
+    async function getRosters(leagueId: string): Promise<Roster[]> {
+        const response = await axios.get(
+            `https://api.sleeper.app/v1/league/${leagueId}/rosters`
+        );
+        return response.data;
+    }
     async function findTeamId() {
-        const users = await getAllUsers(leagueId);
+        const rosters = await getRosters(leagueId);
+        const ownerIds = new Set(rosters.map((r) => r.owner_id));
+        const users = (await getAllUsers(leagueId)).filter((u) =>
+            ownerIds.has(u.user_id)
+        );
         if (users.length === 0) {
             setTeamId(-1);
             alert(`No users found for league ID '${leagueId}'`);
