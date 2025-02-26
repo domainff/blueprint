@@ -88,27 +88,19 @@ export default function NonSleeperInput({
                     {playerAdded ? "Remove" : "Add"}
                 </Button>
             </div>
-            <div
-                style={{
-                    display: "flex",
-                    flexDirection: "row",
-                    alignItems: "center",
-                }}
-            >
-                <TextField
-                    value={teamName}
-                    onChange={(e) => setTeamName(e.target.value)}
-                    label="Team Name"
-                />
-                <PlayerSelectComponent
-                    playerIds={allPlayers}
-                    selectedPlayerIds={nonSleeperIds}
-                    onChange={setNonSleeperIds}
-                    multiple={true}
-                    label="Non-Sleeper Roster"
-                    styles={{ minWidth: "200px" }}
-                />
-            </div>
+            <TextField
+                value={teamName}
+                onChange={(e) => setTeamName(e.target.value)}
+                label="Team Name"
+            />
+            <PlayerSelectComponent
+                playerIds={allPlayers}
+                selectedPlayerIds={nonSleeperIds}
+                onChange={setNonSleeperIds}
+                multiple={true}
+                label="Non-Sleeper Roster"
+                styles={{ minWidth: "200px", maxWidth: "80vw" }}
+            />
             <div
                 style={{
                     display: "flex",
@@ -295,6 +287,7 @@ function PlayerSelectComponent(props: {
     const { sortByAdp } = useAdpData();
     const playerData = usePlayerData();
     const [allPlayerOptions, setAllPlayerOptions] = useState<string[]>([]);
+    console.log("selectedPlayerIds", selectedPlayerIds);
 
     useEffect(() => {
         if (!playerData) return;

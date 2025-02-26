@@ -61,6 +61,15 @@ export default function NonSleeperInputWrapper() {
                 taxiSlots={taxiSlots}
                 setTaxiSlots={setTaxiSlots}
             />
+            <div className={styles.confirmationMessage}>
+                Please confirm this is the accurate team to review and is up to
+                date and make any changes necessary. To submit the team for the
+                FIRST iteration of the infinite blueprint, click the button
+                below saying "Copy league settings and roster," and paste it and
+                respond to the message on the flock site. For later updates,
+                reply to the email with the pasted link as the contents. Thank
+                you!
+            </div>
             <div
                 className={styles.leagueSettingsAndRoster}
                 style={{
