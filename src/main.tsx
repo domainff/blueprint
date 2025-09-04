@@ -5,6 +5,7 @@ import App from "./App.tsx";
 import { HashRouter, Route, Routes } from "react-router-dom";
 import NonSleeperInputWrapper from "./NonSleeperInput/NonSleeperInputWrapper.tsx";
 import UserIdFinder from "./UserIdFinder/UserIdFinder.tsx";
+import BlueprintDownloader from "./BlueprintDownloader/BlueprintDownloader.tsx";
 
 createRoot(document.getElementById("root")!).render(
     <StrictMode>
@@ -18,6 +19,10 @@ createRoot(document.getElementById("root")!).render(
                 <Route
                     path="/useridfinder"
                     element={<UserIdFinder />}
+                />
+                <Route
+                    path="/bplookup"
+                    element={<BlueprintDownloader />}
                 />
             </Routes>
         </HashRouter>
