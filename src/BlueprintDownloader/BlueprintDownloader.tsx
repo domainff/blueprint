@@ -2,7 +2,7 @@ import React, { useState, FormEvent } from 'react';
 import styles from './BlueprintDownloader.module.css';
 import { logo } from '../consts/images';
 
-const WEB_APP = 'https://script.google.com/macros/s/AKfycbxYsodrhFdBmu-PpI7alTciF43NDYX7D0mCE7b6w2GffwHc8lKy3Jm8GlkwGbT3wMDsIA/exec';
+const WEB_APP = 'https://script.google.com/macros/s/AKfycbzKWz3CFltD9XtNN_1GCfyPGyovZ4Q6xgwRP_Cfzugdr7nxTzi67j8pj-p08pG5z42Itw/exec';
 
 interface FileData {
   id: string;
