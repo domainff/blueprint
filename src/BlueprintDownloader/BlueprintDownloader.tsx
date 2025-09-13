@@ -2,15 +2,13 @@ import React, { useState, FormEvent } from 'react';
 import styles from './BlueprintDownloader.module.css';
 import { logo } from '../consts/images';
 
-const WEB_APP = 'https://script.google.com/macros/s/AKfycbzKWz3CFltD9XtNN_1GCfyPGyovZ4Q6xgwRP_Cfzugdr7nxTzi67j8pj-p08pG5z42Itw/exec';
-
 interface FileData {
   id: string;
   name: string;
   url: string;
 }
 
-const BlueprintDownloader: React.FC = () => {
+const BlueprintDownloader: React.FC<{appScript: string}> = ({appScript}) => {
   const [email, setEmail] = useState<string>('');
   const [status, setStatus] = useState<{ text: string; kind: '' | 'success' | 'error' }>({ text: '', kind: '' });
   const [loading, setLoading] = useState<boolean>(false);
@@ -25,7 +23,7 @@ const BlueprintDownloader: React.FC = () => {
   };
 
   const lookup = async (emailVal: string): Promise<{ ok: boolean; files?: FileData[]; error?: string }> => {
-    const url = `${WEB_APP}?u=${encodeURIComponent(emailVal)}`;
+    const url = `${appScript}?u=${encodeURIComponent(emailVal)}`;
     const res = await fetch(url);
     if (!res.ok) throw new Error('HTTP ' + res.status);
     return res.json();

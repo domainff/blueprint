@@ -22,7 +22,11 @@ createRoot(document.getElementById("root")!).render(
                 />
                 <Route
                     path="/bplookup"
-                    element={<BlueprintDownloader />}
+                    element={<BlueprintDownloader appScript="https://script.google.com/macros/s/AKfycbzKWz3CFltD9XtNN_1GCfyPGyovZ4Q6xgwRP_Cfzugdr7nxTzi67j8pj-p08pG5z42Itw/exec" />}
+                />
+                <Route
+                    path="/algolookup"
+                    element={<BlueprintDownloader appScript="TODO" />}
                 />
             </Routes>
         </HashRouter>
