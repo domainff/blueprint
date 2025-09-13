@@ -6,6 +6,7 @@ import { HashRouter, Route, Routes } from "react-router-dom";
 import NonSleeperInputWrapper from "./NonSleeperInput/NonSleeperInputWrapper.tsx";
 import UserIdFinder from "./UserIdFinder/UserIdFinder.tsx";
 import BlueprintDownloader from "./BlueprintDownloader/BlueprintDownloader.tsx";
+import WeeklyAlgorithm from "./WeeklyAlgorithm/WeeklyAlgorithm.tsx";
 
 createRoot(document.getElementById("root")!).render(
     <StrictMode>
@@ -26,7 +27,7 @@ createRoot(document.getElementById("root")!).render(
                 />
                 <Route
                     path="/algolookup"
-                    element={<BlueprintDownloader appScript="https://script.google.com/macros/s/AKfycbxUS2AS-xu-Ge1WDndl79hpuS9Zptt-pAfPiOT6TKdqjb8yTRmK-6hHA4kj3hKLcnf44A/exec" />}
+                    element={<WeeklyAlgorithm appScript="https://script.google.com/macros/s/AKfycbxUS2AS-xu-Ge1WDndl79hpuS9Zptt-pAfPiOT6TKdqjb8yTRmK-6hHA4kj3hKLcnf44A/exec" />}
                 />
             </Routes>
         </HashRouter>
