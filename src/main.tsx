@@ -23,7 +23,7 @@ createRoot(document.getElementById("root")!).render(
                 />
                 <Route
                     path="/bplookup"
-                    element={<BlueprintDownloader appScript="https://script.google.com/macros/s/AKfycbxD-STCZPES3EnJART6pCYmJarpDlw5TeZjX_hL112jsISnDx-zZQJiSUKif-nLjViZlA/exec" />}
+                    element={<BlueprintDownloader appScript="https://script.google.com/macros/s/AKfycbzbqiJUGHDxI5u0PtDgyghmCV1jeDKnuWBMFWYv_8XeDthvvHDtzSuC94UDTVmaUNgNhg/exec" />}
                 />
                 <Route
                     path="/algolookup"
