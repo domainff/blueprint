@@ -95,9 +95,9 @@ const WeeklyAlgorithm: React.FC<{appScript: string}> = ({appScript}) => {
       <section className={styles.card} aria-labelledby="title">
         <div className={styles.brand}>
           <img src={logo} alt="Company logo" />
-          <h1 id="title">Infinite Blueprint Download</h1>
+          <h1 id="title">Weekly Algorithm Download</h1>
         </div>
-        <p className={styles.lede}>Enter the email you used to sign up for Infinite Blueprint. If multiple files exist, we’ll download them all for you automatically.</p>
+        <p className={styles.lede}>Enter the email you used to sign up for the Weekly Algorithm. If multiple files exist, we’ll download them all for you automatically.</p>
 
         <form className={styles.form} onSubmit={handleSubmit} noValidate>
           <input
