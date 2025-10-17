@@ -23,11 +23,11 @@ createRoot(document.getElementById("root")!).render(
                 />
                 <Route
                     path="/bplookup"
-                    element={<BlueprintDownloader appScript="https://script.google.com/macros/s/AKfycbxc4WTkDEQeFXEMeRF2RCP6dwXHJm5OkSKFkY1wnPm11AUawKBPXOAppXeeTWqlkoZgDw/exec" />}
+                    element={<BlueprintDownloader appScript="https://script.google.com/macros/s/AKfycbywE8NS095xq2WllN_esX5sZFXLKWicbyuLxWwz27hf85fJr_95k3RyoRNU_ugIIhgh/exec" />}
                 />
                 <Route
                     path="/algolookup"
-                    element={<WeeklyAlgorithm appScript="https://script.google.com/macros/s/AKfycby25hczfPpWHOGjS3x23txMBro7qRmxKDoAiZaxFqH2ut_MdkTBNEBuO5lrV8uN-wrDPw/exec" />}
+                    element={<WeeklyAlgorithm appScript="https://script.google.com/macros/s/AKfycbxBPlGnEtM9suHmtb12A2Ptqa1PyPjwbjJNqXxi4vt-uzWPcucqsVpATjbXt-BVhBTkNA/exec" />}
                 />
             </Routes>
         </HashRouter>
