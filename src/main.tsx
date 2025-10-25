@@ -27,7 +27,7 @@ createRoot(document.getElementById("root")!).render(
                 />
                 <Route
                     path="/algolookup"
-                    element={<WeeklyAlgorithm appScript="https://script.google.com/macros/s/AKfycby25hczfPpWHOGjS3x23txMBro7qRmxKDoAiZaxFqH2ut_MdkTBNEBuO5lrV8uN-wrDPw/exec" />}
+                    element={<WeeklyAlgorithm appScript="https://script.google.com/macros/s/AKfycbzQShtWSjdylCinUt5Yk8YUCjzfIp1T65r4GV1-pK1vomB4UQHKiAyXyozidiZFY4OlPA/exec" />}
                 />
             </Routes>
         </HashRouter>
