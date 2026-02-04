@@ -7,8 +7,6 @@ import {useEffect, useState} from 'react';
 import DomainTextField from '../shared/DomainTextField';
 import {WrappedNewInfinite} from '../NewInfinite/NewInfinite';
 import {toPng} from 'html-to-image';
-import {createRoot} from 'react-dom/client';
-import {QueryClientProvider, useQueryClient} from '@tanstack/react-query';
 import { ZoomOut as ZoomOutIcon } from '@mui/icons-material';
 import ZoomInIcon from '@mui/icons-material/ZoomIn';
 import OpenInFullIcon from '@mui/icons-material/OpenInFull';
@@ -64,7 +62,7 @@ const useScreenSize = () => {
 
 export default function BlueprintDashboard() {
     useTitle('Blueprint Dashboard');
-    const {width, height} = useScreenSize();
+    const {width} = useScreenSize();
     const isMobile = width < 600;
     const [isLoggedIn, setIsLoggedIn] = useState(
         sessionStorage.getItem('flockAuthToken') !== null
@@ -658,97 +656,95 @@ function BlueprintItem({
     setDownloadBlueprintName,
     setDownloadModalOpen,
 }: BlueprintItemProps) {
-    const queryClient = useQueryClient();
     const [isMobile] = useState(screenWidth < 600);
-    const [isDownloading, setIsDownloading] = useState(false);
 
-    const downloadBlueprint = async () => {
-        setIsDownloading(true);
-        const container = document.createElement('div');
-        container.style.position = 'fixed';
-        container.style.left = '-9999px';
-        container.style.top = '-9999px';
-        document.body.appendChild(container);
+    // const downloadBlueprint = async () => {
+    //     setIsDownloading(true);
+    //     const container = document.createElement('div');
+    //     container.style.position = 'fixed';
+    //     container.style.left = '-9999px';
+    //     container.style.top = '-9999px';
+    //     document.body.appendChild(container);
 
-        const root = createRoot(container);
-        root.render(
-            <QueryClientProvider client={queryClient}>
-                <WrappedNewInfinite blueprintId={blueprintId} />
-            </QueryClientProvider>
-        );
+    //     const root = createRoot(container);
+    //     root.render(
+    //         <QueryClientProvider client={queryClient}>
+    //             <WrappedNewInfinite blueprintId={blueprintId} />
+    //         </QueryClientProvider>
+    //     );
 
-        await new Promise<void>(resolve => {
-            const interval = setInterval(() => {
-                if (container.firstElementChild) {
-                    clearInterval(interval);
-                    resolve();
-                }
-            }, 50);
-        });
+    //     await new Promise<void>(resolve => {
+    //         const interval = setInterval(() => {
+    //             if (container.firstElementChild) {
+    //                 clearInterval(interval);
+    //                 resolve();
+    //             }
+    //         }, 50);
+    //     });
 
-        const element = container.firstElementChild as HTMLElement;
-        const teamName = element.querySelector(
-            `.${newInfiniteStyles.teamName}`
-        );
-        await new Promise<string>(resolve => {
-            const interval = setInterval(() => {
-                const teamNameText = teamName?.textContent || '';
-                if (teamNameText !== '') {
-                    clearInterval(interval);
-                    resolve(teamNameText);
-                }
-            }, 50);
-        });
-        const benchString = element.querySelector(
-            `.${newInfiniteStyles.benchString}`
-        );
-        await new Promise<string>(resolve => {
-            const interval = setInterval(() => {
-                const benchStringText = benchString?.textContent || '';
-                if (benchStringText !== '') {
-                    clearInterval(interval);
-                    resolve(benchStringText);
-                }
-            }, 50);
-        });
+    //     const element = container.firstElementChild as HTMLElement;
+    //     const teamName = element.querySelector(
+    //         `.${newInfiniteStyles.teamName}`
+    //     );
+    //     await new Promise<string>(resolve => {
+    //         const interval = setInterval(() => {
+    //             const teamNameText = teamName?.textContent || '';
+    //             if (teamNameText !== '') {
+    //                 clearInterval(interval);
+    //                 resolve(teamNameText);
+    //             }
+    //         }, 50);
+    //     });
+    //     const benchString = element.querySelector(
+    //         `.${newInfiniteStyles.benchString}`
+    //     );
+    //     await new Promise<string>(resolve => {
+    //         const interval = setInterval(() => {
+    //             const benchStringText = benchString?.textContent || '';
+    //             if (benchStringText !== '') {
+    //                 clearInterval(interval);
+    //                 resolve(benchStringText);
+    //             }
+    //         }, 50);
+    //     });
 
-        await document.fonts.ready;
+    //     await document.fonts.ready;
 
-        // Wait for specific images only
-        const criticalImages = element.querySelectorAll(
-            `img.${newInfiniteStyles.blankBp}`
-        ) as NodeListOf<HTMLImageElement>;
+    //     // Wait for specific images only
+    //     const criticalImages = element.querySelectorAll(
+    //         `img.${newInfiniteStyles.blankBp}`
+    //     ) as NodeListOf<HTMLImageElement>;
 
-        await Promise.all(
-            Array.from(criticalImages).map(img => {
-                if (img.complete) return Promise.resolve();
-                return new Promise(resolve => {
-                    img.onload = resolve;
-                    img.onerror = resolve;
-                    setTimeout(resolve, 10000); // Timeout fallback
-                });
-            })
-        );
-        await new Promise(resolve => setTimeout(resolve, 2000));
+    //     await Promise.all(
+    //         Array.from(criticalImages).map(img => {
+    //             if (img.complete) return Promise.resolve();
+    //             return new Promise(resolve => {
+    //                 img.onload = resolve;
+    //                 img.onerror = resolve;
+    //                 setTimeout(resolve, 10000); // Timeout fallback
+    //             });
+    //         })
+    //     );
+    //     await new Promise(resolve => setTimeout(resolve, 2000));
 
-        const dataUrl = await toPng(
-            container.firstElementChild as HTMLElement,
-            {
-                backgroundColor: 'rgba(0, 0, 0, 0)',
-                cacheBust: true,
-            }
-        );
+    //     const dataUrl = await toPng(
+    //         container.firstElementChild as HTMLElement,
+    //         {
+    //             backgroundColor: 'rgba(0, 0, 0, 0)',
+    //             cacheBust: true,
+    //         }
+    //     );
 
-        const link = document.createElement('a');
-        link.href = dataUrl;
-        link.download = `${name}.png`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        document.body.removeChild(container);
+    //     const link = document.createElement('a');
+    //     link.href = dataUrl;
+    //     link.download = `${name}.png`;
+    //     document.body.appendChild(link);
+    //     link.click();
+    //     document.body.removeChild(link);
+    //     document.body.removeChild(container);
 
-        setIsDownloading(false);
-    };
+    //     setIsDownloading(false);
+    // };
 
     return (
         <div
@@ -804,7 +800,6 @@ function BlueprintItem({
                         setDownloadBlueprintId(blueprintId);
                         setDownloadBlueprintName(name);
                     }}
-                    loading={isDownloading}
                 >
                     PREVIEW
                 </Button>
