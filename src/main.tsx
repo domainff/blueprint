@@ -7,29 +7,41 @@ import NonSleeperInputWrapper from "./NonSleeperInput/NonSleeperInputWrapper.tsx
 import UserIdFinder from "./UserIdFinder/UserIdFinder.tsx";
 import BlueprintDownloader from "./BlueprintDownloader/BlueprintDownloader.tsx";
 import WeeklyAlgorithm from "./WeeklyAlgorithm/WeeklyAlgorithm.tsx";
+import BlueprintDashboard from "./BlueprintDashboard/BlueprintDashboard.tsx";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import BodyBackgroundController from "./BodyBackgroundController.tsx";
+
+const queryClient = new QueryClient();
 
 createRoot(document.getElementById("root")!).render(
     <StrictMode>
-        <HashRouter basename="/">
-            <Routes>
-                <Route path="/" element={<App />} />
-                <Route
-                    path="/nonsleeper"
-                    element={<NonSleeperInputWrapper />}
-                />
-                <Route
-                    path="/useridfinder"
-                    element={<UserIdFinder />}
-                />
-                <Route
-                    path="/bplookup"
-                    element={<BlueprintDownloader appScript="https://script.google.com/macros/s/AKfycbzT6ZdoAVc4MqMonj_xZGBsSHgF0Y4l0QQRJgr6R6-GKhgOy0oXNnaVQkV6PDymPSFjdQ/exec" />}
-                />
-                <Route
-                    path="/algolookup"
-                    element={<WeeklyAlgorithm appScript="https://script.google.com/macros/s/AKfycbwoq07qR7Kcls00TpR2omOFi1EmKkzu7CSrlcJp0iLNby6G3qPUMC5_G9FxJYWPPHm39A/exec" />}
-                />
-            </Routes>
+        <QueryClientProvider client={queryClient}>
+            <HashRouter basename="/">
+                <BodyBackgroundController />
+                <Routes>
+                    <Route path="/" element={<App />} />
+                    <Route
+                        path="/nonsleeper"
+                        element={<NonSleeperInputWrapper />}
+                    />
+                    <Route
+                        path="/useridfinder"
+                        element={<UserIdFinder />}
+                    />
+                    <Route
+                        path="/bplookup"
+                        element={<BlueprintDownloader appScript="https://script.google.com/macros/s/AKfycbzT6ZdoAVc4MqMonj_xZGBsSHgF0Y4l0QQRJgr6R6-GKhgOy0oXNnaVQkV6PDymPSFjdQ/exec" />}
+                    />
+                    <Route
+                        path="/algolookup"
+                        element={<WeeklyAlgorithm appScript="https://script.google.com/macros/s/AKfycbwoq07qR7Kcls00TpR2omOFi1EmKkzu7CSrlcJp0iLNby6G3qPUMC5_G9FxJYWPPHm39A/exec" />}
+                    />
+                    <Route
+                        path="/dashboard"
+                        element={<BlueprintDashboard />}
+                    />
+                </Routes>
         </HashRouter>
+        </QueryClientProvider>
     </StrictMode>
 );

@@ -24,6 +24,282 @@ import {
     TEAM_NAME,
 } from "../consts/urlParams";
 import { useSearchParams } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
+import { BuySellPlayerProps, verdictToEnum } from "../NewInfinite/NewInfinite";
+
+const AZURE_API_URL = 'https://domainffapi.azurewebsites.net/api/';
+
+export type LeagueSettings = {
+    numberOfTeams: number;
+    isSuperFlex: boolean;
+    pointsPerReception: number;
+    tightEndPremium: number;
+    taxiSpots: number;
+    quarterbackSlots: number;
+    runningBackSlots: number;
+    wideReceiverSlots: number;
+    tightEndSlots: number;
+    flexSlots: number;
+    benchSlots: number;
+};
+
+export type RosterPlayer = {
+    id: number;
+    playerId: number;
+    playerSleeperBotId: string;
+    playerName: string;
+    position: string;
+    rosterPosition: string;
+    isStarter: boolean;
+    assetCategory: string;
+    sortOrder: number;
+    insulationScore: number;
+    productionScore: number;
+    situationalScore: number;
+    compositePositionRank: string;
+    teamAbbreviation: string;
+    valueChangeIndicator: number;
+};
+
+type Blueprint = {
+    id: number;
+    blueprintType: string;
+    platform: string;
+    leagueId: string;
+    rosterId: number;
+    ownerUserId: string;
+    teamName: string;
+    season: number;
+    isRedraft: boolean;
+    leagueSettings: LeagueSettings;
+    valueArchetype: string;
+    rosterArchetype: string;
+    productionSharePercentage: number;
+    productionShareLeagueRank: number;
+    valueSharePercentage: number;
+    valueShareLeagueRank: number;
+    rosterPlayers: Array<RosterPlayer>;
+    outlooks: Array<{
+        id: number;
+        yearNumber: number;
+        outlook: string;
+    }>;
+    positionalGrades: Array<{
+        id: number;
+        position: string;
+        grade: number;
+        ownershipPercentage: number;
+    }>;
+    draftPicks: Array<any>;
+    tradeStrategies: Array<any>;
+    topPriorities: Array<any>;
+    averageStarterAges: Array<{
+        position: string;
+        averageAge: number;
+    }>;
+    powerRankings: Array<{
+        teamName: string;
+        teamRank: number;
+    }>;
+    rosterMakeup: Array<{
+        assetCategory: string;
+        percentage: number;
+    }>;
+    infiniteFeatures: InfiniteFeatures;
+    createdUtc: string;
+};
+
+type InfiniteFeatures = {
+    id: number;
+    month: number;
+    year: number;
+    generatedDate: string;
+    rosterValueTier: string;
+    recommendedTradeActivity: string;
+    buysPercentage: number;
+    sellsPercentage: number;
+    holdsPercentage: number;
+    risers: Array<{
+        id: number;
+        playerId: number;
+        playerSleeperBotId: number;
+        playerName: string;
+        position: string;
+        teamAbbreviation: string;
+        riseMagnitude: number;
+    }>;
+    fallers: Array<{
+        id: number;
+        playerId: number;
+        playerSleeperBotId: number;
+        playerName: string;
+        position: string;
+        teamAbbreviation: string;
+        fallMagnitude: number;
+    }>;
+    buySellRecommendations: Array<{
+        id: number;
+        playerId: number;
+        playerSleeperBotId: number;
+        playerName: string;
+        position: string;
+        teamAbbreviation: string;
+        recommendationType: string;
+    }>;
+    positionalAgeData: Array<{
+        id: number;
+        position: string;
+        averageAge: number;
+        month: number;
+        year: number;
+    }>;
+};
+
+export function useBlueprint(blueprintId: string) {
+    const [blueprint, setBlueprint] = useState<Blueprint>();
+    const authToken = sessionStorage.getItem('authToken');
+    const {data} = useQuery({
+        queryKey: ['blueprint', blueprintId],
+        queryFn: async () => {
+            const options = {
+                method: 'GET',
+                url: `${AZURE_API_URL}Blueprints/${blueprintId}`,
+                headers: {
+                    Authorization: `Bearer ${authToken}`,
+                },
+            };
+            const res = await axios.request(options);
+            return res.data as Blueprint;
+        },
+        retry: false,
+        enabled: !!blueprintId,
+    });
+    useEffect(() => {
+        if (!data) return;
+        setBlueprint(data);
+    }, [data]);
+
+    return {blueprint, setBlueprint};
+}
+
+export function useNewInfiniteBuysSells(blueprint: Blueprint | undefined) {
+    const [buys, setBuys] = useState<BuySellPlayerProps[]>([]);
+    const [sells, setSells] = useState<BuySellPlayerProps[]>([]);
+
+    useEffect(() => {
+        if (!blueprint) return;
+        const buySellRecommendations =
+            blueprint.infiniteFeatures.buySellRecommendations;
+        const buys = buySellRecommendations
+            .filter(rec => rec.recommendationType.includes('Buy'))
+            .map(rec => ({
+                playerRowProps: {
+                    position: rec.position,
+                    playerName: rec.playerName,
+                    playerTeam: rec.teamAbbreviation,
+                    sleeperId: '' + rec.playerSleeperBotId,
+                },
+                buySell: verdictToEnum(rec.recommendationType),
+            }));
+        const sells = buySellRecommendations
+            .filter(rec => rec.recommendationType.includes('Sell'))
+            .map(rec => ({
+                playerRowProps: {
+                    position: rec.position,
+                    playerName: rec.playerName,
+                    playerTeam: rec.teamAbbreviation,
+                    sleeperId: '' + rec.playerSleeperBotId,
+                },
+                buySell: verdictToEnum(rec.recommendationType),
+            }));
+        setBuys(buys);
+        setSells(sells);
+    }, [blueprint]);
+
+    return {
+        buys,
+        sells,
+    };
+}
+
+export function useParamFromUrl(
+    param: string,
+    defaultValue?: string
+): [string, Dispatch<SetStateAction<string>>] {
+    const [searchParams, setSearchParams] = useSearchParams();
+    const urlValue = searchParams.get(param) ?? defaultValue ?? '';
+
+    const [value, setValue] = useState(urlValue);
+
+    // URL → state
+    useEffect(() => {
+        if (value !== urlValue) {
+            setValue(urlValue);
+        }
+    }, [urlValue]);
+
+    // state → URL
+    useEffect(() => {
+        if (value === urlValue || value === '') return;
+
+        setSearchParams(prev => {
+            const next = new URLSearchParams(prev);
+            next.set(param, value);
+            return next;
+        });
+    }, [value]);
+
+    return [value, setValue];
+}
+
+type BlueprintMetadata = {
+    blueprintId: number;
+    blueprintType: string;
+    platform: string;
+    ownerUserId: string;
+    rosterId: number;
+    teamName: string;
+    createdUtc: string;
+};
+
+export function useBlueprintsForDomainUser() {
+    const [blueprints, setBlueprints] = useState<Array<BlueprintMetadata>>([]);
+    const authToken = sessionStorage.getItem('flockAuthToken');
+    const {data, error} = useQuery({
+        queryKey: ['blueprints'],
+        queryFn: async () => {
+            const options = {
+                method: 'GET',
+                url: `${AZURE_API_URL}Blueprints/mine`,
+                headers: {
+                    Authorization: `Bearer ${authToken}`,
+                },
+            };
+            const res = await axios.request(options);
+            return res.data as Array<BlueprintMetadata>;
+        },
+        retry: false,
+        enabled: !!authToken,
+    });
+    useEffect(() => {
+        if (!data) return;
+        setBlueprints(data);
+    }, [data]);
+    return {blueprints, error};
+}
+
+export function useTitle(title: string) {
+    useEffect(() => {
+        const oldTitle = document.title;
+        document.title = title;
+        return () => {
+            document.title = oldTitle;
+        };
+    }, [title]);
+}
+
+
 export interface PlayerData {
     [key: string]: Player;
 }

@@ -1,0 +1,119 @@
+@font-face {
+    font-family: 'Prohibition Test';
+    src: local('Prohibition Test'), local('Prohibition-Test'),
+        url("fonts/ProhibitionTest-Regular.otf") format("opentype"), ;
+    font-weight: 700;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Antarctican Headline';
+    src: local('Antarctican Headline Bold'), local('Antarctican-Headline-Bold'),
+        url('fonts/AntarcticanHeadline-Bold.woff2') format('woff2'),
+        url('fonts/AntarcticanHeadline-Bold.woff') format('woff'),
+        url('fonts/AntarcticanHeadline-Bold.ttf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Erbaum';
+    src: local('Erbaum Regular'), local('Erbaum-Regular'),
+        url('fonts/erbaum/Erbaum-Regular.otf') format('opentype'),
+}
+
+@font-face {
+    font-family: 'Erbaum Bold';
+    src: local('Erbaum Bold'), local('Erbaum-Bold'),
+        url('fonts/erbaum/Erbaum-Bold.otf') format('opentype'),
+}
+
+@font-face {
+    font-family: 'Erbaum Book';
+    src: local('Erbaum Book'), local('Erbaum-Book'),
+        url('fonts/erbaum/Erbaum-Book.otf') format('opentype'),
+}
+
+@font-face {
+    font-family: 'Erbaum Light';
+    src: local('Erbaum Light'), local('Erbaum-Light'),
+        url('fonts/erbaum/Erbaum-Light.otf') format('opentype'),
+}
+
+@font-face {
+    font-family: 'Erbaum Medium';
+    src: local('Erbaum Medium'), local('Erbaum-Medium'),
+        url('fonts/erbaum/Erbaum-Medium.otf') format('opentype'),
+}
+
+@font-face {
+    font-family: 'Erbaum Thin';
+    src: local('Erbaum Thin'), local('Erbaum-Thin'),
+        url('fonts/erbaum/Erbaum-Thin.otf') format('opentype'),
+}
+
+@font-face {
+    font-family: 'Erbaum Black';
+    src: local('Erbaum Black'), local('Erbaum-Black'),
+        url('fonts/erbaum/Erbaum-Black.otf') format('opentype'),
+}
+@font-face {
+    font-family: 'Acumin Pro';
+    font-style: normal;
+    font-weight: normal;
+    src: local('Acumin Pro'), url('fonts/Acumin-RPro.woff') format('woff');
+}
+
+@font-face {
+    font-family: 'Acumin Pro Condensed';
+    font-style: normal;
+    font-weight: normal;
+    src: local('Acumin Pro Condensed'), url('fonts/AcuminProCond-Regular.woff') format('woff');
+}
+@font-face {
+    font-family: 'Acumin Pro ExtraCondensed';
+    font-style: normal;
+    font-weight: normal;
+    src: local('Acumin Pro ExtraCondensed'), url('fonts/Acumin_Pro_ExtraCondensed.otf') format('opentype');
+}
+
+
+@font-face {
+    font-family: 'Acumin Pro Italic';
+    font-style: normal;
+    font-weight: normal;
+    src: local('Acumin Pro Italic'), url('fonts/Acumin-ItPro.woff') format('woff');
+}
+
+
+@font-face {
+    font-family: 'Acumin Pro Bold';
+    font-style: normal;
+    font-weight: normal;
+    src: local('Acumin Pro Bold'), url('fonts/Acumin-BdPro.woff') format('woff');
+}
+
+
+@font-face {
+    font-family: 'Acumin Pro Bold Italic';
+    font-style: normal;
+    font-weight: normal;
+    src: local('Acumin Pro Bold Italic'), url('fonts/Acumin-BdItPro.woff') format('woff');
+}
+
+@font-face {
+    font-family: 'Cheddar Gothic Rough';
+    src: local('Cheddar Gothic Rough Regular'), local('Cheddar-Gothic-Rough-Regular'),
+        url('fonts/CheddarGothicRough-Regular.woff2') format('woff2'),
+        url('fonts/CheddarGothicRough-Regular.woff') format('woff'),
+        url('fonts/CheddarGothicRough-Regular.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Prohibition';
+    src: local('Prohibition Regular'), local('Prohibition-Regular'),
+        url('fonts/prohibition/Prohibition-Regular.woff2') format('woff2'),
+        url('fonts/prohibition/Prohibition-Regular.woff') format('woff'),
+}

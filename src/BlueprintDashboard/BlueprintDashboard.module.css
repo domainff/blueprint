@@ -1,0 +1,244 @@
+.headerContainer {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    justify-content: space-around;
+
+    border-bottom: 1.33px solid white;
+
+    padding-bottom: 10px;
+}
+
+.domainLogo {
+    width: 500px;
+    height: auto;
+}
+
+.title {
+    color: #FFF;
+    font-family: "Acumin Pro ExtraCondensed";
+    font-size: 67px;
+    font-weight: 700;
+
+    padding-top: 12px;
+}
+
+.welcome {
+    color: #FFF;
+    font-family: Erbaum;
+    font-size: 50px;
+    font-weight: 400;
+
+    .username {
+        color: #E84D57;
+        text-transform: uppercase;
+    }
+}
+
+.description {
+    color: #FFF;
+    font-family: "Acumin Pro";
+    font-size: 28px;
+    font-weight: 400;
+}
+
+.bodyContainer {
+    display: flex;
+    flex-direction: row;
+    justify-content: center ;
+}
+
+.bodySection1 {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 40px;
+}
+
+.myBlueprintsTitle {
+    color: #F47F20;
+    font-family: Prohibition;
+    font-size: 54px;
+    font-weight: 400;
+
+    margin-bottom: 10px;
+}
+
+.myInfiniteBlueprintsTitle {
+    color: #B139E2;
+    font-family: Prohibition;
+    font-size: 54px;
+    font-weight: 400;
+
+    margin-bottom: 10px;
+}
+
+.myBpIcon {
+    width: 32px;
+    height: auto;
+}
+
+.myBlueprints, .myInfiniteBlueprints {
+    margin-left: 20px;
+}
+
+
+.myBlueprintsList {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+
+    flex-wrap: wrap;
+    width: 1150px;
+
+    border-top: solid #2E4349 1px;
+    padding-top: 30px;
+}
+
+.blueprintName {
+    color: #FFF;
+    font-family: "Acumin Pro ExtraCondensed";
+    font-size: 40.5px;
+    font-weight: 400;
+
+    max-width: 260px;
+
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.blueprintDate {
+    color: #FFF;
+    font-family: "Acumin Pro";
+    font-size: 22.3px;
+    font-weight: 700;
+}
+
+
+.domainShieldContainer {
+    background-color: #474E51;
+    padding: 7px 15px 3px 15px;
+    border-radius: 20px;
+
+    margin-right: 10px;
+}
+
+.domainShield {
+    width: 33px;
+    height: auto;
+}
+
+.blueprintItemHeader {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.blueprintItem {
+    background-color: #182328;
+
+    border-radius: 10px;
+
+    width: 320px;
+
+    padding: 25px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.loginModal {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 400px;
+    background-color: #04121C;
+    color: white;
+    padding: 30px;
+    border: 4px solid rgba(255, 255, 255, 0.50);
+    border-radius: 40px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.downloadModal {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    height: 90%;
+    width: 90%;
+    overflow: scroll;
+
+    background-color: #04121C;
+
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.loginLogo {
+    width: 200px;
+    height: auto;
+}
+
+.loginTitle {
+    color: #FFF;
+    font-family: "Acumin Pro ExtraCondensed";
+    font-size: 40px;
+    font-weight: 700;
+
+    text-align: center;
+}
+
+.loginDescription {
+    color: #FFF;
+    text-align: center;
+    font-family: "Acumin Pro Condensed";
+    font-size: 14px;
+    font-style: italic;
+    font-weight: 500;
+}
+
+.loginError {
+    color: #E84D57;
+    text-align: center;
+    font-family: "Acumin Pro Condensed";
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.inputLabel {
+    color: #FFF;
+    font-family: "Acumin Pro Condensed";
+    font-size: 20px;
+    font-weight: 500;
+}
+
+.downloadModalHeader {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    width: 100%;
+
+    position: sticky;
+    top: 0;
+    left: 0;
+    z-index: 10;
+
+    padding-top: 10px;
+}
+
+.zoomWrapper {
+    transform-origin: top left;
+}

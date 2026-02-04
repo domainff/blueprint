@@ -40,3 +40,6 @@ export const WR_RANK = 'wrRank';
 export const TE_RANK = 'teRank';
 export const ROOKIE_PICK_COMMENTS = 'rookieComments';
 export const SUGGESTIONS_AND_COMMENTS = 'suggestions';
+
+// New Infinite
+export const BLUEPRINT_ID = 'blueprintId';
