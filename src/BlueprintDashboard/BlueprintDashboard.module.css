@@ -72,6 +72,12 @@
     font-weight: 400;
 
     margin-bottom: 10px;
+
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+
+    align-items: center;
 }
 
 .myBpIcon {
@@ -241,4 +247,23 @@
 
 .zoomWrapper {
     transform-origin: top left;
+}
+
+.needHelp {
+    color: var(--dd-light-blue-rb, #00B1FF);
+    font-family: "Acumin Pro Condensed";
+    font-size: 14.88px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: normal;
+    text-decoration-line: underline;
+    text-decoration-style: solid;
+}
+
+a:link,
+a:visited,
+a:hover,
+a:active {
+  text-decoration: none; 
+  color: var(--dd-light-blue-rb, #00B1FF);
 }

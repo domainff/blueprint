@@ -251,7 +251,7 @@ export default function BlueprintDashboard() {
                             backgroundColor={'rgba(217, 217, 217, 0.20)'}
                             hideOutline={true}
                             inputWidth={
-                                width < 600 ? `${width * 0.8}px` : '380px'
+                                isMobile ? `${width * 0.65}px` : '360px'
                             }
                         />
                     </div>
@@ -270,7 +270,7 @@ export default function BlueprintDashboard() {
                             backgroundColor={'rgba(217, 217, 217, 0.20)'}
                             hideOutline={true}
                             inputWidth={
-                                width < 600 ? `${width * 0.8}px` : '380px'
+                                isMobile ? `${width * 0.65}px` : '360px'
                             }
                         />
                     </div>
@@ -296,9 +296,7 @@ export default function BlueprintDashboard() {
                                     }
                                     hideOutline={true}
                                     inputWidth={
-                                        width < 600
-                                            ? `${width * 0.8}px`
-                                            : '380px'
+                                        isMobile ? `${width * 0.65}px` : '360px'
                                     }
                                 />
                             </div>
@@ -322,9 +320,7 @@ export default function BlueprintDashboard() {
                                     }
                                     hideOutline={true}
                                     inputWidth={
-                                        width < 600
-                                            ? `${width * 0.8}px`
-                                            : '380px'
+                                        isMobile ? `${width * 0.65}px` : '360px'
                                     }
                                 />
                             </div>
@@ -348,14 +344,15 @@ export default function BlueprintDashboard() {
                                     }
                                     hideOutline={true}
                                     inputWidth={
-                                        width < 600
-                                            ? `${width * 0.8}px`
-                                            : '380px'
+                                        isMobile ? `${width * 0.65}px` : '360px'
                                     }
                                 />
                             </div>
                         </>
                     )}
+                    <div className={styles.needHelp}>
+                        <a href={'https://discord.gg/hCPWDGn9Yb'}  target="_blank">Need Help?</a>
+                    </div>
                     {loginError && (
                         <div className={styles.loginError}>{loginError}</div>
                     )}
@@ -598,7 +595,10 @@ export default function BlueprintDashboard() {
                                         fontSize: isMobile ? '30px' : undefined,
                                     }}
                                 >
-                                    My Infinite Blueprints
+                                    <>My Infinite Blueprints</>
+                                    <div className={styles.needHelp}>
+                                        <a href={'https://discord.gg/hCPWDGn9Yb'} target="_blank">Need Help?</a>
+                                    </div>
                                 </div>
                                 <div
                                     className={styles.myBlueprintsList}
