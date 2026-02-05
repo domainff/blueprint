@@ -2,7 +2,7 @@ import styles from './BlueprintDashboard.module.css';
 import newInfiniteStyles from '../NewInfinite/NewInfinite.module.css';
 import {flockDomainLogo, logoHorizontal} from '../consts/images';
 import {useBlueprintsForDomainUser, useTitle} from '../hooks/hooks';
-import {Box, Button, IconButton, Modal} from '@mui/material';
+import {Box, Button, CircularProgress, IconButton, Modal} from '@mui/material';
 import {useEffect, useState} from 'react';
 import DomainTextField from '../shared/DomainTextField';
 import {WrappedNewInfinite} from '../NewInfinite/NewInfinite';
@@ -11,6 +11,7 @@ import { ZoomOut as ZoomOutIcon } from '@mui/icons-material';
 import ZoomInIcon from '@mui/icons-material/ZoomIn';
 import OpenInFullIcon from '@mui/icons-material/OpenInFull';
 import CloseFullscreenIcon from '@mui/icons-material/CloseFullscreen';
+import DownloadIcon from '@mui/icons-material/Download';
 import axios from 'axios';
 
 const COLOR_LIST = [
@@ -71,7 +72,7 @@ export default function BlueprintDashboard() {
     const [loginDiscordUsername, setLoginDiscordUsername] = useState('');
     const [loginError, setLoginError] = useState('');
     const [domainUserNotFound, setDomainUserNotFound] = useState(false);
-    const {blueprints, error: blueprintsError} = useBlueprintsForDomainUser();
+    const {blueprints, error: blueprintsError, isLoading: blueprintsLoading} = useBlueprintsForDomainUser();
 
     const [downloadModalOpen, setDownloadModalOpen] = useState(false);
     const [downloadBlueprintId, setDownloadBlueprintId] = useState('');
@@ -424,8 +425,9 @@ export default function BlueprintDashboard() {
                             }}
                             onClick={downloadBlueprint}
                             loading={isDownloading}
+                            endIcon={isMobile ? null : <DownloadIcon />}
                         >
-                            DOWNLOAD
+                            {isMobile ? <DownloadIcon /> : 'DOWNLOAD'}
                         </Button>
                         <IconButton
                             sx={{
@@ -621,6 +623,7 @@ export default function BlueprintDashboard() {
                                             : '',
                                     }}
                                 >
+                                    {blueprintsLoading && <CircularProgress />}
                                     {infinites.map((bp, idx) => (
                                         <BlueprintItem
                                             key={idx}

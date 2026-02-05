@@ -266,7 +266,7 @@ type BlueprintMetadata = {
 export function useBlueprintsForDomainUser() {
     const [blueprints, setBlueprints] = useState<Array<BlueprintMetadata>>([]);
     const authToken = sessionStorage.getItem('flockAuthToken');
-    const {data, error} = useQuery({
+    const {data, error, isLoading} = useQuery({
         queryKey: ['blueprints'],
         queryFn: async () => {
             const options = {
@@ -286,7 +286,7 @@ export function useBlueprintsForDomainUser() {
         if (!data) return;
         setBlueprints(data);
     }, [data]);
-    return {blueprints, error};
+    return {blueprints, error, isLoading};
 }
 
 export function useTitle(title: string) {
