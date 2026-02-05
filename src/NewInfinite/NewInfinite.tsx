@@ -396,6 +396,18 @@ export function WrappedNewInfinite({blueprintId}: {blueprintId: string}) {
                         tooltip: {
                             hidden: true,
                         },
+                        axisLine: {
+                            style: { stroke: '#ffffff' }
+                        },
+                        axisTick: {
+                            style: { stroke: '#ffffff' }
+                        },
+                        axisTickLabel: {
+                            style: { 
+                                fill: '#ffffff',
+                                fontFamily: 'Acumin Pro ExtraCondensed'
+                            }
+                        },
                     }}
                     xAxis={[
                         {
@@ -444,19 +456,6 @@ export function WrappedNewInfinite({blueprintId}: {blueprintId: string}) {
                     width={540}
                     height={400}
                     sx={{
-                        // styling the axis line
-                        '& .MuiChartsAxis-line': {
-                            stroke: '#ffffff !important',
-                        },
-                        // styling the tick marks
-                        '& .MuiChartsAxis-tick': {
-                            stroke: '#ffffff !important',
-                        },
-                        // styling the text labels
-                        '& .MuiChartsAxis-tickLabel': {
-                            fill: '#ffffff !important',
-                            fontFamily: 'Acumin Pro ExtraCondensed !important',
-                        },
                         '& .MuiMarkElement-series-QB': {
                             fill: '#FF0019',
                         },

@@ -186,6 +186,22 @@ export default function BlueprintDashboard() {
 
         await new Promise(resolve => setTimeout(resolve, 3000));
 
+        const svgElement = element.querySelector('circle');
+        if (svgElement) {
+            element.querySelectorAll('.MuiMarkElement-series-QB').forEach(el => {
+                (el as SVGCircleElement).setAttribute('fill', '#FF0019');
+            });
+            element.querySelectorAll('.MuiMarkElement-series-RB').forEach(el => {
+                (el as SVGCircleElement).setAttribute('fill', '#00B1FF');
+            });
+            element.querySelectorAll('.MuiMarkElement-series-WR').forEach(el => {
+                (el as SVGCircleElement).setAttribute('fill', '#1AE069');
+            });
+            element.querySelectorAll('.MuiMarkElement-series-TE').forEach(el => {
+                (el as SVGCircleElement).setAttribute('fill', '#FFCD00');
+            });
+        }
+
         let dataUrl = '';
         const minDataLength = 5000000;
         let i = 0;
