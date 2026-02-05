@@ -58,7 +58,7 @@ const useScreenSize = () => {
 
 export default function BlueprintDashboard() {
     useTitle('Blueprint Dashboard');
-    const {width} = useScreenSize();
+    const {width, height} = useScreenSize();
     const isMobile = width < 600;
     const [isLoggedIn, setIsLoggedIn] = useState(
         sessionStorage.getItem('flockAuthToken') !== null
@@ -103,8 +103,9 @@ export default function BlueprintDashboard() {
 
     useEffect(() => {
         const displayWidth = width * (isMaximized ? 1 : 0.9);
-        setZoomLevel(displayWidth / 1700);
-    }, [width, isMaximized])
+        const displayHeight = height * (isMaximized ? 1 : 0.9) - 85;
+        setZoomLevel(Math.min(displayHeight / 2102, displayWidth / 1700));
+    }, [width, isMaximized, height]);
 
     // mock data
     const bps: Array<{name: string; date: string; blueprintId: string}> = [];
