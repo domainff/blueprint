@@ -101,9 +101,9 @@ export default function BlueprintDashboard() {
     }, [sessionStorage.getItem('flockUsername')]);
 
     useEffect(() => {
-        const displayWidth = width * 0.9;
+        const displayWidth = width * (isMaximized ? 1 : 0.9);
         setZoomLevel(displayWidth / 1700);
-    }, [width])
+    }, [width, isMaximized])
 
     // mock data
     const bps: Array<{name: string; date: string; blueprintId: string}> = [];
