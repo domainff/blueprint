@@ -22,11 +22,6 @@ const COLOR_LIST = [
     '#E84D57',
 ];
 
-const ZOOM_LEVELS = [
-    0.15, 0.2, 0.25, 0.33, 0.5, 0.67, 0.75, 0.8, 0.9, 1, 1.1, 1.25, 1.5, 1.75,
-    2, 2.5, 3,
-];
-const DEFAULT_ZOOM_INDEX = 9;
 
 const useScreenSize = () => {
     const [screenSize, setScreenSize] = useState({
@@ -81,8 +76,7 @@ export default function BlueprintDashboard() {
     const [downloadModalOpen, setDownloadModalOpen] = useState(false);
     const [downloadBlueprintId, setDownloadBlueprintId] = useState('');
     const [downloadBlueprintName, setDownloadBlueprintName] = useState('');
-    const [zoomIndex, setZoomIndex] = useState(DEFAULT_ZOOM_INDEX);
-    const [zoomLevel, setZoomLevel] = useState(ZOOM_LEVELS[DEFAULT_ZOOM_INDEX]);
+    const [zoomLevel, setZoomLevel] = useState(1);
     const [isMaximized, setIsMaximized] = useState(false);
     const [isDownloading, setIsDownloading] = useState(false);
     const [username, setUsername] = useState(
@@ -101,12 +95,15 @@ export default function BlueprintDashboard() {
             setLoginModalOpen(true);
         }
     }, [isLoggedIn]);
-    useEffect(() => {
-        setZoomLevel(ZOOM_LEVELS[zoomIndex]);
-    }, [zoomIndex]);
+
     useEffect(() => {
         setUsername(sessionStorage.getItem('flockUsername'));
     }, [sessionStorage.getItem('flockUsername')]);
+
+    useEffect(() => {
+        const displayWidth = width * 0.9;
+        setZoomLevel(displayWidth / 1700);
+    }, [width])
 
     // mock data
     const bps: Array<{name: string; date: string; blueprintId: string}> = [];
@@ -167,9 +164,9 @@ export default function BlueprintDashboard() {
             });
     }
 
-    const zoomIn = () =>
-        setZoomIndex(prev => Math.min(prev + 1, ZOOM_LEVELS.length - 1));
-    const zoomOut = () => setZoomIndex(prev => Math.max(prev - 1, 0));
+    const zoomIn = () => setZoomLevel(prev => prev * 1.1);
+        // setZoomIndex(prev => Math.min(prev + 1, ZOOM_LEVELS.length - 1));
+    const zoomOut = () => setZoomLevel(prev => prev / 1.1); //() => setZoomIndex(prev => Math.max(prev - 1, 0));
 
     function logout() {
         sessionStorage.removeItem('flockAuthToken');
