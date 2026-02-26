@@ -72,7 +72,7 @@ export default function NonSleeperInputWrapper() {
     const [nonSleeperTeam, setNonSleeperTeam] = useState<NonSleeperTeam>();
     useEffect(() => {
         setNonSleeperTeam({
-            appUserGuid: 'TODO',
+            appUserGuid: sessionStorage.getItem('domainUserId')!,
             platform: platform,
             teamName: teamName,
             season: 2026,
@@ -94,6 +94,12 @@ export default function NonSleeperInputWrapper() {
         });
     }, [nonSleeperIds, nonSleeperRosterSettings, ppr, teBonus, numRosters, taxiSlots, teamName, draftPicks, platform]);
 
+    useEffect(() => {
+        if (!isLoggedIn) {
+            setLoginModalOpen(true);
+        }
+    }, [isLoggedIn]);
+
     async function submitLogin() {
         setIsLoggingIn(true);
         const options = {
@@ -111,6 +117,10 @@ export default function NonSleeperInputWrapper() {
                     sessionStorage.setItem(
                         'flockUsername',
                         res.data.flockUsername
+                    );
+                    sessionStorage.setItem(
+                        'domainUserId',
+                        res.data.domainUserId
                     );
                     setIsLoggedIn(true);
                     setLoginModalOpen(false);
@@ -133,6 +143,14 @@ export default function NonSleeperInputWrapper() {
                 setIsLoggingIn(false);
                 setLoginPassword('');
             });
+    }
+
+    function logout() {
+        sessionStorage.removeItem('flockAuthToken');
+        sessionStorage.removeItem('flockEmail');
+        sessionStorage.removeItem('flockUsername');
+        sessionStorage.removeItem('domainUserId');
+        setIsLoggedIn(false);
     }
 
     return (
@@ -300,6 +318,12 @@ export default function NonSleeperInputWrapper() {
                     </Button>
                 </Box>
             </Modal>
+            <Button
+                variant="outlined"
+                onClick={logout}
+            >
+                    Logout
+                </Button>
             <NonSleeperInput
                 nonSleeperIds={nonSleeperIds}
                 setNonSleeperIds={setNonSleeperIds}
