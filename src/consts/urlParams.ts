@@ -22,6 +22,8 @@ export const COMMENTS = 'comments';
 export const NON_SLEEPER_IDS = 'nonSleeperIds';
 export const LEAGUE_SIZE = 'leagueSize';
 export const TEAM_NAME = 'teamName';
+export const PLATFORM = 'platform';
+export const PICKS = 'picks';
 
 // v2 params
 export const SELLS = 'sells';

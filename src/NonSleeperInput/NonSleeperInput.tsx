@@ -23,6 +23,7 @@ import {
 import { useEffect, useState } from "react";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
+import { Remove } from "@mui/icons-material";
 
 interface NonSleeperInputProps {
     nonSleeperIds: string[];
@@ -39,6 +40,10 @@ interface NonSleeperInputProps {
     setNumRosters: (numRosters: number) => void;
     taxiSlots: number;
     setTaxiSlots: (taxiSlots: number) => void;
+    draftPicks: {season: number, round: number, slot: number}[]
+    setDraftPicks: (draftPicks: {season: number, round: number, slot: number}[]) => void
+    platform: string;
+    setPlatform: (platform: string) => void
 }
 
 export default function NonSleeperInput({
@@ -56,10 +61,21 @@ export default function NonSleeperInput({
     setNumRosters,
     taxiSlots,
     setTaxiSlots,
+    draftPicks,
+    setDraftPicks,
+    platform,
+    setPlatform,
 }: NonSleeperInputProps) {
     const allPlayers = useAllPlayers();
     const [player, setPlayer] = useState<string>("");
     const [playerAdded, setPlayerAdded] = useState(false);
+
+    const [pickToAdd, setPickToAdd] = useState<{season: number, round: number, slot: number}>({
+        season: 2026,
+        round: 1,
+        slot: 1
+    });
+
     useEffect(() => {
         setPlayerAdded(nonSleeperIds.includes(player));
     }, [nonSleeperIds, player]);
@@ -88,11 +104,6 @@ export default function NonSleeperInput({
                     {playerAdded ? "Remove" : "Add"}
                 </Button>
             </div>
-            <TextField
-                value={teamName}
-                onChange={(e) => setTeamName(e.target.value)}
-                label="Team Name"
-            />
             <PlayerSelectComponent
                 playerIds={allPlayers}
                 selectedPlayerIds={nonSleeperIds}
@@ -101,6 +112,97 @@ export default function NonSleeperInput({
                 label="Non-Sleeper Roster"
                 styles={{ minWidth: "200px", maxWidth: "80vw" }}
             />
+            <TextField
+                value={platform}
+                onChange={(e) => setPlatform(e.target.value)}
+                label="Platform"
+            />
+            <TextField
+                value={teamName}
+                onChange={(e) => setTeamName(e.target.value)}
+                label="Team Name"
+            />
+            <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: "10px" }}>
+                <FormControl>
+                    <InputLabel>Season</InputLabel>
+                    <Select
+                        value={pickToAdd.season}
+                        onChange={(e) => {
+                            setPickToAdd({
+                                ...pickToAdd,
+                                season: e.target.value as number
+                            })
+                        }}
+                        label="Season"
+                    >
+                        {[2026, 2027, 2028].map((season) => (
+                            <MenuItem key={season} value={season}>
+                                {season}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
+                <FormControl style={{ width: "70px" }}>
+                    <InputLabel>Round</InputLabel>
+                    <Select
+                        value={pickToAdd.round}
+                        onChange={(e) => {
+                            setPickToAdd({
+                                ...pickToAdd,
+                                round: e.target.value as number
+                            })
+                        }}
+                        label="Round"
+                    >
+                        {[1, 2, 3, 4].map((season) => (
+                            <MenuItem key={season} value={season}>
+                                {season}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
+                <FormControl>
+                    <InputLabel>Slot</InputLabel>
+                    <Select
+                        value={pickToAdd.slot}
+                        onChange={(e) => {
+                            setPickToAdd({
+                                ...pickToAdd,
+                                slot: e.target.value as number
+                            })
+                        }}
+                        label="Slot"
+                    >
+                        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16].map((season) => (
+                            <MenuItem key={season} value={season}>
+                                {season}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
+                <Button
+                    onClick={() => {
+                        setDraftPicks([...draftPicks, pickToAdd]);
+                    }}
+                    variant="outlined"
+                >
+                    Add Draft Pick
+                </Button>
+            </div>
+            {draftPicks.map((pick, index) => (
+                <div key={index}>
+                    {`${pick.season} ${pick.round}.${pick.slot < 10 ? "0" : ""}${pick.slot}`}
+                    <IconButton
+                        onClick={() => {
+                            setDraftPicks(
+                                draftPicks.filter((_, i) => i !== index)
+                            );
+                        }}
+                    >
+                        <Remove />
+                    </IconButton>
+                </div>
+            ))}
             <div
                 style={{
                     display: "flex",
@@ -287,7 +389,6 @@ function PlayerSelectComponent(props: {
     const { sortByAdp } = useAdpData();
     const playerData = usePlayerData();
     const [allPlayerOptions, setAllPlayerOptions] = useState<string[]>([]);
-    console.log("selectedPlayerIds", selectedPlayerIds);
 
     useEffect(() => {
         if (!playerData) return;

@@ -449,35 +449,29 @@ export function useNonSleeper(
     setRoster?: (roster: Roster) => void
 ) {
     const [leagueId] = useLeagueIdFromUrl();
-    const [searchParams, setSearchParams] = useSearchParams();
-    const [nonSleeperIds, setNonSleeperIds] = useState<string[]>(
-        (searchParams.get(NON_SLEEPER_IDS) || "").split("-")
-    );
+    const [nonSleeperIds, setNonSleeperIds] = useState<string[]>([]);
+    const [draftPicks, setDraftPicks] = useState<{season: number, round: number, slot: number}[]>([]);
+    const [platform, setPlatform] = useState("");
     const [nonSleeperRosterSettings, setNonSleeperRosterSettings] = useState(
         new Map([
-            [QB, +(searchParams.get(QB) || 1)],
-            [RB, +(searchParams.get(RB) || 2)],
-            [WR, +(searchParams.get(WR) || 3)],
-            [TE, +(searchParams.get(TE) || 1)],
-            [FLEX, +(searchParams.get(FLEX) || 2)],
-            [SUPER_FLEX, +(searchParams.get(SUPER_FLEX) || 1)],
-            [BENCH, +(searchParams.get(BENCH) || 6)],
+            [QB, +(1)],
+            [RB, +(2)],
+            [WR, +(3)],
+            [TE, +(1)],
+            [FLEX, +(2)],
+            [SUPER_FLEX, +(1)],
+            [BENCH, +(6)],
         ])
     );
-    const [ppr, setPpr] = useState(+(searchParams.get(PPR) || 1));
-    const [teBonus, setTeBonus] = useState(+(searchParams.get(TE_BONUS) || 1));
+    const [ppr, setPpr] = useState(1);
+    const [teBonus, setTeBonus] = useState(1);
     const [numRosters, setNumRosters] = useState(
-        +(searchParams.get(LEAGUE_SIZE) ?? rosters?.length ?? 12)
+        12
     );
     const [taxiSlots, setTaxiSlots] = useState(
-        +(searchParams.get(TAXI_SLOTS) || 0)
+        0
     );
-    const [teamName, setTeamName] = useState(
-        searchParams.get(TEAM_NAME) ||
-            specifiedUser?.metadata?.team_name ||
-            specifiedUser?.display_name ||
-            ""
-    );
+    const [teamName, setTeamName] = useState("");
 
     useEffect(() => {
         if (!leagueId) return;
@@ -488,89 +482,89 @@ export function useNonSleeper(
         );
     }, [specifiedUser, leagueId]);
 
-    useEffect(() => {
-        if (leagueId) {
-            setSearchParams((searchParams) => {
-                searchParams.delete(TEAM_NAME);
-                return searchParams;
-            });
-        } else {
-            setSearchParams((searchParams) => {
-                searchParams.set(TEAM_NAME, teamName);
-                return searchParams;
-            });
-        }
-    }, [teamName, leagueId]);
+    // useEffect(() => {
+    //     if (leagueId) {
+    //         setSearchParams((searchParams) => {
+    //             searchParams.delete(TEAM_NAME);
+    //             return searchParams;
+    //         });
+    //     } else {
+    //         setSearchParams((searchParams) => {
+    //             searchParams.set(TEAM_NAME, teamName);
+    //             return searchParams;
+    //         });
+    //     }
+    // }, [teamName, leagueId]);
 
     useEffect(() => {
         setNumRosters(
-            +(searchParams.get(LEAGUE_SIZE) ?? rosters?.length ?? 12)
+            +(rosters?.length ?? 12)
         );
     }, [rosters]);
 
-    useEffect(() => {
-        if (leagueId) {
-            setSearchParams((searchParams) => {
-                searchParams.delete(LEAGUE_SIZE);
-                return searchParams;
-            });
-        } else {
-            setSearchParams((searchParams) => {
-                searchParams.set(LEAGUE_SIZE, "" + numRosters);
-                return searchParams;
-            });
-        }
-    }, [numRosters, leagueId]);
+    // useEffect(() => {
+    //     if (leagueId) {
+    //         setSearchParams((searchParams) => {
+    //             searchParams.delete(LEAGUE_SIZE);
+    //             return searchParams;
+    //         });
+    //     } else {
+    //         setSearchParams((searchParams) => {
+    //             searchParams.set(LEAGUE_SIZE, "" + numRosters);
+    //             return searchParams;
+    //         });
+    //     }
+    // }, [numRosters, leagueId]);
 
-    useEffect(() => {
-        if (leagueId) {
-            setSearchParams((searchParams) => {
-                searchParams.delete(PPR);
-                searchParams.delete(TE_BONUS);
-                searchParams.delete(TAXI_SLOTS);
-                return searchParams;
-            });
-        } else {
-            setSearchParams((searchParams) => {
-                searchParams.set(PPR, "" + ppr);
-                searchParams.set(TE_BONUS, "" + teBonus);
-                searchParams.set(TAXI_SLOTS, "" + taxiSlots);
-                return searchParams;
-            });
-        }
-    }, [ppr, teBonus, taxiSlots, leagueId]);
+    // useEffect(() => {
+    //     if (leagueId) {
+    //         setSearchParams((searchParams) => {
+    //             searchParams.delete(PPR);
+    //             searchParams.delete(TE_BONUS);
+    //             searchParams.delete(TAXI_SLOTS);
+    //             return searchParams;
+    //         });
+    //     } else {
+    //         setSearchParams((searchParams) => {
+    //             searchParams.set(PPR, "" + ppr);
+    //             searchParams.set(TE_BONUS, "" + teBonus);
+    //             searchParams.set(TAXI_SLOTS, "" + taxiSlots);
+    //             return searchParams;
+    //         });
+    //     }
+    // }, [ppr, teBonus, taxiSlots, leagueId]);
 
-    useEffect(() => {
-        if (leagueId) {
-            setSearchParams((searchParams) => {
-                searchParams.delete(QB);
-                searchParams.delete(RB);
-                searchParams.delete(WR);
-                searchParams.delete(TE);
-                searchParams.delete(FLEX);
-                searchParams.delete(SUPER_FLEX);
-                searchParams.delete(BENCH);
-                return searchParams;
-            });
-        } else {
-            setSearchParams((searchParams) => {
-                searchParams.set(QB, "" + nonSleeperRosterSettings.get(QB));
-                searchParams.set(RB, "" + nonSleeperRosterSettings.get(RB));
-                searchParams.set(WR, "" + nonSleeperRosterSettings.get(WR));
-                searchParams.set(TE, "" + nonSleeperRosterSettings.get(TE));
-                searchParams.set(FLEX, "" + nonSleeperRosterSettings.get(FLEX));
-                searchParams.set(
-                    SUPER_FLEX,
-                    "" + nonSleeperRosterSettings.get(SUPER_FLEX)
-                );
-                searchParams.set(
-                    BENCH,
-                    "" + nonSleeperRosterSettings.get(BENCH)
-                );
-                return searchParams;
-            });
-        }
-    }, [nonSleeperRosterSettings, leagueId]);
+    // useEffect(() => {
+    //     if (leagueId) {
+    //         setSearchParams((searchParams) => {
+    //             searchParams.delete(QB);
+    //             searchParams.delete(RB);
+    //             searchParams.delete(WR);
+    //             searchParams.delete(TE);
+    //             searchParams.delete(FLEX);
+    //             searchParams.delete(SUPER_FLEX);
+    //             searchParams.delete(BENCH);
+    //             return searchParams;
+    //         });
+    //     } else {
+    //         setSearchParams((searchParams) => {
+    //             searchParams.set(QB, "" + nonSleeperRosterSettings.get(QB));
+    //             searchParams.set(RB, "" + nonSleeperRosterSettings.get(RB));
+    //             searchParams.set(WR, "" + nonSleeperRosterSettings.get(WR));
+    //             searchParams.set(TE, "" + nonSleeperRosterSettings.get(TE));
+    //             searchParams.set(FLEX, "" + nonSleeperRosterSettings.get(FLEX));
+    //             searchParams.set(
+    //                 SUPER_FLEX,
+    //                 "" + nonSleeperRosterSettings.get(SUPER_FLEX)
+    //             );
+    //             searchParams.set(
+    //                 BENCH,
+    //                 "" + nonSleeperRosterSettings.get(BENCH)
+    //             );
+    //             return searchParams;
+    //         });
+    //     }
+    // }, [nonSleeperRosterSettings, leagueId]);
 
     useEffect(() => {
         if (!setRoster) return;
@@ -580,22 +574,22 @@ export function useNonSleeper(
         } as Roster);
     }, [nonSleeperIds, setRoster]);
 
-    useEffect(() => {
-        if (leagueId) {
-            setSearchParams((searchParams) => {
-                searchParams.delete(NON_SLEEPER_IDS);
-                return searchParams;
-            });
-        } else {
-            setSearchParams((searchParams) => {
-                searchParams.set(
-                    NON_SLEEPER_IDS,
-                    nonSleeperIds.filter((id) => !!id).join("-")
-                );
-                return searchParams;
-            });
-        }
-    }, [nonSleeperIds, leagueId]);
+    // useEffect(() => {
+    //     if (leagueId) {
+    //         setSearchParams((searchParams) => {
+    //             searchParams.delete(NON_SLEEPER_IDS);
+    //             return searchParams;
+    //         });
+    //     } else {
+    //         setSearchParams((searchParams) => {
+    //             searchParams.set(
+    //                 NON_SLEEPER_IDS,
+    //                 nonSleeperIds.filter((id) => !!id).join("-")
+    //             );
+    //             return searchParams;
+    //         });
+    //     }
+    // }, [nonSleeperIds, leagueId]);
 
     return {
         nonSleeperIds,
@@ -612,7 +606,11 @@ export function useNonSleeper(
         setTaxiSlots,
         teamName,
         setTeamName,
-        setSearchParams,
+        draftPicks,
+        setDraftPicks,
+        platform,
+        setPlatform,
+        // setSearchParams,
     };
 }
 
