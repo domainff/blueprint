@@ -7,21 +7,15 @@ import playerValuesJson from "../data/player_values_013125.json";
 import {
     BENCH,
     FLEX,
-    PPR,
     QB,
     RB,
     SUPER_FLEX,
     SUPER_FLEX_SET,
-    TAXI_SLOTS,
     TE,
-    TE_BONUS,
     WR,
 } from "../consts/fantasy";
 import {
     LEAGUE_ID,
-    LEAGUE_SIZE,
-    NON_SLEEPER_IDS,
-    TEAM_NAME,
 } from "../consts/urlParams";
 import { useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
