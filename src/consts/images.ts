@@ -36,7 +36,7 @@ import nfl from '../assets/logos/standard/nfl.png';
 
 // New Infinite
 import newInfiniteBg from '../assets/newinfinite/Infinite.png';
-import bakeryCard2 from '../assets/newinfinite/bakery/bakery_feb.png';
+import bakeryCardFeb from '../assets/newinfinite/bakery/bakery_feb.png';
 import domainShield from '../assets/newinfinite/domain_shield.png';
 import nflSilhouette from '../assets/newinfinite/nfl_logo.png';
 
@@ -133,4 +133,4 @@ const teamLogos: Map<string, string> = new Map([
     ['rp-', nfl],
 ]);
 
-export { logo, newInfiniteBg, bakeryCard2, flockDomainLogo, domainShield, nflSilhouette, logoHorizontal, teamLogos, blankLogo };
+export { logo, newInfiniteBg, bakeryCardFeb, flockDomainLogo, domainShield, nflSilhouette, logoHorizontal, teamLogos, blankLogo };

@@ -1,7 +1,7 @@
-import {CSSProperties, useEffect, useState} from 'react';
+import {CSSProperties, useCallback, useEffect, useState} from 'react';
 import styles from './NewInfinite.module.css';
 import {
-    bakeryCard2 as bakeryCard,
+    bakeryCardFeb,
     domainShield,
     newInfiniteBg,
     nflSilhouette,
@@ -227,6 +227,16 @@ export function WrappedNewInfinite({blueprintId}: {blueprintId: string}) {
     const [risers, setRisers] = useState<string[]>([]);
     const [fallers, setFallers] = useState<string[]>([]);
     const [createdDate, setCreatedDate] = useState(new Date());
+
+    const getBakeryCard = useCallback(() => {
+        const month = createdDate.getMonth();
+        switch (month) {
+            case 1:
+                return bakeryCardFeb;
+            default:
+                return '';
+        }
+    }, [createdDate]);
 
     useEffect(() => {
         if (!blueprint) return;
@@ -548,7 +558,7 @@ export function WrappedNewInfinite({blueprintId}: {blueprintId: string}) {
                 </div>
             )}
             <div className={styles.benchString}>{benchString}</div>
-            <img src={bakeryCard} className={styles.bakeryCard} />
+            <img src={getBakeryCard()} className={styles.bakeryCard} />
             <img src={newInfiniteBg} className={styles.blankBp} />
         </div>
     );
