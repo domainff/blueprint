@@ -228,6 +228,7 @@ export function WrappedNewInfinite({blueprintId}: {blueprintId: string}) {
     const [risers, setRisers] = useState<string[]>([]);
     const [fallers, setFallers] = useState<string[]>([]);
     const [createdDate, setCreatedDate] = useState(new Date());
+    const [monthList, setMonthList] = useState<string[]>([]);
 
     const getBakeryCard = useCallback(() => {
         const month = createdDate.getMonth();
@@ -239,6 +240,12 @@ export function WrappedNewInfinite({blueprintId}: {blueprintId: string}) {
             default:
                 return '';
         }
+    }, [createdDate]);
+
+    useEffect(() => {
+        const newMonthList = ['FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+        const month = createdDate.getMonth();
+        setMonthList(newMonthList.slice(0, month));
     }, [createdDate]);
 
     useEffect(() => {
@@ -424,7 +431,7 @@ export function WrappedNewInfinite({blueprintId}: {blueprintId: string}) {
                     }}
                     xAxis={[
                         {
-                            data: ['FEB'],
+                            data: monthList,
                             scaleType: 'band',
                         },
                     ]}
