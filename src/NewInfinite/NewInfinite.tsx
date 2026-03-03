@@ -2,6 +2,7 @@ import {CSSProperties, useCallback, useEffect, useState} from 'react';
 import styles from './NewInfinite.module.css';
 import {
     bakeryCardFeb,
+    bakeryCardMar,
     domainShield,
     newInfiniteBg,
     nflSilhouette,
@@ -233,6 +234,8 @@ export function WrappedNewInfinite({blueprintId}: {blueprintId: string}) {
         switch (month) {
             case 1:
                 return bakeryCardFeb;
+            case 2:
+                return bakeryCardMar;
             default:
                 return '';
         }
