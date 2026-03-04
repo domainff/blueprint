@@ -12,9 +12,7 @@ import {
     RosterPlayer,
     useBlueprint,
     useNewInfiniteBuysSells,
-    useParamFromUrl,
 } from '../hooks/hooks';
-import {BLUEPRINT_ID} from '../consts/urlParams';
 import {logoImage} from '../shared/Utilities';
 import {
     FLEX,
@@ -29,9 +27,22 @@ import {
     SUPER_FLEX_SET,
 } from '../consts/fantasy';
 import {LineChart} from '@mui/x-charts/LineChart';
-import ExportButton from '../shared/ExportButton';
 
 const NONE_PLAYER_ID = 'None';
+const MONTHS = [
+    'JAN',
+    'FEB',
+    'MAR',
+    'APR',
+    'MAY',
+    'JUN',
+    'JUL',
+    'AUG',
+    'SEP',
+    'OCT',
+    'NOV',
+    'DEC',
+];
 
 export function getApiStartingLineup(
     leagueSettings: LeagueSettings,
@@ -194,19 +205,6 @@ export function PieSlice({percentage, radius, fill}: PieSliceProps) {
 }
 
 
-export default function NewInfinite({blueprintId}: {blueprintId?: string}) {
-    const [blueprintIdFromUrl] = useParamFromUrl(BLUEPRINT_ID);
-
-    return (
-        <>
-            <ExportButton className={styles.fullBlueprint} />
-            <WrappedNewInfinite
-                blueprintId={blueprintId || blueprintIdFromUrl}
-            />
-        </>
-    );
-}
-
 export function WrappedNewInfinite({blueprintId}: {blueprintId: string}) {
     const {blueprint} = useBlueprint(blueprintId);
     const [apiStartingLineup, setApiStartingLineup] = useState<
@@ -240,12 +238,6 @@ export function WrappedNewInfinite({blueprintId}: {blueprintId: string}) {
             default:
                 return '';
         }
-    }, [createdDate]);
-
-    useEffect(() => {
-        const newMonthList = ['FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
-        const month = createdDate.getMonth();
-        setMonthList(newMonthList.slice(0, month));
     }, [createdDate]);
 
     useEffect(() => {
@@ -305,6 +297,14 @@ export function WrappedNewInfinite({blueprintId}: {blueprintId: string}) {
         }
         setTradeNeedleRotationDegrees(rotationDegrees);
         setCreatedDate(new Date(blueprint.createdUtc));
+
+        setMonthList(Array.from(
+            new Set(
+                blueprint.infiniteFeatures.positionalAgeData.map(
+                    p => p.month
+                )
+            )
+        ).sort().map(m => MONTHS[m - 1]));
     }, [blueprint]);
 
     useEffect(() => {
@@ -437,38 +437,30 @@ export function WrappedNewInfinite({blueprintId}: {blueprintId: string}) {
                     ]}
                     series={[
                         {
-                            data: [
-                                blueprint?.infiniteFeatures.positionalAgeData.find(
-                                    g => g.position === QB
-                                )?.averageAge ?? 0,
-                            ],
+                            data: blueprint?.infiniteFeatures.positionalAgeData.filter(
+                                g => g.position === QB
+                            ).map(g => g.averageAge) ?? [],
                             color: '#FF0019',
                             id: QB,
                         },
                         {
-                            data: [
-                                blueprint?.infiniteFeatures.positionalAgeData.find(
-                                    g => g.position === RB
-                                )?.averageAge ?? 0,
-                            ],
+                            data: blueprint?.infiniteFeatures.positionalAgeData.filter(
+                                g => g.position === RB
+                            ).map(g => g.averageAge) ?? [],
                             color: '#00B1FF',
                             id: RB,
                         },
                         {
-                            data: [
-                                blueprint?.infiniteFeatures.positionalAgeData.find(
-                                    g => g.position === WR
-                                )?.averageAge ?? 0,
-                            ],
+                            data: blueprint?.infiniteFeatures.positionalAgeData.filter(
+                                g => g.position === WR
+                            ).map(g => g.averageAge) ?? [],
                             color: '#1AE069',
                             id: WR,
                         },
                         {
-                            data: [
-                                blueprint?.infiniteFeatures.positionalAgeData.find(
-                                    g => g.position === TE
-                                )?.averageAge ?? 0,
-                            ],
+                            data: blueprint?.infiniteFeatures.positionalAgeData.filter(
+                                g => g.position === TE
+                            ).map(g => g.averageAge) ?? [],
                             color: '#FFCD00',
                             id: TE,
                         },
