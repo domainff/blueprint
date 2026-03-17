@@ -83,25 +83,95 @@ type Blueprint = {
         id: number;
         position: string;
         grade: number;
-        ownershipPercentage: number;
+        valueSharePercentage: number;
+        insulationScoreGrade: number;
+        productionScoreGrade: number;
+        situationalScoreGrade: number;
     }>;
-    draftPicks: Array<any>;
-    tradeStrategies: Array<any>;
-    topPriorities: Array<any>;
-    averageStarterAges: Array<{
-        position: string;
-        averageAge: number;
+    draftPicks: Array<{
+        id: number;
+        season: number;
+        round: number;
+        pickNumber: number;
+    }>;
+    tradeStrategies: Array<TradeStrategy>;
+    topPriorities: Array<{
+        id: number;
+        sortOrder: number;
+        text: string;
+        iconKey: string;
+    }>;
+    idealTradePartners: Array<{
+        id: number;
+        teamName: string;
+        partnerRosterId: number;
+        sortOrder: number;
+    }>;
+    infiniteFeatures: InfiniteFeatures;
+    premiumFeatures: PremiumFeatures;
+    createdUtc: string;
+    rookieDraftFeatures: RookieDraftFeatures | null;
+};
+
+type PremiumFeatures = {
+    id: number;
+    averageStarterAgeQb: number;
+    averageStarterAgeRb: number;
+    averageStarterAgeWr: number;
+    averageStarterAgeTe: number;
+    blueprintPercentile: number;
+    archetypeBuildPercentage: number;
+    valueProportionQb: number;
+    valueProportionRb: number;
+    valueProportionWr: number;
+    valueProportionTe: number;
+    valueProportionDc: number;
+    draftStrategies: Array<{
+        id: number;
+        season: string;
+        firstRoundPickCount: number;
+        secondRoundPickCount: number;
+        strategyType: string;
+        recommendationText: string;
+        sortOrder: number;
+    }>;
+    rosterMakeup: Array<{
+        id: number;
+        category: string;
+        percentage: number;
+        sortOrder: number;
     }>;
     powerRankings: Array<{
         teamName: string;
-        teamRank: number;
+        rank: number;
+        isCurrentTeam: boolean;
+        rosterId: number;
     }>;
-    rosterMakeup: Array<{
-        assetCategory: string;
-        percentage: number;
+};
+
+export type TradeStrategy = {
+    moveType: number | string;
+    sortOrder: number;
+    assetsOut: Array<{
+        draftPickNumber: number | null;
+        draftPickRound: number | null;
+        draftPickSeason: number | null;
+        isDraftPick: boolean;
+        playerId: number | null;
+        sortOrder: number;
     }>;
-    infiniteFeatures: InfiniteFeatures;
-    createdUtc: string;
+    targetGroups: Array<{
+        sortOrder: number;
+        assetsIn: Array<{
+            draftPickNumber: number | null;
+            draftPickRound: number | null;
+            draftPickSeason: number | null;
+            isDraftPick: boolean;
+            playerId: number | null;
+            sortOrder: number;
+        }>;
+    }>;
+    priorityDescription?: string;
 };
 
 type InfiniteFeatures = {
@@ -672,3 +742,44 @@ export function useLeagueIdFromUrl(): [
 
     return [leagueId, setLeagueId];
 }
+
+export type RookieDraftFeatures = {
+    id: number;
+    strategyName: string;
+    strategyStatement: string;
+    pickProfiles: Array<PickProfile>;
+};
+
+export type PickProfile = {
+    id: number;
+    round: number;
+    pickNumber: number;
+    overallPick: number;
+    sortOrder: number;
+    tier: number;
+    bakeryZScore: number | null;
+    projectedPlayerCategory: string;
+    historicalRank: number;
+    marketValue: string;
+    domainVerdict: string;
+    autoAcceptPlayerName: string;
+    autoRejectPlayerName: string;
+    autoAcceptPlayerSleeperId: number;
+    autoRejectPlayerSleeperId: number;
+    targets: Array<{
+        id: number;
+        playerName: string;
+        position: string;
+        sortOrder: number;
+        playerId: number | null;
+    }>;
+    cliffMap: Array<{
+        id: number;
+        round: number;
+        pickNumber: number;
+        overallPick: number;
+        tier: number;
+        playerName: string;
+        position: string;
+    }>;
+};

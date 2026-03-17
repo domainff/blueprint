@@ -13,6 +13,7 @@ import OpenInFullIcon from '@mui/icons-material/OpenInFull';
 import CloseFullscreenIcon from '@mui/icons-material/CloseFullscreen';
 import DownloadIcon from '@mui/icons-material/Download';
 import axios from 'axios';
+import { WrappedNewRookieDraft } from '../NewRookieDraft/NewRookieDraft';
 
 const COLOR_LIST = [
     '#F47F20',
@@ -56,6 +57,13 @@ export const useScreenSize = () => {
     return screenSize;
 };
 
+enum PreviewType {
+    Infinite,
+    Rookie,
+    Standard,
+    Premium,
+}
+
 export default function BlueprintDashboard() {
     useTitle('Blueprint Dashboard');
     const {width, height} = useScreenSize();
@@ -80,6 +88,7 @@ export default function BlueprintDashboard() {
     const [zoomLevel, setZoomLevel] = useState(1);
     const [isMaximized, setIsMaximized] = useState(false);
     const [isDownloading, setIsDownloading] = useState(false);
+    const [previewType, setPreviewType] = useState(PreviewType.Infinite);
     const [username, setUsername] = useState(
         sessionStorage.getItem('flockUsername')
     );
@@ -108,6 +117,21 @@ export default function BlueprintDashboard() {
     }, [width, isMaximized, height]);
 
     const bps: Array<{name: string; date: string; blueprintId: string}> = [];
+    const rookieBps: Array<{name: string; date: string; blueprintId: string}> = 
+        blueprints
+            .filter(bp => bp.blueprintType === 'RookieDraft')
+            .map(blueprint => ({
+                name: blueprint.teamName,
+                date: new Date(blueprint.createdUtc).toLocaleDateString(
+                    'en-US',
+                    {
+                        year: 'numeric',
+                        month: 'short',
+                        day: '2-digit',
+                    }
+                ),
+                blueprintId: '' + blueprint.blueprintId,
+            }));
     const infinites: Array<{name: string; date: string; blueprintId: string}> =
         blueprints
             .filter(bp => bp.blueprintType === 'Infinite')
@@ -484,9 +508,16 @@ export default function BlueprintDashboard() {
                     </div>
                     <div
                         className={styles.zoomWrapper}
-                        style={{transform: `scale(${zoomLevel})`}}
+                        style={{
+                            transform: `scale(${zoomLevel})`,
+                        }}
                     >
-                        <WrappedNewInfinite blueprintId={downloadBlueprintId} />
+                        {previewType === PreviewType.Infinite && (
+                            <WrappedNewInfinite blueprintId={downloadBlueprintId} />
+                        )}
+                        {previewType === PreviewType.Rookie && (
+                            <WrappedNewRookieDraft blueprintId={downloadBlueprintId} />
+                        )}
                     </div>
                 </Box>
             </Modal>
@@ -582,7 +613,59 @@ export default function BlueprintDashboard() {
                                             screenWidth={width}
                                             setDownloadBlueprintId={(
                                                 id: string
-                                            ) => setDownloadBlueprintId(id)}
+                                            ) => {
+                                                setDownloadBlueprintId(id);
+                                                setPreviewType(PreviewType.Standard);
+                                            }}
+                                            setDownloadBlueprintName={(
+                                                name: string
+                                            ) => setDownloadBlueprintName(name)}
+                                            setDownloadModalOpen={(
+                                                open: boolean
+                                            ) => setDownloadModalOpen(open)}
+                                            {...bp}
+                                        />
+                                    ))}
+                                </div>
+                            </div>
+                            <div
+                                className={styles.myBlueprints}
+                                style={{
+                                    marginLeft: isMobile ? '0' : '',
+                                    alignItems: isMobile ? 'center' : '',
+                                }}
+                            >
+                                <div
+                                    className={styles.myBlueprintsTitle}
+                                    style={{
+                                        textAlign: isMobile
+                                            ? 'center'
+                                            : undefined,
+                                        fontSize: isMobile ? '30px' : undefined,
+                                    }}
+                                >
+                                    My Rookie Blueprints{' '}
+                                    <MyBpIcon isMobile={isMobile} />
+                                </div>
+                                <div
+                                    className={styles.myBlueprintsList}
+                                    style={{
+                                        width: isMobile
+                                            ? `${width * 0.8}px`
+                                            : '',
+                                    }}
+                                >
+                                    {rookieBps.map((bp, idx) => (
+                                        <BlueprintItem
+                                            key={idx}
+                                            index={idx}
+                                            screenWidth={width}
+                                            setDownloadBlueprintId={(
+                                                id: string
+                                            ) => {
+                                                setDownloadBlueprintId(id);
+                                                setPreviewType(PreviewType.Rookie);
+                                            }}
                                             setDownloadBlueprintName={(
                                                 name: string
                                             ) => setDownloadBlueprintName(name)}
@@ -631,7 +714,10 @@ export default function BlueprintDashboard() {
                                             screenWidth={width}
                                             setDownloadBlueprintId={(
                                                 id: string
-                                            ) => setDownloadBlueprintId(id)}
+                                            ) => {
+                                                setDownloadBlueprintId(id);
+                                                setPreviewType(PreviewType.Infinite);
+                                            }}
                                             setDownloadBlueprintName={(
                                                 name: string
                                             ) => setDownloadBlueprintName(name)}

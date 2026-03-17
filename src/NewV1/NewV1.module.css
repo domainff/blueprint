@@ -1,0 +1,555 @@
+.backgroundImg {
+    width: 800px;
+}
+
+.fullBlueprint {
+    width: 800px;
+    position: relative;
+}
+
+.teamName {
+    position: absolute;
+    color: white;
+    left: 120px;
+    top: 13px;
+    font-family: 'Prohibition';
+    font-size: 50px;
+
+    width: 53%;
+    
+    height: 60px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.numTeams {
+    position: absolute;
+    color: white;
+    font-family: 'Erbaum';
+    font-weight: 500;
+    font-size: 25px;
+
+    width: 48px;
+    text-align: center;
+}
+
+.isSuperFlex {
+    position: absolute;
+    color: white;
+    font-family: 'Erbaum';
+    font-size: 25px;
+
+    width: 48px;
+    text-align: center;
+}
+
+.ppr {
+    position: absolute;
+    color: white;
+    font-family: 'Erbaum';
+    font-size: 25px;
+
+    width: 48px;
+    text-align: center;
+}
+
+.tep {
+    position: absolute;
+    color: white;
+    font-family: 'Erbaum';
+    font-size: 25px;
+
+    width: 48px;
+    text-align: center;
+}
+
+.rosterArchetype {
+    position: absolute;
+    font-family: 'Prohibition';
+    font-size: 32px;
+    color: white;
+}
+
+.valueArchetype {
+    position: absolute;
+    font-family: 'Prohibition';
+    font-size: 32px;
+    color: white;
+}
+
+.rosterGrades {
+    font-family: "Acumin Pro ExtraCondensed";
+    font-size: 16px;
+    font-weight: 700;
+    color: white;
+    position: absolute;
+    width: 375px;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    /* text-align: left; */
+}
+
+.rosterGrade {
+    width: 20px;
+    text-align: right;
+}
+
+.positionalGradeDisc {
+    position: absolute;
+    color: #FFF;
+    text-shadow: 0 2px 2px rgba(0, 0, 0, 0.25);
+    font-family: 'Erbaum';
+    font-size: 32px;
+
+    width: 53px;
+    height: 53px;
+    text-align: center;
+}
+
+.positionalGradeDiscInner {
+    position: relative;
+}
+
+.pie {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+}
+
+.pieGrade {
+    position: absolute;
+    top: 4px;
+    left: 0px;
+
+    width: 56px;
+    height: 56px;
+}
+
+.productionValueShare {
+    position: absolute;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    width: 210px;
+}
+
+.productionValueShareNumber {
+    color: #FFF;
+
+    font-family: Erbaum;
+    font-size: 35px;
+    font-weight: 400;
+
+    margin-bottom: -5px;
+
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 3px;
+}
+
+.leagueRank {
+    color: #FFF;
+    text-align: center;
+    font-family: "Acumin Pro Condensed";
+    font-size: 12px;
+    font-style: italic;
+    font-weight: 600;
+
+    /* margin-right: 30px; */
+}
+
+.twoYearOutlook {
+    position: absolute;
+
+    color: #FFF;
+    font-family: "Acumin Pro Condensed";
+    font-size: 20px;
+    font-weight: 600;
+
+    display: flex;
+    flex-direction: row;
+    gap: 30px;
+}
+
+.overallGrade {
+    position: absolute;
+    color: #FFF;
+    text-align: center;
+    text-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+    font-family: 'Erbaum';
+    font-size: 51.33px;
+    font-weight: 800;
+
+    width: 113px;
+}
+
+.outlookCard {
+    width: 100px;
+    text-align: center;
+
+    border: 2px solid white;
+    border-radius: 5px;
+
+    padding-top: 6px;
+    padding-bottom: 2px;
+}
+
+.roster {
+    position: absolute;
+
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+}
+
+.playerCard {
+    color: #FFF;
+    font-family: "Acumin Pro ExtraCondensed";
+    font-size: 10px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+    text-transform: uppercase;
+
+    display: flex;
+    flex-direction: row;
+    
+    justify-content: space-between;
+    align-items: center;
+
+    width: 102px;
+
+    border-radius: 3px;
+    background: rgba(255, 255, 255, 0.1);
+
+    padding-left: 4px;
+    padding-right: 4px;
+}
+
+.headshot {
+    height: 14.5px;
+    object-fit: cover;
+    aspect-ratio: 1 / 1;
+}
+
+
+.playerName {
+    padding-top: 3px;
+
+    width: 60px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.teamLogo {
+    height: 14.5px;;
+}
+
+.playerInfo {
+    display: flex;
+    flex-direction: row;
+    gap: 2px;
+    align-items: center;
+}
+
+.playersColumn {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.draftCapital {
+    position: absolute;
+
+    display: flex;
+    flex-direction: row;
+    gap: 4px;
+    align-items: center;
+}
+
+.draftCapitalYear {
+    font-family: Erbaum;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.draftCapitalNotes {
+    color: #FFF;
+    font-family: "Acumin Pro Condensed";
+    font-size: 12px;
+    font-weight: 600;
+    padding-top: 3px;
+}
+
+.tradePartners {
+    position: absolute;
+
+    color: #FFF;
+    font-family: "Acumin Pro Condensed";
+    font-size: 20.771px;
+    font-weight: 600;
+    display: flex;
+    flex-direction: row;
+    gap: 50px;
+    align-items: center;
+}
+
+.tradePartner {
+    width: 115px;
+
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.topPriorities {
+    position: absolute;
+
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    color: #FFF;
+    font-family: "Acumin Pro";
+    font-size: 11.67px;
+    font-style: italic;
+    font-weight: 1000;
+}
+
+.topPriority {
+    width: 160px;
+    height: 70px;
+
+    display: flex;
+    flex-direction: column;
+
+    justify-content: center;
+}
+
+.tradeStrategyItem {
+    position: absolute;
+
+    height: 135px;
+    width: 475px;
+
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    justify-content: space-between;
+}
+
+.tradeType {
+    display: flex;
+    height: 135px;
+    writing-mode: sideways-lr;
+    text-orientation: mixed;
+    flex-direction: column;
+    justify-content: center;
+
+    color: rgba(40, 171, 226, 0.3);
+    text-align: center;
+    font-family: Prohibition;
+    font-size: 37.487px;
+    font-weight: 400;
+}
+
+.tradePlayerCard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.targetPlayerCard {
+    display: flex;
+    flex-direction: row;
+    gap: 3px;
+
+    align-items: center;
+}
+
+.mediumHeadshot {
+    height: 32px;
+    object-fit: cover;
+    aspect-ratio: 1 / 1;
+
+    position: absolute;
+
+    border-radius: 3px;
+}
+
+.mediumTeamBackground {
+    position: absolute;
+    height: 32px;
+    width: auto;
+}
+
+.largeHeadshot {
+    height: 64px;
+    object-fit: cover;
+    aspect-ratio: 1 / 1;
+
+    position: absolute;
+
+    border-radius: 6px;
+}
+
+.largeTeamBackground {
+    position: absolute;
+    height: 64px;
+    width: auto;
+}
+
+.tradeAwayPlayerName {
+    color: #FFF;
+    font-family: "Acumin Pro ExtraCondensed";
+    text-transform: uppercase;
+    font-size: 16.667px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: normal;
+
+    padding-top: 4px;
+
+    width: 70px;
+    text-align: center;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.targetPlayerName {
+    color: #FFF;
+    font-family: "Acumin Pro ExtraCondensed";
+    text-transform: uppercase;
+    font-size: 15.667px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 70%;
+
+    padding-top: 3px;
+}
+
+.tradeAwayInfo {
+    display: flex;
+    flex-direction: row;
+    gap: 2px;
+    align-items: center;
+}
+
+.targetPlayerInfo {
+    display: flex;
+    flex-direction: row;
+    gap: 2px;
+    align-items: center;
+}
+
+.targetInfo {
+    display: flex;
+    flex-direction: column;
+}
+
+.tradeAwayPosition {
+    color: #003049;
+    font-family: Prohibition;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+
+    width: 30px;
+    text-align: center;
+    padding-bottom: 4px;
+
+    border-radius: 2px;
+}
+
+.targetPosition {
+    color: #003049;
+    font-family: Prohibition;
+    font-size: 12px;
+    font-weight: 400;
+
+    width: 20px;
+    text-align: center;
+    padding-bottom: 1px;
+    line-height: 95%;
+
+    border-radius: 2px;
+}
+
+.tradeAwayTeam {
+    color: #FFF;
+    font-family: "Acumin Pro ExtraCondensed";
+    font-size: 20px;
+    font-weight: 400;
+    padding-top: 3px;
+}
+
+.targetTeam {
+    color: #FFF;
+    font-family: "Acumin Pro ExtraCondensed";
+    font-size: 14px;
+    font-weight: 400;
+    padding-top: 3px;
+}
+
+.tradeArrow {
+    border-radius: 1000px;
+    background: radial-gradient(50% 50% at 50% 50%, #FFF 56.25%, #999 100%);
+    width: 25px;
+    height: 25px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center
+}
+
+.targetColumn {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5px;
+}
+
+.orRow {
+    display: flex;
+    flex-direction: row;
+
+    justify-content: space-evenly;
+
+    align-items: center;
+}
+
+
+.or {
+    color: #FFF;
+    font-family: "Acumin Pro Condensed";
+    font-size: 9.333px;
+    font-weight: 700;
+
+    width: 9px;
+}
+
+.targetRookieCard {
+    color: #FFF;
+    font-family: "Acumin Pro ExtraCondensed";
+    text-transform: uppercase;
+    font-size: 15.667px;
+    font-style: normal;
+    font-weight: 700;
+
+    padding-top: 3px;
+
+    border-radius: 5.798px;
+    border: 2px solid #EABA10;
+
+    width: 100px;
+    text-align: center;
+}
