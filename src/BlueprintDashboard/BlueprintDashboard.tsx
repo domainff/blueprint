@@ -1,5 +1,6 @@
 import styles from './BlueprintDashboard.module.css';
 import newInfiniteStyles from '../NewInfinite/NewInfinite.module.css';
+import newRookieStyles from '../NewRookieDraft/NewRookieDraft.module.css';
 import {flockDomainLogo, logoHorizontal} from '../consts/images';
 import {useBlueprintsForDomainUser, useTitle} from '../hooks/hooks';
 import {Box, Button, CircularProgress, IconButton, Modal} from '@mui/material';
@@ -113,8 +114,13 @@ export default function BlueprintDashboard() {
     useEffect(() => {
         const displayWidth = width * (isMaximized ? 1 : 0.9);
         const displayHeight = height * (isMaximized ? 1 : 0.9) - 85;
-        setZoomLevel(Math.min(displayHeight / 2102, displayWidth / 1700));
-    }, [width, isMaximized, height]);
+        if (previewType === PreviewType.Infinite) {
+            setZoomLevel(Math.min(displayHeight / 2102, displayWidth / 1700));
+        }
+        if (previewType === PreviewType.Rookie) {
+            setZoomLevel(Math.min(displayHeight / 1032, displayWidth / 1400));
+        }
+    }, [width, isMaximized, height, previewType]);
 
     const bps: Array<{name: string; date: string; blueprintId: string}> = [];
     const rookieBps: Array<{name: string; date: string; blueprintId: string}> = 
@@ -200,7 +206,7 @@ export default function BlueprintDashboard() {
         setIsLoggedIn(false);
     }
 
-    const downloadBlueprint = async () => {
+    const downloadInfiniteBlueprint = async () => {
         setIsDownloading(true);
         const element = document.getElementsByClassName(
             newInfiniteStyles.fullBlueprint
@@ -226,6 +232,50 @@ export default function BlueprintDashboard() {
 
         let dataUrl = '';
         const minDataLength = 5000000;
+        let i = 0;
+        const maxAttempts = 50;
+
+        while (dataUrl.length < minDataLength && i < maxAttempts) {
+            dataUrl = await toPng(element, {
+                backgroundColor: 'rgba(0, 0, 0, 0)',
+                cacheBust: true,
+                fetchRequestInit: {
+                    mode: 'cors',
+                    cache: 'reload',
+                },
+            });
+            i += 1;
+        }
+
+        // const dataUrl = await toPng(element, {
+        //     backgroundColor: 'rgba(0, 0, 0, 0)',
+        //     cacheBust: true,
+        //     fetchRequestInit: {
+        //         mode: 'cors',
+        //         cache: 'reload'
+        //     },
+        // });
+
+        const link = document.createElement('a');
+        link.href = dataUrl;
+        link.download = `${downloadBlueprintName}.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        setIsDownloading(false);
+    };
+
+    const downloadRookieBlueprint = async () => {
+        setIsDownloading(true);
+        const element = document.getElementsByClassName(
+            newRookieStyles.fullBlueprint
+        )[0] as HTMLElement;
+
+        await new Promise(resolve => setTimeout(resolve, 3000));
+
+        let dataUrl = '';
+        const minDataLength = 2000000;
         let i = 0;
         const maxAttempts = 50;
 
@@ -447,7 +497,14 @@ export default function BlueprintDashboard() {
                                 fontWeight: '1000',
                                 fontSize: '30px',
                             }}
-                            onClick={downloadBlueprint}
+                            onClick={() => {
+                                if (previewType === PreviewType.Infinite) {
+                                    downloadInfiniteBlueprint();
+                                }
+                                if (previewType === PreviewType.Rookie) {
+                                    downloadRookieBlueprint();
+                                }
+                            }}
                             loading={isDownloading}
                             endIcon={isMobile ? null : <DownloadIcon />}
                         >
