@@ -493,6 +493,25 @@ export function WrappedPremium({blueprintId}: {blueprintId: string}) {
         setTopPriorities(ELITE_PRIORITY_OPTIONS.slice(0, 3));
     }, [fullMoves, blueprint]);
 
+    function getPercentileSuffix() {
+        const abs = Math.abs(blueprint?.premiumFeatures.blueprintPercentile || 0);
+        const lastTwo = abs % 100;
+        const lastOne = abs % 10;
+
+        if (lastTwo >= 11 && lastTwo <= 13) return 'th';
+
+        switch (lastOne) {
+            case 1:
+                return 'st';
+            case 2:
+                return 'nd';
+            case 3:
+                return 'rd';
+            default:
+                return 'th';
+        }
+    }
+
     return (
         <Premium
             teamName={blueprint?.teamName || ''}
@@ -581,7 +600,7 @@ export function WrappedPremium({blueprintId}: {blueprintId: string}) {
                     )?.valueSharePercentage || 0 + Number.EPSILON) * 10
                 ) / 10
             }
-            percentile={`${blueprint?.premiumFeatures.blueprintPercentile || 0}`}
+            percentile={`${blueprint?.premiumFeatures.blueprintPercentile || 0}${getPercentileSuffix()}`}
             buildPercentage={`${blueprint?.premiumFeatures.archetypeBuildPercentage || 0}%`}
             valueProportion={{
                 qb: blueprint?.premiumFeatures.valueProportionQb ?? 0,
