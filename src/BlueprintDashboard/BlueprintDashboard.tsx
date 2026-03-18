@@ -418,33 +418,31 @@ export default function BlueprintDashboard() {
 
         await new Promise(resolve => setTimeout(resolve, 3000));
 
-        // let dataUrl = '';
-        // const minDataLength = 1000000;
-        // let i = 0;
-        // const maxAttempts = 50;
+        let dataUrl = '';
+        const minDataLength = 2000000;
+        let i = 0;
+        const maxAttempts = 50;
 
-        // while (dataUrl.length < minDataLength && i < maxAttempts) {
-        //     dataUrl = await toPng(element, {
-        //         backgroundColor: 'rgba(0, 0, 0, 0)',
-        //         cacheBust: true,
-        //         fetchRequestInit: {
-        //             mode: 'cors',
-        //             cache: 'reload',
-        //         },
-        //     });
-        //     i += 1;
-        // }
+        while (dataUrl.length < minDataLength && i < maxAttempts) {
+            dataUrl = await toPng(element, {
+                backgroundColor: 'rgba(0, 0, 0, 0)',
+                cacheBust: true,
+                fetchRequestInit: {
+                    mode: 'cors',
+                    cache: 'reload',
+                },
+            });
+            i += 1;
+        }
 
-        const dataUrl = await toPng(element, {
-            backgroundColor: 'rgba(0, 0, 0, 0)',
-            cacheBust: true,
-            fetchRequestInit: {
-                mode: 'cors',
-                cache: 'reload'
-            },
-        });
-
-        console.log(dataUrl.length);
+        // const dataUrl = await toPng(element, {
+        //     backgroundColor: 'rgba(0, 0, 0, 0)',
+        //     cacheBust: true,
+        //     fetchRequestInit: {
+        //         mode: 'cors',
+        //         cache: 'reload'
+        //     },
+        // });
 
         const link = document.createElement('a');
         link.href = dataUrl;
