@@ -375,7 +375,7 @@ export default function BlueprintDashboard() {
         await new Promise(resolve => setTimeout(resolve, 3000));
 
         let dataUrl = '';
-        const minDataLength = 1000000;
+        const minDataLength = 1200000;
         let i = 0;
         const maxAttempts = 50;
 
@@ -390,6 +390,7 @@ export default function BlueprintDashboard() {
             });
             i += 1;
         }
+        console.log(dataUrl.length);
 
         // const dataUrl = await toPng(element, {
         //     backgroundColor: 'rgba(0, 0, 0, 0)',
