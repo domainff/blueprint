@@ -815,3 +815,38 @@ export function useSleeperIdMap() {
 
     return {sleeperIdMap, getApiIdFromSleeperId, getSleeperIdFromApiId};
 }
+
+export type DomainTrueRank = {
+    playerId: number;
+    playerSleeperId: number;
+    playerName: string;
+    nflPosition: string;
+    teamAbbreviation: string;
+    insulationScore: number;
+    productionScore: number;
+    situationalScore: number;
+    dynastyAssetCategory: string;
+    compositePosRank: string;
+};
+
+export type PowerRank = {
+    teamId?: number;
+    teamName: string;
+    teamTotalDomainValue?: number;
+    overallRank: number;
+};
+
+export type ThreeFactorGrades = {
+    qbInsulationScoreGrade: number;
+    rbInsulationScoreGrade: number;
+    wrInsulationScoreGrade: number;
+    teInsulationScoreGrade: number;
+    qbProductionScoreGrade: number;
+    rbProductionScoreGrade: number;
+    wrProductionScoreGrade: number;
+    teProductionScoreGrade: number;
+    qbSituationalScoreGrade: number;
+    rbSituationalScoreGrade: number;
+    wrSituationalScoreGrade: number;
+    teSituationalScoreGrade: number;
+};

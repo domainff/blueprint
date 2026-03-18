@@ -321,7 +321,6 @@ import newWshBg from '../assets/new1.0/playerBackgrounds/WAS.png';
 
 import newNflBg from '../assets/new1.0/playerBackgrounds/NFL.png';
 
-
 const newTeamBackgrounds: Map<string, string> = new Map([
     ['ARI', newAriBg],
     ['ATL', newAtlBg],
@@ -357,6 +356,10 @@ const newTeamBackgrounds: Map<string, string> = new Map([
     ['WSH', newWshBg],
     ['WAS', newWshBg],
 ]);
+
+// Premium
+import premiumBkg from '../assets/premium/premiumBkg.png';
+import premiumAssets from '../assets/premium/premiumAssets.png';
 
 export {
     logo,
@@ -396,4 +399,6 @@ export {
     newNflBg,
     newTeamBackgrounds,
     nfl as nflLogo,
+    premiumBkg,
+    premiumAssets,
 };

@@ -46,7 +46,7 @@ export enum OutlookOption {
     Contend = 'CONTEND',
 }
 
-const CATCH_ALL_PRIORITY_OPTIONS = new Map<OutlookOption, string[]>([
+export const CATCH_ALL_PRIORITY_OPTIONS = new Map<OutlookOption, string[]>([
     [
         OutlookOption.Rebuild,
         [
@@ -82,7 +82,7 @@ const CATCH_ALL_PRIORITY_OPTIONS = new Map<OutlookOption, string[]>([
     ],
 ]);
 
-const ELITE_PRIORITY_OPTIONS = [
+export const ELITE_PRIORITY_OPTIONS = [
     'Get the best players at every position & win your league',
     "Don't make any trades that don't improve production upside opportunity",
     "Don't be afraid to pay the price for highly productive vets",
@@ -129,7 +129,7 @@ export function convertStringToValueArchetype(str?: string): ValueArchetype {
     }
 }
 
-function convertStringToRosterArchetype(str?: string): RosterArchetype {
+export function convertStringToRosterArchetype(str?: string): RosterArchetype {
     switch (str) {
         case 'WellRounded':
             return RosterArchetype.WellRounded;
@@ -148,7 +148,7 @@ function convertStringToRosterArchetype(str?: string): RosterArchetype {
     }
 }
 
-function convertStringToOutlookOption(str: string): OutlookOption {
+export function convertStringToOutlookOption(str: string): OutlookOption {
     switch (str) {
         case 'Rebuild':
             return OutlookOption.Rebuild;
@@ -257,7 +257,7 @@ export function getApiStartingLineup(
     ];
 }
 
-function getPicksInfo(
+export function getPicksInfo(
     picks: { id: number; season: number; round: number; pickNumber: number }[],
     year: string
 ) {

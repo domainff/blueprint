@@ -2,6 +2,7 @@ import styles from './BlueprintDashboard.module.css';
 import newInfiniteStyles from '../NewInfinite/NewInfinite.module.css';
 import newRookieStyles from '../NewRookieDraft/NewRookieDraft.module.css';
 import newV1Styles from '../NewV1/NewV1.module.css';
+import premiumStyles from '../Premium/Premium.module.css';
 import {flockDomainLogo, logoHorizontal} from '../consts/images';
 import {useBlueprintsForDomainUser, useTitle} from '../hooks/hooks';
 import {Box, Button, CircularProgress, IconButton, Modal} from '@mui/material';
@@ -17,6 +18,7 @@ import DownloadIcon from '@mui/icons-material/Download';
 import axios from 'axios';
 import { WrappedNewRookieDraft } from '../NewRookieDraft/NewRookieDraft';
 import { WrappedNewV1 } from '../NewV1/NewV1';
+import { WrappedPremium } from '../Premium/Premium';
 
 const COLOR_LIST = [
     '#F47F20',
@@ -129,6 +131,9 @@ export default function BlueprintDashboard() {
         if (previewType === PreviewType.Standard) {
             setZoomLevel(Math.min(displayHeight / 1060, displayWidth / 800));
         }
+        if (previewType === PreviewType.Premium) {
+            setZoomLevel(Math.min(displayHeight / 1045, displayWidth / 1900));
+        }
     }, [width, isMaximized, height, previewType]);
 
     const bps: Array<{name: string; date: string; blueprintId: string}> =
@@ -155,6 +160,25 @@ export default function BlueprintDashboard() {
             .filter(
                 (bp) =>
                     bp.blueprintType === 'RookieDraft' 
+                    && bp.deliveryStatus === 'Published'
+            )
+            .map(blueprint => ({
+                name: blueprint.teamName,
+                date: new Date(blueprint.createdUtc).toLocaleDateString(
+                    'en-US',
+                    {
+                        year: 'numeric',
+                        month: 'short',
+                        day: '2-digit',
+                    }
+                ),
+                blueprintId: '' + blueprint.blueprintId,
+            }));
+    const premiumBps: Array<{name: string; date: string; blueprintId: string}> = 
+        blueprints
+            .filter(
+                (bp) =>
+                    bp.blueprintType === 'Premium'
                     && bp.deliveryStatus === 'Published'
             )
             .map(blueprint => ({
@@ -375,6 +399,50 @@ export default function BlueprintDashboard() {
         //     },
         // });
 
+        const link = document.createElement('a');
+        link.href = dataUrl;
+        link.download = `${downloadBlueprintName}.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        setIsDownloading(false);
+    };
+
+    const downloadPremiumBlueprint = async () => {
+        setIsDownloading(true);
+        const element = document.getElementsByClassName(
+            premiumStyles.fullBlueprint
+        )[0] as HTMLElement;
+
+        await new Promise(resolve => setTimeout(resolve, 3000));
+
+        // let dataUrl = '';
+        // const minDataLength = 1000000;
+        // let i = 0;
+        // const maxAttempts = 50;
+
+        // while (dataUrl.length < minDataLength && i < maxAttempts) {
+        //     dataUrl = await toPng(element, {
+        //         backgroundColor: 'rgba(0, 0, 0, 0)',
+        //         cacheBust: true,
+        //         fetchRequestInit: {
+        //             mode: 'cors',
+        //             cache: 'reload',
+        //         },
+        //     });
+        //     i += 1;
+        // }
+
+        const dataUrl = await toPng(element, {
+            backgroundColor: 'rgba(0, 0, 0, 0)',
+            cacheBust: true,
+            fetchRequestInit: {
+                mode: 'cors',
+                cache: 'reload'
+            },
+        });
+
         console.log(dataUrl.length);
 
         const link = document.createElement('a');
@@ -584,9 +652,9 @@ export default function BlueprintDashboard() {
                                 if (previewType === PreviewType.Standard) {
                                     downloadStandardBlueprint();
                                 }
-                                // if (previewType === PreviewType.Premium) {
-                                //     downloadPremiumBlueprint();
-                                // }
+                                if (previewType === PreviewType.Premium) {
+                                    downloadPremiumBlueprint();
+                                }
                             }}
                             loading={isDownloading}
                             endIcon={isMobile ? null : <DownloadIcon />}
@@ -660,6 +728,9 @@ export default function BlueprintDashboard() {
                         )}
                         {previewType === PreviewType.Standard && (
                             <WrappedNewV1 blueprintId={downloadBlueprintId} />
+                        )}
+                        {previewType === PreviewType.Premium && (
+                            <WrappedPremium blueprintId={downloadBlueprintId} />
                         )}
                     </div>
                 </Box>
@@ -759,6 +830,55 @@ export default function BlueprintDashboard() {
                                             ) => {
                                                 setDownloadBlueprintId(id);
                                                 setPreviewType(PreviewType.Standard);
+                                            }}
+                                            setDownloadBlueprintName={(
+                                                name: string
+                                            ) => setDownloadBlueprintName(name)}
+                                            setDownloadModalOpen={(
+                                                open: boolean
+                                            ) => setDownloadModalOpen(open)}
+                                            {...bp}
+                                        />
+                                    ))}
+                                </div>
+                            </div>
+                            <div
+                                className={styles.myInfiniteBlueprints}
+                                style={{
+                                    marginLeft: isMobile ? '0' : '',
+                                    alignItems: isMobile ? 'center' : '',
+                                }}
+                            >
+                                <div
+                                    className={styles.myInfiniteBlueprintsTitle}
+                                    style={{
+                                        textAlign: isMobile
+                                            ? 'center'
+                                            : undefined,
+                                        fontSize: isMobile ? '30px' : undefined,
+                                    }}
+                                >
+                                    <>My Premium Blueprints</>
+                                </div>
+                                <div
+                                    className={styles.myBlueprintsList}
+                                    style={{
+                                        width: isMobile
+                                            ? `${width * 0.8}px`
+                                            : '',
+                                    }}
+                                >
+                                    {blueprintsLoading && <CircularProgress />}
+                                    {premiumBps.map((bp, idx) => (
+                                        <BlueprintItem
+                                            key={idx}
+                                            index={idx}
+                                            screenWidth={width}
+                                            setDownloadBlueprintId={(
+                                                id: string
+                                            ) => {
+                                                setDownloadBlueprintId(id);
+                                                setPreviewType(PreviewType.Premium);
                                             }}
                                             setDownloadBlueprintName={(
                                                 name: string
