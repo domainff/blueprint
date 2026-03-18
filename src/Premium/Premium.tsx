@@ -246,80 +246,24 @@ export function WrappedPremium({blueprintId}: {blueprintId: string}) {
             newMakeup.set(rmu.category, rmu.percentage);
         }
         setMakeup(newMakeup);
+        const qb = blueprint.positionalGrades.find(g => g.position === QB);
+        const rb = blueprint.positionalGrades.find(g => g.position === RB);
+        const wr = blueprint.positionalGrades.find(g => g.position === WR);
+        const te = blueprint.positionalGrades.find(g => g.position === TE);
 
-        const qbs = blueprint.rosterPlayers.filter(p => p.position === QB);
-        const numQbs = qbs.length;
-        const rbs = blueprint.rosterPlayers.filter(p => p.position === RB);
-        const numRbs = rbs.length;
-        const wrs = blueprint.rosterPlayers.filter(p => p.position === WR);
-        const numWrs = wrs.length;
-        const tes = blueprint.rosterPlayers.filter(p => p.position === TE);
-        const numTes = tes.length;
         setThreeFactorGrades({
-            qbInsulationScoreGrade:
-                Math.round(
-                    qbs.map(p => p.insulationScore).reduce((a, b) => a + b, 0) /
-                        numQbs
-                ) / 10,
-            rbInsulationScoreGrade:
-                Math.round(
-                    rbs.map(p => p.insulationScore).reduce((a, b) => a + b, 0) /
-                        numRbs
-                ) / 10,
-            wrInsulationScoreGrade:
-                Math.round(
-                    wrs.map(p => p.insulationScore).reduce((a, b) => a + b, 0) /
-                        numWrs
-                ) / 10,
-            teInsulationScoreGrade:
-                Math.round(
-                    tes.map(p => p.insulationScore).reduce((a, b) => a + b, 0) /
-                        numTes
-                ) / 10,
-            qbProductionScoreGrade:
-                Math.round(
-                    qbs.map(p => p.productionScore).reduce((a, b) => a + b, 0) /
-                        numQbs
-                ) / 10,
-            rbProductionScoreGrade:
-                Math.round(
-                    rbs.map(p => p.productionScore).reduce((a, b) => a + b, 0) /
-                        numRbs
-                ) / 10,
-            wrProductionScoreGrade:
-                Math.round(
-                    wrs.map(p => p.productionScore).reduce((a, b) => a + b, 0) /
-                        numWrs
-                ) / 10,
-            teProductionScoreGrade:
-                Math.round(
-                    tes.map(p => p.productionScore).reduce((a, b) => a + b, 0) /
-                        numTes
-                ) / 10,
-            qbSituationalScoreGrade:
-                Math.round(
-                    qbs
-                        .map(p => p.situationalScore)
-                        .reduce((a, b) => a + b, 0) / numQbs
-                ) / 10,
-            rbSituationalScoreGrade:
-                Math.round(
-                    rbs
-                        .map(p => p.situationalScore)
-                        .reduce((a, b) => a + b, 0) / numRbs
-                ) / 10,
-            wrSituationalScoreGrade:
-                Math.round(
-                    wrs
-                        .map(p => p.situationalScore)
-                        .reduce((a, b) => a + b, 0) / numWrs
-                ) / 10,
-            teSituationalScoreGrade:
-                Math.round(
-                    tes
-                        .map(p => p.situationalScore)
-                        .reduce((a, b) => a + b, 0) / numTes
-                ) / 10,
+            qbInsulationScoreGrade: qb?.insulationScoreGrade || 0,
+            rbInsulationScoreGrade: rb?.insulationScoreGrade || 0,
+            wrInsulationScoreGrade: wr?.insulationScoreGrade || 0,
+            teInsulationScoreGrade: te?.insulationScoreGrade || 0,
+            qbProductionScoreGrade: qb?.productionScoreGrade || 0,
+            rbProductionScoreGrade: rb?.productionScoreGrade || 0,
+            wrProductionScoreGrade: wr?.productionScoreGrade || 0,
+            teProductionScoreGrade: te?.productionScoreGrade || 0,
+            qbSituationalScoreGrade: qb?.situationalScoreGrade || 0,
+            rbSituationalScoreGrade: rb?.situationalScoreGrade || 0,
+            wrSituationalScoreGrade: wr?.situationalScoreGrade || 0,
+            teSituationalScoreGrade: te?.situationalScoreGrade || 0,
         });
 
         setLeaguePowerRanks(
