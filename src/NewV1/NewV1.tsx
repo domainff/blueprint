@@ -6,15 +6,17 @@ import {
     nflLogo,
     nflSilhouette,
 } from '../consts/images';
-import {CSSProperties} from 'react';
+import {CSSProperties, useEffect, useState} from 'react';
 import {Player} from '../sleeper-api/sleeper-api';
 import {logoImage} from '../shared/Utilities';
-import {RosterPlayer, useAdpData, usePlayerData} from '../hooks/hooks';
+import {LeagueSettings, RosterPlayer, useAdpData, useBlueprint, usePlayerData, useSleeperIdMap} from '../hooks/hooks';
 import {
     FLEX,
+    FLEX_SET,
     QB,
     RB,
     SUPER_FLEX,
+    SUPER_FLEX_SET,
     TE,
     WR,
     WR_RB_FLEX,
@@ -44,12 +46,588 @@ export enum OutlookOption {
     Contend = 'CONTEND',
 }
 
+const CATCH_ALL_PRIORITY_OPTIONS = new Map<OutlookOption, string[]>([
+    [
+        OutlookOption.Rebuild,
+        [
+            'Everyone on your current roster should be shopped for the right price',
+            "Don't go out of your way to target any rookie picks further than two years out",
+            'Be active - multiple small market wins is easier than one masive trade',
+            'Primarily build through the insulated positions (WR & RB)',
+            'Rebuilding is about gaining value, less about immediate positional needs',
+            'Worry less about age & more about 9 month market plays & value insulation',
+        ],
+    ],
+    [
+        OutlookOption.Reload,
+        [
+            'The more you play the market, the quicker the reload will be',
+            "Don't downtier too far from top assets, no further than one or two tiers",
+            'Make as many trades as possible to build small value wins',
+            'Shop your productive vets at a premium when they produce midseason',
+            'Use rookie picks to gain value wins, not to plug holes',
+            "Try targeting rookie picks at a discount from 'contenders' in your league",
+        ],
+    ],
+    [
+        OutlookOption.Contend,
+        [
+            'If you have a poor start to the season, you can always reload midseason',
+            'Rebuilds & reloads are your most likely trade partners when looking to uptier',
+            "Don't make unecessary moves that fail to improve your upside opportunity",
+            "Production matters closer to the season; don't neglect value wins now",
+            'Avoid volatile situational outlooks heading into the NFL draft',
+            "Don't superload one position at the expense of others",
+        ],
+    ],
+]);
+
+const ELITE_PRIORITY_OPTIONS = [
+    'Get the best players at every position & win your league',
+    "Don't make any trades that don't improve production upside opportunity",
+    "Don't be afraid to pay the price for highly productive vets",
+    'You have the value to comfortably take on some volatile assets',
+    'You have all the value leverage in this league, take advantage when trading',
+];
+
+export enum DraftStrategyLabel {
+    None = 'None',
+    Deficient = 'Deficient',
+    Adequate = 'Adequate',
+    Surplus = 'Surplus',
+    Overload = 'Overload',
+}
+
+
 export function isRookiePickId(id: string) {
     if (!id) return false;
     return (
         id.substring(0, 3) === 'RP-' ||
         id.includes('Rookie Pick') ||
         id.includes(' 1st')
+    );
+}
+
+export function convertStringToValueArchetype(str?: string): ValueArchetype {
+    switch (str) {
+        case 'EliteValue':
+            return ValueArchetype.EliteValue;
+        case 'EnhancedValue':
+            return ValueArchetype.EnhancedValue;
+        case 'StandardValue':
+            return ValueArchetype.StandardValue;
+        case 'FutureValue':
+            return ValueArchetype.FutureValue;
+        case 'AgingValue':
+            return ValueArchetype.AgingValue;
+        case 'OneYearReload':
+            return ValueArchetype.OneYearReload;
+        case 'HardRebuild':
+            return ValueArchetype.HardRebuild;
+        default:
+            return ValueArchetype.None;
+    }
+}
+
+function convertStringToRosterArchetype(str?: string): RosterArchetype {
+    switch (str) {
+        case 'WellRounded':
+            return RosterArchetype.WellRounded;
+        case 'WRFactory':
+            return RosterArchetype.WRFactory;
+        case 'RBHeavy':
+            return RosterArchetype.RBHeavy;
+        case 'DualEliteQB':
+            return RosterArchetype.DualEliteQB;
+        case 'EliteQBTE':
+            return RosterArchetype.EliteQBTE;
+        case 'PlayerDeficient':
+            return RosterArchetype.PlayerDeficient;
+        default:
+            return RosterArchetype.None;
+    }
+}
+
+function convertStringToOutlookOption(str: string): OutlookOption {
+    switch (str) {
+        case 'Rebuild':
+            return OutlookOption.Rebuild;
+        case 'Reload':
+            return OutlookOption.Reload;
+        case 'Contend':
+            return OutlookOption.Contend;
+        default:
+            return OutlookOption.Reload;
+    }
+}
+
+export function getApiStartingLineup(
+    leagueSettings: LeagueSettings,
+    rosterPlayers: RosterPlayer[]
+) {
+    const {
+        quarterbackSlots,
+        runningBackSlots,
+        wideReceiverSlots,
+        tightEndSlots,
+        isSuperFlex,
+    } = leagueSettings;
+    const {flexSlots} = leagueSettings;
+    const remainingPlayers = new Set(rosterPlayers.map(p => p.playerId)); // maybe map?
+    const startingQbs = rosterPlayers
+        .filter(p => p.rosterPosition === QB && p.isStarter)
+        .slice(0, quarterbackSlots);
+    startingQbs.forEach(p => remainingPlayers.delete(p.playerId));
+
+    const startingRbs = rosterPlayers
+        .filter(p => p.position === RB && p.isStarter)
+        .slice(0, runningBackSlots);
+    startingRbs.forEach(p => remainingPlayers.delete(p.playerId));
+
+    const startingWrs = rosterPlayers
+        .filter(p => p.position === WR && p.isStarter)
+        .slice(0, wideReceiverSlots);
+    startingWrs.forEach(p => remainingPlayers.delete(p.playerId));
+
+    const startingTes = rosterPlayers
+        .filter(p => p.position === TE && p.isStarter)
+        .slice(0, tightEndSlots);
+    startingTes.forEach(p => remainingPlayers.delete(p.playerId));
+
+    const startingFlexes = rosterPlayers
+        .filter(
+            p =>
+                FLEX_SET.has(p.position) &&
+                remainingPlayers.has(p.playerId) &&
+                p.isStarter
+        )
+        .slice(0, flexSlots);
+    startingFlexes.forEach(p => remainingPlayers.delete(p.playerId));
+
+    let startingSuperFlex: RosterPlayer[] = [];
+    if (isSuperFlex) {
+        startingSuperFlex = rosterPlayers
+            .filter(
+                p =>
+                    SUPER_FLEX_SET.has(p.position) &&
+                    remainingPlayers.has(p.playerId) &&
+                    p.isStarter
+            )
+            .slice(0, 1);
+        startingSuperFlex.forEach(p => remainingPlayers.delete(p.playerId));
+    }
+
+    return [
+        ...startingQbs.map(p => {
+            return {
+                player: p,
+                position: QB,
+            };
+        }),
+        ...startingRbs.map(p => {
+            return {
+                player: p,
+                position: RB,
+            };
+        }),
+        ...startingWrs.map(p => {
+            return {
+                player: p,
+                position: WR,
+            };
+        }),
+        ...startingTes.map(p => {
+            return {
+                player: p,
+                position: TE,
+            };
+        }),
+        ...startingFlexes.map(p => {
+            return {
+                player: p,
+                position: FLEX,
+            };
+        }),
+        ...startingSuperFlex.map(p => {
+            return {
+                player: p,
+                position: SUPER_FLEX,
+            };
+        }),
+    ];
+}
+
+function getPicksInfo(
+    picks: { id: number; season: number; round: number; pickNumber: number }[],
+    year: string
+) {
+    const thisYearPicks = picks.filter(p => p.season === +year);
+    if (thisYearPicks.length === 0) {
+        return '';
+    }
+
+    const hasSlots = thisYearPicks.some(p => !!p.pickNumber && p.pickNumber > 0);
+    if (hasSlots) {
+        return thisYearPicks
+            .map(p => `${p.round}.${p.pickNumber < 10 ? '0' : ''}${p.pickNumber}`)
+            .join(', ');
+    }
+
+    const numFirsts = thisYearPicks.filter(p => p.round === 1).length;
+    const numSeconds = thisYearPicks.filter(p => p.round === 2).length;
+    const numThirds = thisYearPicks.filter(p => p.round === 3).length;
+    const numFourths = thisYearPicks.filter(p => p.round === 4).length;
+    const firstInfo =
+        numFirsts > 0
+            ? `${numFirsts === 1 ? '' : numFirsts} 1st${
+                  numFirsts !== 1 ? 's' : ''
+              }`.trim()
+            : '';
+    const secondInfo =
+        numSeconds > 0
+            ? `${numSeconds === 1 ? '' : numSeconds} 2nd${
+                  numSeconds !== 1 ? 's' : ''
+              }`.trim()
+            : '';
+    const thirdInfo =
+        numThirds > 0
+            ? `${numThirds === 1 ? '' : numThirds} 3rd${
+                  numThirds !== 1 ? 's' : ''
+              }`.trim()
+            : '';
+    const fourthInfo =
+        numFourths > 0
+            ? `${numFourths === 1 ? '' : numFourths} 4th${
+                  numFourths !== 1 ? 's' : ''
+              }`.trim()
+            : '';
+    const allRoundsInfo = `${[firstInfo, secondInfo, thirdInfo, fourthInfo]
+        .filter(info => info !== '')
+        .join(', ')}`;
+    return allRoundsInfo;
+};
+
+export function WrappedNewV1({blueprintId}: {blueprintId: string}) {
+    const {blueprint} = useBlueprint(blueprintId);
+    const [apiStartingLineup, setApiStartingLineup] = useState<
+        {player: RosterPlayer; position: string}[]
+    >([]);
+    const [topPriorities, setTopPriorities] = useState<string[]>(['', '', '']);
+    const [draftCapitalNotes2026, setDraftCapitalNotes2026] = useState('');
+    const [draftCapitalNotes2027, setDraftCapitalNotes2027] = useState('');
+    const {getSleeperIdFromApiId} = useSleeperIdMap();
+    const [fullMoves, setFullMoves] = useState<FullMove[]>([
+        {
+            move: Move.DOWNTIER,
+            playerIdsToTrade: [],
+            playerIdsToTarget: [
+                ['', ''],
+                ['', ''],
+                ['', ''],
+            ],
+            priorityDescription: '',
+            targetRosterIds: [-1, -1, -1],
+        },
+        {
+            move: Move.PIVOT,
+            playerIdsToTrade: [],
+            playerIdsToTarget: [
+                ['', ''],
+                ['', ''],
+                ['', ''],
+            ],
+            priorityDescription: '',
+            targetRosterIds: [-1, -1, -1],
+        },
+        {
+            move: Move.UPTIER,
+            playerIdsToTrade: [],
+            playerIdsToTarget: [
+                ['', ''],
+                ['', ''],
+                ['', ''],
+            ],
+            priorityDescription: '',
+            targetRosterIds: [-1, -1, -1],
+        },
+        {
+            move: Move.DOWNTIER,
+            playerIdsToTrade: [],
+            playerIdsToTarget: [
+                ['', ''],
+                ['', ''],
+                ['', ''],
+            ],
+            priorityDescription: '',
+            targetRosterIds: [-1, -1, -1],
+        },
+        {
+            move: Move.PIVOT,
+            playerIdsToTrade: [],
+            playerIdsToTarget: [
+                ['', ''],
+                ['', ''],
+                ['', ''],
+            ],
+            priorityDescription: '',
+            targetRosterIds: [-1, -1, -1],
+        },
+        {
+            move: Move.UPTIER,
+            playerIdsToTrade: [],
+            playerIdsToTarget: [
+                ['', ''],
+                ['', ''],
+                ['', ''],
+            ],
+            priorityDescription: '',
+            targetRosterIds: [-1, -1, -1],
+        },
+    ]);
+    const [draftCapitalNotes, setDraftCapitalNotes] = useState(
+        new Map<number, string>()
+    ); // only updates when draftCapitalNotes2026 or draftCapitalNotes2027 changes
+    useEffect(() => {
+        setDraftCapitalNotes(
+            new Map([
+                [2026, draftCapitalNotes2026],
+                [2027, draftCapitalNotes2027],
+            ])
+        );
+    }, [draftCapitalNotes2026, draftCapitalNotes2027]);
+    useEffect(() => {
+        if (!blueprint) return;
+        setApiStartingLineup(
+            getApiStartingLineup(blueprint.leagueSettings, blueprint.rosterPlayers)
+        );
+
+        const year1 = '2026';
+        const year2 = '2027';
+        const myPicks = blueprint.draftPicks;
+        const nextYearInfo = getPicksInfo(myPicks, year1);
+        setDraftCapitalNotes2026(nextYearInfo);
+        const followingYearInfo = getPicksInfo(myPicks, year2);
+        setDraftCapitalNotes2027(followingYearInfo);
+
+        const numYearOneFirsts = myPicks.filter(
+            p => p.season === +year1 && p.round === 1
+        );
+        let draftStrategy1 = DraftStrategyLabel.None;
+        if (numYearOneFirsts.length >= 5) {
+            draftStrategy1 = DraftStrategyLabel.Overload;
+        } else if (numYearOneFirsts.length >= 3) {
+            draftStrategy1 = DraftStrategyLabel.Surplus;
+        } else if (numYearOneFirsts.length >= 1) {
+            draftStrategy1 = DraftStrategyLabel.Adequate;
+        } else {
+            draftStrategy1 = DraftStrategyLabel.Deficient;
+        }
+
+        const numYearTwoFirsts = myPicks.filter(
+            p => p.season === +year2 && p.round === 1
+        );
+        let draftStrategy2 = DraftStrategyLabel.None;
+        if (numYearTwoFirsts.length >= 5) {
+            draftStrategy2 = DraftStrategyLabel.Overload;
+        } else if (numYearTwoFirsts.length >= 3) {
+            draftStrategy2 = DraftStrategyLabel.Surplus;
+        } else if (numYearTwoFirsts.length >= 1) {
+            draftStrategy2 = DraftStrategyLabel.Adequate;
+        } else {
+            draftStrategy2 = DraftStrategyLabel.Deficient;
+        }
+
+        if (blueprint.tradeStrategies.length > 0) {
+            const collatedTrades = new Map<string, string[]>();
+            const priorityDescriptions = new Map<string, string>();
+            const targetRosters = new Map<string, number>();
+            function assetToStringAndStore(p: {
+                draftPickNumber: number | null;
+                draftPickRound: number | null;
+                draftPickSeason: number | null;
+                isDraftPick: boolean;
+                playerId: number | null;
+                sortOrder: number;
+            }) {
+                if (p.playerId) {
+                    const sleeperId = getSleeperIdFromApiId(p.playerId);
+                    if (sleeperId) {
+                        return sleeperId;
+                    }
+                }
+                const pickId = `RP-API-${p.draftPickSeason}-${p.draftPickRound}-${p.draftPickNumber}`;
+                return pickId;
+            }
+            for (const suggestion of blueprint.tradeStrategies) {
+                let key = suggestion.assetsOut
+                    .map(assetToStringAndStore)
+                    .sort()
+                    .join(',');
+                key += `,${suggestion.moveType}`; // to differentiate between pivot and downtier
+                const value = suggestion.targetGroups[0].assetsIn
+                    .map(assetToStringAndStore)
+                    .sort()
+                    .join(',');
+                if (!collatedTrades.has(key)) {
+                    collatedTrades.set(key, [value]);
+                } else if (!collatedTrades.get(key)!.includes(value)) {
+                    // don't add duplicates
+                    collatedTrades.get(key)!.push(value);
+                }
+                if (!priorityDescriptions.has(key)) {
+                    priorityDescriptions.set(
+                        key,
+                        suggestion.priorityDescription!
+                    );
+                }
+            }
+
+            const apiSuggestions = Array.from(collatedTrades
+                .entries())
+                .map(([key, values]) => ({
+                    outPlayerIds: key.split(',').slice(0, -1), // remove move type
+                    returnPackages: values.map(v => v.split(',')),
+                    type: key.split(',').slice(-1)[0],
+                    priorityDescription: priorityDescriptions.get(key)!,
+                    targetRosterIds: values.map(v => targetRosters.get(v)!),
+                }))
+                .map(
+                    ({
+                        outPlayerIds,
+                        returnPackages,
+                        type,
+                        priorityDescription,
+                        targetRosterIds,
+                    }) => {
+                        let move: Move;
+                        if (type === 'Pivot') {
+                            move = Move.PIVOT;
+                        } else if (type === 'Downtier') {
+                            move = Move.DOWNTIER;
+                        } else {
+                            move = Move.UPTIER;
+                        }
+                        // make sure all arrays have 2 players per return package
+                        for (let i = 0; i < returnPackages.length; i++) {
+                            if (returnPackages[i].length === 1) {
+                                returnPackages[i].push('');
+                            }
+                        }
+                        // make sure at least three return packages
+                        while (returnPackages.length < 3) {
+                            returnPackages.push(['', '']);
+                        }
+                        while (targetRosterIds.length < 3) {
+                            targetRosterIds.push(-1);
+                        }
+                        return {
+                            move,
+                            playerIdsToTrade: outPlayerIds,
+                            playerIdsToTarget: returnPackages,
+                            priorityDescription,
+                            targetRosterIds,
+                        } as FullMove;
+                    }
+                );
+            // setPlayerIdToAssetKey(newPlayerIdToAssetKey);
+            setFullMoves(apiSuggestions);
+        }
+    }, [blueprint]);
+
+    useEffect(() => {
+        if (!blueprint) return;
+        const twoYearOutlook = blueprint.outlooks
+            .map(o => o.outlook)
+            .map(convertStringToOutlookOption);
+        if (convertStringToValueArchetype(blueprint.valueArchetype) !== ValueArchetype.EliteValue) {
+            const priorityDescriptions = fullMoves
+                .slice(0, 3)
+                .map(m => m.priorityDescription);
+            const dedupedPriorities = new Set(priorityDescriptions);
+            if (dedupedPriorities.size === 3) {
+                setTopPriorities(priorityDescriptions);
+                return;
+            } else {
+                const catchAll = CATCH_ALL_PRIORITY_OPTIONS.get(
+                    twoYearOutlook[0]
+                )!;
+                shuffle(catchAll);
+                setTopPriorities([
+                    ...dedupedPriorities,
+                    ...catchAll.slice(0, 3 - dedupedPriorities.size),
+                ]);
+            }
+            return;
+        }
+        shuffle(ELITE_PRIORITY_OPTIONS);
+        setTopPriorities(ELITE_PRIORITY_OPTIONS.slice(0, 3));
+    }, [fullMoves, blueprint]);
+
+    function getStartingPosition(playerName: string) {
+        return (
+            apiStartingLineup.find(
+                ({player}) => player.playerName === playerName
+            )?.position
+        );
+    }
+
+    return (
+        <NewV1
+            teamName={blueprint?.teamName || ''}
+            numTeams={blueprint?.leagueSettings.numberOfTeams || 0}
+            isSuperFlex={blueprint?.leagueSettings.isSuperFlex || false}
+            ppr={blueprint?.leagueSettings.pointsPerReception || 0}
+            tep={blueprint?.leagueSettings.tightEndPremium || 0}
+            valueArchetype={convertStringToValueArchetype(blueprint?.valueArchetype)}
+            rosterArchetype={convertStringToRosterArchetype(blueprint?.rosterArchetype)}
+            qbGrade={
+                blueprint?.positionalGrades.find(
+                    g => g.position === QB
+                )?.grade || 0
+            }
+            rbGrade={
+                blueprint?.positionalGrades.find(
+                    g => g.position === RB
+                )?.grade || 0
+            }
+            wrGrade={
+                blueprint?.positionalGrades.find(
+                    g => g.position === WR
+                )?.grade || 0
+            }
+            teGrade={
+                blueprint?.positionalGrades.find(
+                    g => g.position === TE
+                )?.grade || 0
+            }
+            benchGrade={
+                blueprint?.positionalGrades.find(
+                    g => g.position === 'BENCH'
+                )?.grade || 0
+            }
+            overallGrade={blueprint?.overallGrade || 0}
+            draftCapitalScore={
+                blueprint?.positionalGrades.find(
+                    g => g.position === 'DRAFT_CAPITAL'
+                )?.grade || 0
+            }
+            twoYearOutlook={
+                blueprint?.outlooks
+                    .map(o => o.outlook)
+                    .map(convertStringToOutlookOption) || []
+            }
+            rosterPlayers={[]}
+            apiRosterPlayers={blueprint?.rosterPlayers || []}
+            getStartingPosition={getStartingPosition}
+            productionShare={`${blueprint?.productionSharePercentage}%`}
+            valueShare={`${blueprint?.valueSharePercentage}%`}
+            productionShareRank={blueprint?.productionShareLeagueRank || 0}
+            valueShareRank={blueprint?.valueShareLeagueRank || 0}
+            draftCapitalNotes={draftCapitalNotes}
+            tradePartners={blueprint?.idealTradePartners.slice(0, 2).map(tp => tp.teamName) || []}
+            topPriorities={topPriorities}
+            tradeStrategy={fullMoves}
+        />
     );
 }
 
@@ -1394,4 +1972,11 @@ export function TradePartners({
             ))}
         </div>
     );
+}
+
+export function shuffle(array: any[]) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
 }

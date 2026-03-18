@@ -1,9 +1,10 @@
 // ONLY UPDATE THIS FILE WHEN CORRESPONDING FILE IN dynasty-ff REPO CHANGES
 
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useCallback, useEffect, useState } from "react";
 import { Player, Roster, User } from "../sleeper-api/sleeper-api";
 import playersJson from "../data/players.json";
 import playerValuesJson from "../data/player_values_013125.json";
+import sleeperIdMapJson from '../data/sleeper_id_to_api.json';
 import {
     BENCH,
     FLEX,
@@ -111,6 +112,7 @@ type Blueprint = {
     premiumFeatures: PremiumFeatures;
     createdUtc: string;
     rookieDraftFeatures: RookieDraftFeatures | null;
+    overallGrade: number;
 };
 
 type PremiumFeatures = {
@@ -784,3 +786,32 @@ export type PickProfile = {
         position: string;
     }>;
 };
+
+// Maps from sleeper ID to API ID
+export interface SleeperIdMap {
+    [key: string]: number;
+}
+export function useSleeperIdMap() {
+    const [sleeperIdMap] = useState<SleeperIdMap>(sleeperIdMapJson);
+
+    const getApiIdFromSleeperId = useCallback(
+        (sleeperId: string) => {
+            return sleeperIdMap[sleeperId];
+        },
+        [sleeperIdMap]
+    );
+
+    const getSleeperIdFromApiId = useCallback(
+        (apiId: number) => {
+            for (const sleeperId in sleeperIdMap) {
+                if (sleeperIdMap[sleeperId] === apiId) {
+                    return sleeperId;
+                }
+            }
+            return null;
+        },
+        [sleeperIdMap]
+    );
+
+    return {sleeperIdMap, getApiIdFromSleeperId, getSleeperIdFromApiId};
+}

@@ -1,6 +1,7 @@
 import styles from './BlueprintDashboard.module.css';
 import newInfiniteStyles from '../NewInfinite/NewInfinite.module.css';
 import newRookieStyles from '../NewRookieDraft/NewRookieDraft.module.css';
+import newV1Styles from '../NewV1/NewV1.module.css';
 import {flockDomainLogo, logoHorizontal} from '../consts/images';
 import {useBlueprintsForDomainUser, useTitle} from '../hooks/hooks';
 import {Box, Button, CircularProgress, IconButton, Modal} from '@mui/material';
@@ -15,6 +16,7 @@ import CloseFullscreenIcon from '@mui/icons-material/CloseFullscreen';
 import DownloadIcon from '@mui/icons-material/Download';
 import axios from 'axios';
 import { WrappedNewRookieDraft } from '../NewRookieDraft/NewRookieDraft';
+import { WrappedNewV1 } from '../NewV1/NewV1';
 
 const COLOR_LIST = [
     '#F47F20',
@@ -124,15 +126,34 @@ export default function BlueprintDashboard() {
         if (previewType === PreviewType.Rookie) {
             setZoomLevel(Math.min(displayHeight / 1032, displayWidth / 1400));
         }
+        if (previewType === PreviewType.Standard) {
+            setZoomLevel(Math.min(displayHeight / 1060, displayWidth / 800));
+        }
     }, [width, isMaximized, height, previewType]);
 
-    const bps: Array<{name: string; date: string; blueprintId: string}> = [];
+    const bps: Array<{name: string; date: string; blueprintId: string}> =
+        blueprints
+            .filter(
+                (bp) =>
+                    bp.blueprintType === 'Standard'
+            )
+            .map(blueprint => ({
+                name: blueprint.teamName,
+                date: new Date(blueprint.createdUtc).toLocaleDateString(
+                    'en-US',
+                    {
+                        year: 'numeric',
+                        month: 'short',
+                        day: '2-digit',
+                    }
+                ),
+                blueprintId: '' + blueprint.blueprintId,
+            }));
     const rookieBps: Array<{name: string; date: string; blueprintId: string}> = 
         blueprints
             .filter(
                 (bp) =>
-                    bp.blueprintType === 'RookieDraft' &&
-                    bp.deliveryStatus === 'Published'
+                    bp.blueprintType === 'RookieDraft'
             )
             .map(blueprint => ({
                 name: blueprint.teamName,
@@ -307,6 +328,52 @@ export default function BlueprintDashboard() {
         //         cache: 'reload'
         //     },
         // });
+
+        const link = document.createElement('a');
+        link.href = dataUrl;
+        link.download = `${downloadBlueprintName}.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        setIsDownloading(false);
+    };
+
+    const downloadStandardBlueprint = async () => {
+        setIsDownloading(true);
+        const element = document.getElementsByClassName(
+            newV1Styles.fullBlueprint
+        )[0] as HTMLElement;
+
+        await new Promise(resolve => setTimeout(resolve, 3000));
+
+        let dataUrl = '';
+        const minDataLength = 1000000;
+        let i = 0;
+        const maxAttempts = 50;
+
+        while (dataUrl.length < minDataLength && i < maxAttempts) {
+            dataUrl = await toPng(element, {
+                backgroundColor: 'rgba(0, 0, 0, 0)',
+                cacheBust: true,
+                fetchRequestInit: {
+                    mode: 'cors',
+                    cache: 'reload',
+                },
+            });
+            i += 1;
+        }
+
+        // const dataUrl = await toPng(element, {
+        //     backgroundColor: 'rgba(0, 0, 0, 0)',
+        //     cacheBust: true,
+        //     fetchRequestInit: {
+        //         mode: 'cors',
+        //         cache: 'reload'
+        //     },
+        // });
+
+        console.log(dataUrl.length);
 
         const link = document.createElement('a');
         link.href = dataUrl;
@@ -512,6 +579,12 @@ export default function BlueprintDashboard() {
                                 if (previewType === PreviewType.Rookie) {
                                     downloadRookieBlueprint();
                                 }
+                                if (previewType === PreviewType.Standard) {
+                                    downloadStandardBlueprint();
+                                }
+                                // if (previewType === PreviewType.Premium) {
+                                //     downloadPremiumBlueprint();
+                                // }
                             }}
                             loading={isDownloading}
                             endIcon={isMobile ? null : <DownloadIcon />}
@@ -582,6 +655,9 @@ export default function BlueprintDashboard() {
                         )}
                         {previewType === PreviewType.Rookie && (
                             <WrappedNewRookieDraft blueprintId={downloadBlueprintId} />
+                        )}
+                        {previewType === PreviewType.Standard && (
+                            <WrappedNewV1 blueprintId={downloadBlueprintId} />
                         )}
                     </div>
                 </Box>
