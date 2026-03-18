@@ -409,33 +409,33 @@ export function WrappedNewV1({blueprintId}: {blueprintId: string}) {
         const followingYearInfo = getPicksInfo(myPicks, year2);
         setDraftCapitalNotes2027(followingYearInfo);
 
-        const numYearOneFirsts = myPicks.filter(
-            p => p.season === +year1 && p.round === 1
-        );
-        let draftStrategy1 = DraftStrategyLabel.None;
-        if (numYearOneFirsts.length >= 5) {
-            draftStrategy1 = DraftStrategyLabel.Overload;
-        } else if (numYearOneFirsts.length >= 3) {
-            draftStrategy1 = DraftStrategyLabel.Surplus;
-        } else if (numYearOneFirsts.length >= 1) {
-            draftStrategy1 = DraftStrategyLabel.Adequate;
-        } else {
-            draftStrategy1 = DraftStrategyLabel.Deficient;
-        }
+        // const numYearOneFirsts = myPicks.filter(
+        //     p => p.season === +year1 && p.round === 1
+        // );
+        // let draftStrategy1 = DraftStrategyLabel.None;
+        // if (numYearOneFirsts.length >= 5) {
+        //     draftStrategy1 = DraftStrategyLabel.Overload;
+        // } else if (numYearOneFirsts.length >= 3) {
+        //     draftStrategy1 = DraftStrategyLabel.Surplus;
+        // } else if (numYearOneFirsts.length >= 1) {
+        //     draftStrategy1 = DraftStrategyLabel.Adequate;
+        // } else {
+        //     draftStrategy1 = DraftStrategyLabel.Deficient;
+        // }
 
-        const numYearTwoFirsts = myPicks.filter(
-            p => p.season === +year2 && p.round === 1
-        );
-        let draftStrategy2 = DraftStrategyLabel.None;
-        if (numYearTwoFirsts.length >= 5) {
-            draftStrategy2 = DraftStrategyLabel.Overload;
-        } else if (numYearTwoFirsts.length >= 3) {
-            draftStrategy2 = DraftStrategyLabel.Surplus;
-        } else if (numYearTwoFirsts.length >= 1) {
-            draftStrategy2 = DraftStrategyLabel.Adequate;
-        } else {
-            draftStrategy2 = DraftStrategyLabel.Deficient;
-        }
+        // const numYearTwoFirsts = myPicks.filter(
+        //     p => p.season === +year2 && p.round === 1
+        // );
+        // let draftStrategy2 = DraftStrategyLabel.None;
+        // if (numYearTwoFirsts.length >= 5) {
+        //     draftStrategy2 = DraftStrategyLabel.Overload;
+        // } else if (numYearTwoFirsts.length >= 3) {
+        //     draftStrategy2 = DraftStrategyLabel.Surplus;
+        // } else if (numYearTwoFirsts.length >= 1) {
+        //     draftStrategy2 = DraftStrategyLabel.Adequate;
+        // } else {
+        //     draftStrategy2 = DraftStrategyLabel.Deficient;
+        // }
 
         if (blueprint.tradeStrategies.length > 0) {
             const collatedTrades = new Map<string, string[]>();
