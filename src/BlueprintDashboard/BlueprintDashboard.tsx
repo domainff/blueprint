@@ -10,7 +10,7 @@ import {useEffect, useState} from 'react';
 import DomainTextField from '../shared/DomainTextField';
 import {WrappedNewInfinite} from '../NewInfinite/NewInfinite';
 import {toPng} from 'html-to-image';
-import { ZoomOut as ZoomOutIcon } from '@mui/icons-material';
+import { Close, ZoomOut as ZoomOutIcon } from '@mui/icons-material';
 import ZoomInIcon from '@mui/icons-material/ZoomIn';
 import OpenInFullIcon from '@mui/icons-material/OpenInFull';
 import CloseFullscreenIcon from '@mui/icons-material/CloseFullscreen';
@@ -711,6 +711,22 @@ export default function BlueprintDashboard() {
                             ) : (
                                 <OpenInFullIcon sx={{color: 'white'}} />
                             )}
+                        </IconButton>
+                        <IconButton
+                            sx={{
+                                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                                '&:hover': {
+                                    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                                },
+                            }}
+                            TouchRippleProps={{
+                                style: {
+                                    color: 'white',
+                                },
+                            }}
+                            onClick={() => setDownloadModalOpen(false)}
+                        >
+                            <Close sx={{color: 'white'}} />
                         </IconButton>
                     </div>
                     <div
