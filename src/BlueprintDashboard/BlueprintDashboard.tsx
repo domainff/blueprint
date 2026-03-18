@@ -135,7 +135,8 @@ export default function BlueprintDashboard() {
         blueprints
             .filter(
                 (bp) =>
-                    bp.blueprintType === 'Standard'
+                    bp.blueprintType === 'Standard' 
+                    && bp.deliveryStatus === 'Published'
             )
             .map(blueprint => ({
                 name: blueprint.teamName,
@@ -153,7 +154,8 @@ export default function BlueprintDashboard() {
         blueprints
             .filter(
                 (bp) =>
-                    bp.blueprintType === 'RookieDraft'
+                    bp.blueprintType === 'RookieDraft' 
+                    && bp.deliveryStatus === 'Published'
             )
             .map(blueprint => ({
                 name: blueprint.teamName,
