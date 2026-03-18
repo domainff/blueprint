@@ -63,6 +63,7 @@ export const useScreenSize = () => {
 };
 
 enum PreviewType {
+    None,
     Infinite,
     Rookie,
     Standard,
@@ -97,7 +98,7 @@ export default function BlueprintDashboard() {
     const [zoomLevel, setZoomLevel] = useState(1);
     const [isMaximized, setIsMaximized] = useState(false);
     const [isDownloading, setIsDownloading] = useState(false);
-    const [previewType, setPreviewType] = useState(PreviewType.Infinite);
+    const [previewType, setPreviewType] = useState(PreviewType.None);
     const [username, setUsername] = useState(
         sessionStorage.getItem('flockUsername')
     );
