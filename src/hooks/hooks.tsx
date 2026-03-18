@@ -325,6 +325,7 @@ type BlueprintMetadata = {
     rosterId: number;
     teamName: string;
     createdUtc: string;
+    deliveryStatus: string;
 };
 
 export function useBlueprintsForDomainUser() {

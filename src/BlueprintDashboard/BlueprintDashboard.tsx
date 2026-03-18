@@ -81,7 +81,11 @@ export default function BlueprintDashboard() {
     const [loginDiscordUsername, setLoginDiscordUsername] = useState('');
     const [loginError, setLoginError] = useState('');
     const [domainUserNotFound, setDomainUserNotFound] = useState(false);
-    const {blueprints, error: blueprintsError, isLoading: blueprintsLoading} = useBlueprintsForDomainUser();
+    const {
+        blueprints,
+        error: blueprintsError,
+        isLoading: blueprintsLoading,
+    } = useBlueprintsForDomainUser();
 
     const [downloadModalOpen, setDownloadModalOpen] = useState(false);
     const [downloadBlueprintId, setDownloadBlueprintId] = useState('');
@@ -125,7 +129,11 @@ export default function BlueprintDashboard() {
     const bps: Array<{name: string; date: string; blueprintId: string}> = [];
     const rookieBps: Array<{name: string; date: string; blueprintId: string}> = 
         blueprints
-            .filter(bp => bp.blueprintType === 'RookieDraft')
+            .filter(
+                (bp) =>
+                    bp.blueprintType === 'RookieDraft' &&
+                    bp.deliveryStatus === 'Published'
+            )
             .map(blueprint => ({
                 name: blueprint.teamName,
                 date: new Date(blueprint.createdUtc).toLocaleDateString(
