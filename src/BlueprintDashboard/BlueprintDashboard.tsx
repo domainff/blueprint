@@ -732,7 +732,7 @@ export default function BlueprintDashboard() {
                     <div
                         className={styles.zoomWrapper}
                         style={{
-                            transform: `scale(${zoomLevel})`,
+                            zoom: zoomLevel,
                         }}
                     >
                         {previewType === PreviewType.Infinite && (
