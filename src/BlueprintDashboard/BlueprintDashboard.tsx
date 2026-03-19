@@ -402,7 +402,7 @@ export default function BlueprintDashboard() {
 
         const link = document.createElement('a');
         link.href = dataUrl;
-        link.download = `${downloadBlueprintName}_${i}attempts_${dataUrl.length}.png`;
+        link.download = `${downloadBlueprintName}.png`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -446,7 +446,7 @@ export default function BlueprintDashboard() {
 
         const link = document.createElement('a');
         link.href = dataUrl;
-        link.download = `${downloadBlueprintName}_${i}attempts_${dataUrl.length}.png`;
+        link.download = `${downloadBlueprintName}.png`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
