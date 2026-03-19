@@ -642,17 +642,19 @@ export default function BlueprintDashboard() {
                                 fontSize: '30px',
                             }}
                             onClick={() => {
-                                if (previewType === PreviewType.Infinite) {
-                                    downloadInfiniteBlueprint();
-                                }
-                                if (previewType === PreviewType.Rookie) {
-                                    downloadRookieBlueprint();
-                                }
-                                if (previewType === PreviewType.Standard) {
-                                    downloadStandardBlueprint();
-                                }
-                                if (previewType === PreviewType.Premium) {
-                                    downloadPremiumBlueprint();
+                                switch (previewType) {
+                                    case PreviewType.Infinite:
+                                        downloadInfiniteBlueprint();
+                                        break;
+                                    case PreviewType.Rookie:
+                                        downloadRookieBlueprint();
+                                        break;
+                                    case PreviewType.Standard:
+                                        downloadStandardBlueprint();
+                                        break;
+                                    case PreviewType.Premium:
+                                        downloadPremiumBlueprint();
+                                        break;
                                 }
                             }}
                             loading={isDownloading}

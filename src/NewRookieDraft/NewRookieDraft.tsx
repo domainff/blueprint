@@ -189,6 +189,21 @@ export default function NewRookieDraft({
         }
         return '';
     }
+
+    function getPickProfileTop(idx: number) {
+        switch (idx) {
+            case 0:
+                return '197px';
+            case 1:
+                return '350px';
+            case 2:
+                return '503px';
+            case 3:
+                return '656px';
+        }
+        return '';
+    }
+
     return (
         <div className={styles.fullBlueprint}>
             <div
@@ -208,25 +223,29 @@ export default function NewRookieDraft({
                     </div>
                 ))}
             </div>
-            <div className={styles.pickProfiles}>
-                {myPicks.slice(0, 4).map((pick, idx) => (
-                    <PickProfile key={idx} pick={pick} />
-                ))}
-            </div>
+            {myPicks.slice(0, 4).map((pick, idx) => (
+                <div 
+                    key={pick.id} 
+                    className={styles.pickProfiles} 
+                    style={{top: getPickProfileTop(idx)}}
+                >
+                    <PickProfile key={pick.id} pick={pick} />
+                </div>
+            ))}
             <div className={styles.targetCards}>
-                {myPicks.slice(0, 4).map((pick, idx) => (
-                    <div key={idx} className={styles.targetCardRow}>
-                        {pick.targets.map((target, idx) =>
+                {myPicks.slice(0, 4).map((pick) => (
+                    <div key={pick.id} className={styles.targetCardRow}>
+                        {pick.targets.map((target) =>
                             newRookieCardMap.has(target.playerName) ? (
                                 <img
-                                    key={idx}
+                                    key={target.id}
                                     src={
                                         newRookieCardMap.get(target.playerName)!
                                     }
                                     className={styles.targetCard}
                                 />
                             ) : (
-                                <div key={idx} className={styles.targetCard}>
+                                <div key={target.id} className={styles.targetCard}>
                                     {target.playerName} is missing rookie card
                                 </div>
                             )
@@ -235,9 +254,9 @@ export default function NewRookieDraft({
                 ))}
             </div>
             <div className={styles.autoAcceptRejectColumn}>
-                {myPicks.slice(0, 4).map((pick, idx) => (
+                {myPicks.slice(0, 4).map((pick) => (
                     <AutoAcceptReject
-                        key={idx}
+                        key={pick.id}
                         autoAcceptPlayer={
                             playerData[pick.autoAcceptPlayerSleeperId]
                         }
