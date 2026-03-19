@@ -2,13 +2,11 @@ import styles from './Premium.module.css';
 import {premiumAssets, premiumBkg} from '../consts/images';
 import {Player} from '../sleeper-api/sleeper-api';
 import {
-    CATCH_ALL_PRIORITY_OPTIONS,
     convertStringToOutlookOption,
     convertStringToRosterArchetype,
     convertStringToValueArchetype,
     DraftCapitalNotes,
     DraftStrategyLabel,
-    ELITE_PRIORITY_OPTIONS,
     FullMove,
     getApiStartingLineup,
     getPicksInfo,
@@ -23,7 +21,6 @@ import {
     Roster,
     RosterArchetypeComponent,
     RosterGrades,
-    shuffle,
     Tep,
     TopPriorities,
     TradePartners,
@@ -222,6 +219,8 @@ export function WrappedPremium({blueprintId}: {blueprintId: string}) {
             getApiStartingLineup(blueprint.leagueSettings, blueprint.rosterPlayers)
         );
 
+        setTopPriorities(blueprint.topPriorities.map(p => p.text));
+
         setDomainTrueRanks(
             blueprint.rosterPlayers.map(p => ({
                 playerId: p.playerId,
@@ -408,34 +407,6 @@ export function WrappedPremium({blueprintId}: {blueprintId: string}) {
             setFullMoves(apiSuggestions);
         }
     }, [blueprint]);
-    useEffect(() => {
-        if (!blueprint) return;
-        const twoYearOutlook = blueprint.outlooks
-            .map(o => o.outlook)
-            .map(convertStringToOutlookOption);
-        if (convertStringToValueArchetype(blueprint.valueArchetype) !== ValueArchetype.EliteValue) {
-            const priorityDescriptions = fullMoves
-                .slice(0, 3)
-                .map(m => m.priorityDescription);
-            const dedupedPriorities = new Set(priorityDescriptions);
-            if (dedupedPriorities.size === 3) {
-                setTopPriorities(priorityDescriptions);
-                return;
-            } else {
-                const catchAll = CATCH_ALL_PRIORITY_OPTIONS.get(
-                    twoYearOutlook[0]
-                )!;
-                shuffle(catchAll);
-                setTopPriorities([
-                    ...dedupedPriorities,
-                    ...catchAll.slice(0, 3 - dedupedPriorities.size),
-                ]);
-            }
-            return;
-        }
-        shuffle(ELITE_PRIORITY_OPTIONS);
-        setTopPriorities(ELITE_PRIORITY_OPTIONS.slice(0, 3));
-    }, [fullMoves, blueprint]);
 
     function getPercentileSuffix() {
         const abs = Math.abs(blueprint?.premiumFeatures.blueprintPercentile || 0);

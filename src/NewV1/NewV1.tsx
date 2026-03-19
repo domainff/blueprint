@@ -409,33 +409,7 @@ export function WrappedNewV1({blueprintId}: {blueprintId: string}) {
         const followingYearInfo = getPicksInfo(myPicks, year2);
         setDraftCapitalNotes2027(followingYearInfo);
 
-        // const numYearOneFirsts = myPicks.filter(
-        //     p => p.season === +year1 && p.round === 1
-        // );
-        // let draftStrategy1 = DraftStrategyLabel.None;
-        // if (numYearOneFirsts.length >= 5) {
-        //     draftStrategy1 = DraftStrategyLabel.Overload;
-        // } else if (numYearOneFirsts.length >= 3) {
-        //     draftStrategy1 = DraftStrategyLabel.Surplus;
-        // } else if (numYearOneFirsts.length >= 1) {
-        //     draftStrategy1 = DraftStrategyLabel.Adequate;
-        // } else {
-        //     draftStrategy1 = DraftStrategyLabel.Deficient;
-        // }
-
-        // const numYearTwoFirsts = myPicks.filter(
-        //     p => p.season === +year2 && p.round === 1
-        // );
-        // let draftStrategy2 = DraftStrategyLabel.None;
-        // if (numYearTwoFirsts.length >= 5) {
-        //     draftStrategy2 = DraftStrategyLabel.Overload;
-        // } else if (numYearTwoFirsts.length >= 3) {
-        //     draftStrategy2 = DraftStrategyLabel.Surplus;
-        // } else if (numYearTwoFirsts.length >= 1) {
-        //     draftStrategy2 = DraftStrategyLabel.Adequate;
-        // } else {
-        //     draftStrategy2 = DraftStrategyLabel.Deficient;
-        // }
+        setTopPriorities(blueprint.topPriorities.map(p => p.text));
 
         if (blueprint.tradeStrategies.length > 0) {
             const collatedTrades = new Map<string, string[]>();
@@ -534,34 +508,34 @@ export function WrappedNewV1({blueprintId}: {blueprintId: string}) {
         }
     }, [blueprint]);
 
-    useEffect(() => {
-        if (!blueprint) return;
-        const twoYearOutlook = blueprint.outlooks
-            .map(o => o.outlook)
-            .map(convertStringToOutlookOption);
-        if (convertStringToValueArchetype(blueprint.valueArchetype) !== ValueArchetype.EliteValue) {
-            const priorityDescriptions = fullMoves
-                .slice(0, 3)
-                .map(m => m.priorityDescription);
-            const dedupedPriorities = new Set(priorityDescriptions);
-            if (dedupedPriorities.size === 3) {
-                setTopPriorities(priorityDescriptions);
-                return;
-            } else {
-                const catchAll = CATCH_ALL_PRIORITY_OPTIONS.get(
-                    twoYearOutlook[0]
-                )!;
-                shuffle(catchAll);
-                setTopPriorities([
-                    ...dedupedPriorities,
-                    ...catchAll.slice(0, 3 - dedupedPriorities.size),
-                ]);
-            }
-            return;
-        }
-        shuffle(ELITE_PRIORITY_OPTIONS);
-        setTopPriorities(ELITE_PRIORITY_OPTIONS.slice(0, 3));
-    }, [fullMoves, blueprint]);
+    // useEffect(() => {
+    //     if (!blueprint) return;
+    //     const twoYearOutlook = blueprint.outlooks
+    //         .map(o => o.outlook)
+    //         .map(convertStringToOutlookOption);
+    //     if (convertStringToValueArchetype(blueprint.valueArchetype) !== ValueArchetype.EliteValue) {
+    //         const priorityDescriptions = fullMoves
+    //             .slice(0, 3)
+    //             .map(m => m.priorityDescription);
+    //         const dedupedPriorities = new Set(priorityDescriptions);
+    //         if (dedupedPriorities.size === 3) {
+    //             setTopPriorities(priorityDescriptions);
+    //             return;
+    //         } else {
+    //             const catchAll = CATCH_ALL_PRIORITY_OPTIONS.get(
+    //                 twoYearOutlook[0]
+    //             )!;
+    //             shuffle(catchAll);
+    //             setTopPriorities([
+    //                 ...dedupedPriorities,
+    //                 ...catchAll.slice(0, 3 - dedupedPriorities.size),
+    //             ]);
+    //         }
+    //         return;
+    //     }
+    //     shuffle(ELITE_PRIORITY_OPTIONS);
+    //     setTopPriorities(ELITE_PRIORITY_OPTIONS.slice(0, 3));
+    // }, [fullMoves, blueprint]);
 
     function getStartingPosition(playerName: string) {
         return (
