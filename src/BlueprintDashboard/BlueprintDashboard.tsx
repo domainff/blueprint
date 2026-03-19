@@ -419,7 +419,7 @@ export default function BlueprintDashboard() {
         await new Promise(resolve => setTimeout(resolve, 3000));
 
         let dataUrl = '';
-        const minDataLength = isMobile ? 4000000 : 3000000;
+        const minDataLength = isMobile ? 5000000 : 3000000;
         let i = 0;
         const maxAttempts = 50;
 
