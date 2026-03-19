@@ -73,7 +73,7 @@ enum PreviewType {
 export default function BlueprintDashboard() {
     useTitle('Blueprint Dashboard');
     const {width, height} = useScreenSize();
-    const isMobile = width < 600;
+    const isMobile = width < 768;
     const [isLoggedIn, setIsLoggedIn] = useState(
         sessionStorage.getItem('flockAuthToken') !== null
     );
