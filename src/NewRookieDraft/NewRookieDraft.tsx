@@ -30,6 +30,7 @@ import {
     usePlayerData,
 } from '../hooks/hooks';
 import {Player} from '../sleeper-api/sleeper-api';
+import { CircularProgress } from '@mui/material';
 
 export enum ValueArchetype {
     None = 'NONE',
@@ -94,6 +95,10 @@ function convertStringToRosterArchetype(str: string): RosterArchetype {
 
 export function WrappedNewRookieDraft({blueprintId}: {blueprintId: string}) {
     const {blueprint: rookieBlueprint} = useBlueprint(blueprintId);
+
+    if (!rookieBlueprint) {
+        return <CircularProgress />;
+    }
 
     return (
         <NewRookieDraft

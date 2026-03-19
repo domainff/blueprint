@@ -23,6 +23,7 @@ import {
     WR_TE_FLEX,
 } from '../consts/fantasy';
 import { RosterArchetype, ValueArchetype } from '../NewRookieDraft/NewRookieDraft';
+import { CircularProgress } from '@mui/material';
 
 export const NONE_PLAYER_ID = 'None';
 
@@ -508,41 +509,16 @@ export function WrappedNewV1({blueprintId}: {blueprintId: string}) {
         }
     }, [blueprint]);
 
-    // useEffect(() => {
-    //     if (!blueprint) return;
-    //     const twoYearOutlook = blueprint.outlooks
-    //         .map(o => o.outlook)
-    //         .map(convertStringToOutlookOption);
-    //     if (convertStringToValueArchetype(blueprint.valueArchetype) !== ValueArchetype.EliteValue) {
-    //         const priorityDescriptions = fullMoves
-    //             .slice(0, 3)
-    //             .map(m => m.priorityDescription);
-    //         const dedupedPriorities = new Set(priorityDescriptions);
-    //         if (dedupedPriorities.size === 3) {
-    //             setTopPriorities(priorityDescriptions);
-    //             return;
-    //         } else {
-    //             const catchAll = CATCH_ALL_PRIORITY_OPTIONS.get(
-    //                 twoYearOutlook[0]
-    //             )!;
-    //             shuffle(catchAll);
-    //             setTopPriorities([
-    //                 ...dedupedPriorities,
-    //                 ...catchAll.slice(0, 3 - dedupedPriorities.size),
-    //             ]);
-    //         }
-    //         return;
-    //     }
-    //     shuffle(ELITE_PRIORITY_OPTIONS);
-    //     setTopPriorities(ELITE_PRIORITY_OPTIONS.slice(0, 3));
-    // }, [fullMoves, blueprint]);
-
     function getStartingPosition(playerName: string) {
         return (
             apiStartingLineup.find(
                 ({player}) => player.playerName === playerName
             )?.position
         );
+    }
+
+    if (!blueprint) {
+        return <CircularProgress />;
     }
 
     return (

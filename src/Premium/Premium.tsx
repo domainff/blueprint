@@ -41,6 +41,7 @@ import {
 } from '../hooks/hooks';
 import {logoImage} from '../shared/Utilities';
 import {RosterArchetype, ValueArchetype} from '../NewRookieDraft/NewRookieDraft';
+import { CircularProgress } from '@mui/material';
 
 
 
@@ -425,6 +426,10 @@ export function WrappedPremium({blueprintId}: {blueprintId: string}) {
             default:
                 return 'th';
         }
+    }
+
+    if (!blueprint) {
+        return <CircularProgress />;
     }
 
     return (
