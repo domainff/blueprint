@@ -224,7 +224,7 @@ type InfiniteFeatures = {
 
 export function useBlueprint(blueprintId: string) {
     const [blueprint, setBlueprint] = useState<Blueprint>();
-    const authToken = sessionStorage.getItem('authToken');
+    const authToken = localStorage.getItem('authToken');
     const {data} = useQuery({
         queryKey: ['blueprint', blueprintId],
         queryFn: async () => {
@@ -332,7 +332,7 @@ type BlueprintMetadata = {
 
 export function useBlueprintsForDomainUser() {
     const [blueprints, setBlueprints] = useState<Array<BlueprintMetadata>>([]);
-    const authToken = sessionStorage.getItem('flockAuthToken');
+    const authToken = localStorage.getItem('flockAuthToken');
     const {data, error, isLoading} = useQuery({
         queryKey: ['blueprints'],
         queryFn: async () => {

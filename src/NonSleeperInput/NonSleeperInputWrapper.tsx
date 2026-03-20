@@ -37,7 +37,7 @@ export default function NonSleeperInputWrapper() {
     const {width} = useScreenSize();
     const isMobile = width < 600;
     const [isLoggedIn, setIsLoggedIn] = useState(
-        sessionStorage.getItem('flockAuthToken') !== null
+        localStorage.getItem('flockAuthToken') !== null
     );
     const [loginModalOpen, setLoginModalOpen] = useState(!isLoggedIn);
     const [loginEmail, setLoginEmail] = useState('');
@@ -72,7 +72,7 @@ export default function NonSleeperInputWrapper() {
     const [nonSleeperTeam, setNonSleeperTeam] = useState<NonSleeperTeam>();
     useEffect(() => {
         setNonSleeperTeam({
-            appUserGuid: sessionStorage.getItem('domainUserId')!,
+            appUserGuid: localStorage.getItem('domainUserId')!,
             platform: platform,
             teamName: teamName,
             season: 2026,
@@ -112,13 +112,13 @@ export default function NonSleeperInputWrapper() {
             .request(options)
             .then(res => {
                 if (res.data.success) {
-                    sessionStorage.setItem('flockAuthToken', res.data.token);
-                    sessionStorage.setItem('flockEmail', res.data.flockEmail);
-                    sessionStorage.setItem(
+                    localStorage.setItem('flockAuthToken', res.data.token);
+                    localStorage.setItem('flockEmail', res.data.flockEmail);
+                    localStorage.setItem(
                         'flockUsername',
                         res.data.flockUsername
                     );
-                    sessionStorage.setItem(
+                    localStorage.setItem(
                         'domainUserId',
                         res.data.domainUserId
                     );
@@ -146,10 +146,10 @@ export default function NonSleeperInputWrapper() {
     }
 
     function logout() {
-        sessionStorage.removeItem('flockAuthToken');
-        sessionStorage.removeItem('flockEmail');
-        sessionStorage.removeItem('flockUsername');
-        sessionStorage.removeItem('domainUserId');
+        localStorage.removeItem('flockAuthToken');
+        localStorage.removeItem('flockEmail');
+        localStorage.removeItem('flockUsername');
+        localStorage.removeItem('domainUserId');
         setIsLoggedIn(false);
     }
 

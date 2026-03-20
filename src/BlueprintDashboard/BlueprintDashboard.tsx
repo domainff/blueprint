@@ -75,7 +75,7 @@ export default function BlueprintDashboard() {
     const {width, height} = useScreenSize();
     const isMobile = width < 768;
     const [isLoggedIn, setIsLoggedIn] = useState(
-        sessionStorage.getItem('flockAuthToken') !== null
+        localStorage.getItem('flockAuthToken') !== null
     );
     const [loginModalOpen, setLoginModalOpen] = useState(!isLoggedIn);
     const [loginEmail, setLoginEmail] = useState('');
@@ -100,7 +100,7 @@ export default function BlueprintDashboard() {
     const [isDownloading, setIsDownloading] = useState(false);
     const [previewType, setPreviewType] = useState(PreviewType.None);
     const [username, setUsername] = useState(
-        sessionStorage.getItem('flockUsername')
+        localStorage.getItem('flockUsername')
     );
 
     useEffect(() => {
@@ -117,8 +117,8 @@ export default function BlueprintDashboard() {
     }, [isLoggedIn]);
 
     useEffect(() => {
-        setUsername(sessionStorage.getItem('flockUsername'));
-    }, [sessionStorage.getItem('flockUsername')]);
+        setUsername(localStorage.getItem('flockUsername'));
+    }, [localStorage.getItem('flockUsername')]);
 
     useEffect(() => {
         const displayWidth = width * (isMaximized ? 1 : 0.9);
@@ -222,9 +222,9 @@ export default function BlueprintDashboard() {
             .request(options)
             .then(res => {
                 if (res.data.success) {
-                    sessionStorage.setItem('flockAuthToken', res.data.token);
-                    sessionStorage.setItem('flockEmail', res.data.flockEmail);
-                    sessionStorage.setItem(
+                    localStorage.setItem('flockAuthToken', res.data.token);
+                    localStorage.setItem('flockEmail', res.data.flockEmail);
+                    localStorage.setItem(
                         'flockUsername',
                         res.data.flockUsername
                     );
@@ -256,9 +256,9 @@ export default function BlueprintDashboard() {
     const zoomOut = () => setZoomLevel(prev => prev / 1.1); //() => setZoomIndex(prev => Math.max(prev - 1, 0));
 
     function logout() {
-        sessionStorage.removeItem('flockAuthToken');
-        sessionStorage.removeItem('flockEmail');
-        sessionStorage.removeItem('flockUsername');
+        localStorage.removeItem('flockAuthToken');
+        localStorage.removeItem('flockEmail');
+        localStorage.removeItem('flockUsername');
         setIsLoggedIn(false);
     }
 
