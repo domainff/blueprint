@@ -263,6 +263,7 @@ const newRookieCardMap = new Map<string, string>([
     ['Michael Trigg', michaelTrigg],
     ['Mike Washington', mikeWashington],
     ['Nic Singleton', nicSingleton],
+    ['Nicholas Singleton', nicSingleton],
     ['Omar Cooper', omarCooper],
     ['Roman Hemby', romanHemby],
     ['Skyler Bell', skylerBell],
