@@ -27,7 +27,7 @@
     position: absolute;
     color: white;
     font-family: 'Erbaum';
-    line-height: 1.5;
+    line-height: 1.47;
     font-weight: 500;
     font-size: 25px;
 
@@ -39,7 +39,7 @@
     position: absolute;
     color: white;
     font-family: 'Erbaum';
-    line-height: 1.5;
+    line-height: 1.47;
     font-size: 25px;
 
     width: 48px;
@@ -50,7 +50,7 @@
     position: absolute;
     color: white;
     font-family: 'Erbaum';
-    line-height: 1.5;
+    line-height: 1.47;
     font-size: 25px;
 
     width: 48px;
@@ -61,7 +61,7 @@
     position: absolute;
     color: white;
     font-family: 'Erbaum';
-    line-height: 1.5;
+    line-height: 1.47;
     font-size: 25px;
 
     width: 48px;
@@ -106,7 +106,7 @@
     color: #FFF;
     text-shadow: 0 2px 2px rgba(0, 0, 0, 0.25);
     font-family: 'Erbaum';
-    line-height: 1.5;
+    line-height: 1.47;
     font-size: 32px;
 
     width: 53px;
@@ -147,7 +147,7 @@
     color: #FFF;
 
     font-family: Erbaum;
-    line-height: 1.5;
+    line-height: 1.47;
     font-size: 35px;
     font-weight: 400;
 
@@ -189,7 +189,7 @@
     text-align: center;
     text-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
     font-family: 'Erbaum';
-    line-height: 1.5;
+    line-height: 1.47;
     font-size: 51.33px;
     font-weight: 800;
 
@@ -283,7 +283,7 @@
 
 .draftCapitalYear {
     font-family: Erbaum;
-    line-height: 1.5;
+    line-height: 1.47;
     font-size: 12px;
     font-weight: 700;
 }
