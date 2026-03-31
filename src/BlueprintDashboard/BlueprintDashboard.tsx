@@ -19,6 +19,8 @@ import axios from 'axios';
 import { WrappedNewRookieDraft } from '../NewRookieDraft/NewRookieDraft';
 import { WrappedNewV1 } from '../NewV1/NewV1';
 import { WrappedPremium } from '../Premium/Premium';
+import BlueprintStatusTracker from './BlueprintStatusTracker/BlueprintStatusTracker';
+import { useSearchParams } from 'react-router-dom';
 
 const COLOR_LIST = [
     '#F47F20',
@@ -102,6 +104,8 @@ export default function BlueprintDashboard() {
     const [username, setUsername] = useState(
         localStorage.getItem('flockUsername')
     );
+    const [searchParams] = useSearchParams();
+    const statusTrackerFlag = searchParams.get('statusTracker')?.toLowerCase() === 'true';
 
     useEffect(() => {
         if (!blueprintsError) return;
@@ -1010,6 +1014,7 @@ export default function BlueprintDashboard() {
                                 </div>
                             </div>
                         </div>
+                        {statusTrackerFlag && <BlueprintStatusTracker blueprints={blueprints} />}
                     </div>
                 </>
             )}

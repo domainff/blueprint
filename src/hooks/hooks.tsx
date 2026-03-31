@@ -319,8 +319,8 @@ export function useParamFromUrl(
     return [value, setValue];
 }
 
-type BlueprintMetadata = {
-    blueprintId: number;
+export type BlueprintMetadata = {
+    blueprintId: string;
     blueprintType: string;
     platform: string;
     ownerUserId: string;

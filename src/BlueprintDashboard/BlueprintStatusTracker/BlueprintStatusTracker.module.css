@@ -1,0 +1,27 @@
+.blueprintStatusTracker {
+    background-color: #182328;
+
+    border-radius: 15px;
+
+    padding: 20px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+
+    height: fit-content;
+}
+
+.title {
+    color: #FFF;
+    font-family: Prohibition;
+    font-size: 35px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+}
+
+.statusImage {
+    width: 700px;
+    height: auto;
+}

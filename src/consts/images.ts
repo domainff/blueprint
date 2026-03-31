@@ -46,6 +46,11 @@ import nflSilhouette from '../assets/newinfinite/nfl_logo.png';
 import flockDomainLogo from '../assets/blueprintDashboard/flock-domain-logo.png';
 import logoHorizontal from '../assets/blueprintDashboard/logoHorizontal.png';
 
+import submittedStatus from '../assets/blueprintDashboard/statuses/submitted_status.png';
+import queuedStatus from '../assets/blueprintDashboard/statuses/queued_status.png';
+import inProgressStatus from '../assets/blueprintDashboard/statuses/in_progress_status.png';
+import sentStatus from '../assets/blueprintDashboard/statuses/sent_status.png';
+
 const teamLogos: Map<string, string> = new Map([
     ['ari', ari],
     ['ARI', ari],
@@ -404,4 +409,8 @@ export {
     nfl as nflLogo,
     premiumBkg,
     premiumAssets,
+    submittedStatus,
+    queuedStatus,
+    inProgressStatus,
+    sentStatus,
 };
