@@ -760,7 +760,7 @@ export default function BlueprintDashboard() {
                 <>
                     <div
                         className={styles.headerContainer}
-                        style={{flexDirection: isMobile ? 'column' : 'row'}}
+                        style={{flexDirection: isMobile ? 'column' : 'row', width: width * 0.9}}
                     >
                         <img
                             src={logoHorizontal}
@@ -797,7 +797,7 @@ export default function BlueprintDashboard() {
                             Log Out
                         </Button>
                     </div>
-                    <div className={styles.bodyContainer}>
+                    <div className={styles.bodyContainer} style={{width: width * 0.9}}>
                         <div className={styles.bodySection1}>
                             {!isMobile && (
                                 <div>
@@ -864,19 +864,20 @@ export default function BlueprintDashboard() {
                                 </div>
                             </div>
                             <div
-                                className={styles.myInfiniteBlueprints}
+                                className={styles.myPremiumBlueprints}
                                 style={{
                                     marginLeft: isMobile ? '0' : '',
                                     alignItems: isMobile ? 'center' : '',
                                 }}
                             >
                                 <div
-                                    className={styles.myInfiniteBlueprintsTitle}
+                                    className={styles.myPremiumBlueprintsTitle}
                                     style={{
                                         textAlign: isMobile
                                             ? 'center'
                                             : undefined,
                                         fontSize: isMobile ? '30px' : undefined,
+                                        justifyContent: isMobile ? 'center' : 'flex-start',
                                     }}
                                 >
                                     <>My Premium Blueprints</>
@@ -975,6 +976,7 @@ export default function BlueprintDashboard() {
                                             ? 'center'
                                             : undefined,
                                         fontSize: isMobile ? '30px' : undefined,
+                                        justifyContent: isMobile ? 'center' : 'flex-start',
                                     }}
                                 >
                                     <>My Infinite Blueprints</>
