@@ -7,7 +7,7 @@
 
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 10px;
 
     height: fit-content;
 }
@@ -24,4 +24,153 @@
 .statusImage {
     width: 700px;
     height: auto;
+}
+
+.lastUpdated {
+    color: #FFF;
+    font-family: "Acumin Pro";
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+
+    align-self: flex-end;
+}
+
+.currentStatus {
+    color: #FFF;
+    font-family: Erbaum;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    background-color: rgba(255, 255, 255, 0.13);
+    border-radius: 15px;
+    width: fit-content;
+
+    padding: 6px;
+
+    .deliveryStatus {
+        font-weight: 1000;
+        text-transform: uppercase;
+    }
+}
+
+.cardContainer {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+}
+
+
+.buyABlueprint {
+    background-color: #1AE069;
+
+    border-radius: 25px;
+
+    height: 120px;
+
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    width: fit-content;
+}
+
+.buyABlueprint:hover {
+    cursor: pointer;
+    background-color: #58f095;
+}
+
+.buyABlueprintText {
+    color: #04121C;
+    font-family: Prohibition;
+    font-size: 40px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    text-align: left;
+
+    width: 200px;
+
+    margin-left: -15px;
+}
+
+.currentWaitTime {
+    background-color: #00B1FF;
+
+    border-radius: 25px;
+
+    height: 120px;
+
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+
+    flex-grow: 2;
+
+    padding: 0 10px;
+}
+
+.waitTimeText {
+    color: #04121C;
+    text-transform: uppercase;
+
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.waitTimeTextTitle {
+    font-family: "Acumin Pro ExtraCondensed";
+    font-size: 26px;
+    font-weight: 700;
+}
+
+.waitTimeTextValue {
+    font-family: Prohibition;
+    font-size: 56px;
+    font-weight: 400;
+    line-height: 0.8;
+}
+
+.buttonContainer {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+}
+
+.submitTicket, .dynastyCommunity {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    align-items: center;
+
+    height: 33px;
+    background-color: #182328;
+
+    text-transform: uppercase;
+
+    color: #FFF;
+    font-family: Prohibition;
+    font-size: 21px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+
+    border: #FFF 2px solid;
+    border-radius: 15px;
+
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.submitTicketText, .dynastyCommunityText {
+    padding-bottom: 2px;
+}
+
+.submitTicket:hover, .dynastyCommunity:hover {
+    cursor: pointer;
+    background-color: #50585d;
 }

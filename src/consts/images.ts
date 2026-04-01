@@ -50,6 +50,7 @@ import submittedStatus from '../assets/blueprintDashboard/statuses/submitted_sta
 import queuedStatus from '../assets/blueprintDashboard/statuses/queued_status.png';
 import inProgressStatus from '../assets/blueprintDashboard/statuses/in_progress_status.png';
 import sentStatus from '../assets/blueprintDashboard/statuses/sent_status.png';
+import waitTime from '../assets/blueprintDashboard/waitTime.png';
 
 const teamLogos: Map<string, string> = new Map([
     ['ari', ari],
@@ -413,4 +414,5 @@ export {
     queuedStatus,
     inProgressStatus,
     sentStatus,
+    waitTime,
 };
