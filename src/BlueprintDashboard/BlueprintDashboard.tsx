@@ -557,7 +557,7 @@ export default function BlueprintDashboard() {
                             <button
                                 className={styles.continueSubscriptionButtonGreen}
                                 onClick={() => {
-                                    window.open('https://bit.ly/domainbp', '_blank', 'noopener,noreferrer');
+                                    window.open('https://domain.football/domainrenew', '_blank', 'noopener,noreferrer');
                                 }}
                             >
                                 {'>> CONTINUE MY SUBSCRIPTION <<'}
