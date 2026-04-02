@@ -111,7 +111,7 @@ export default function BlueprintDashboard() {
     );
     const [searchParams] = useSearchParams();
     const statusTrackerFlag = searchParams.get('statusTracker')?.toLowerCase() === 'true';
-    const expiredPopupFlag = searchParams.get('expiredPopup')?.toLowerCase() === 'true';
+    const expiredPopupFlag = true;
 
     useEffect(() => {
         if (!subscriptions) return;
