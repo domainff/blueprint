@@ -23,6 +23,46 @@ import { BuySellPlayerProps, verdictToEnum } from "../NewInfinite/NewInfinite";
 
 const AZURE_API_URL = 'https://domainffapi.azurewebsites.net/api/';
 
+
+export type DomainAppUser = {
+    id: string;
+    flockEmail: string;
+    flockUsername: string;
+    flockUserId: string;
+    flockRenewalDate: string;
+    verificationStatus: string;
+    sleeperUsername: string;
+    sleeperUserId: string;
+    discordUsername: string | null;
+};
+
+export function useDomainAppUser() {
+    const [appUser, setAppUser] = useState<DomainAppUser>();
+    const authToken = localStorage.getItem('flockAuthToken');
+    const appUserId = localStorage.getItem('domainUserId');
+    const {data} = useQuery({
+        queryKey: ['domainAppUser', appUserId],
+        queryFn: async () => {
+            const options = {
+                method: 'GET',
+                url: `${AZURE_API_URL}DomainAppUsers/${appUserId}`,
+                headers: {
+                    Authorization: `Bearer ${authToken}`,
+                },
+            };
+            const res = await axios.request(options);
+            return res.data as DomainAppUser;
+        },
+        retry: false,
+        enabled: !!authToken,
+    });
+    useEffect(() => {
+        if (!data) return;
+        setAppUser(data);
+    }, [data]);
+
+    return {appUser};
+}
 export type Subscription = {
     appUserId: string;
     cancelledUtc: string;
@@ -43,7 +83,6 @@ export function useInfiniteSubscriptions() {
     const [subscriptions, setSubscriptions] = useState<Subscription[]>();
     const authToken = localStorage.getItem('flockAuthToken');
     const appUserId = localStorage.getItem('domainUserId');
-    console.log('appUserId', appUserId);
     const {data} = useQuery({
         queryKey: ['infinitesubscriptions'],
         queryFn: async () => {

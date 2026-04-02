@@ -3,8 +3,8 @@ import newInfiniteStyles from '../NewInfinite/NewInfinite.module.css';
 import newRookieStyles from '../NewRookieDraft/NewRookieDraft.module.css';
 import newV1Styles from '../NewV1/NewV1.module.css';
 import premiumStyles from '../Premium/Premium.module.css';
-import {expiredInfinitePromo, flockDomainLogo, logoHorizontal} from '../consts/images';
-import {Subscription, useBlueprintsForDomainUser, useInfiniteSubscriptions, useTitle} from '../hooks/hooks';
+import {expiredInfinitePromo, expiredMembershipPromo, flockDomainLogo, logoHorizontal} from '../consts/images';
+import {Subscription, useBlueprintsForDomainUser, useDomainAppUser, useInfiniteSubscriptions, useTitle} from '../hooks/hooks';
 import {Box, Button, CircularProgress, IconButton, Modal} from '@mui/material';
 import {useEffect, useState} from 'react';
 import DomainTextField from '../shared/DomainTextField';
@@ -94,8 +94,10 @@ export default function BlueprintDashboard() {
         isLoading: blueprintsLoading,
     } = useBlueprintsForDomainUser();
     const {subscriptions} = useInfiniteSubscriptions();
+    const {appUser} = useDomainAppUser();
     const [expiredSubscriptions, setExpiredSubscriptions] = useState<Subscription[]>([]);
     const [showExpiredPopup, setShowExpiredPopup] = useState(false);
+    const [showMembershipExpiredPopup, setShowMembershipExpiredPopup] = useState(false);
 
     const [downloadModalOpen, setDownloadModalOpen] = useState(false);
     const [downloadBlueprintId, setDownloadBlueprintId] = useState('');
@@ -121,6 +123,12 @@ export default function BlueprintDashboard() {
             setShowExpiredPopup(true);
         }
     }, [subscriptions]);
+    useEffect(() => {
+        if (!appUser) return;
+        if (isInThePast(appUser.flockRenewalDate)) {
+            setShowMembershipExpiredPopup(true);
+        }
+    }, [appUser]);
 
     useEffect(() => {
         if (!blueprintsError) return;
@@ -498,41 +506,68 @@ export default function BlueprintDashboard() {
     return (
         <div>
             {expiredPopupFlag && (
-                <Modal
-                    open={showExpiredPopup}
-                    onClose={() => {
-                        acknowledgeExpiredSubscriptions();
-                        setShowExpiredPopup(false);
-                    }}
-                >
-                    <Box className={styles.expiredModal}>
-                        <img src={expiredInfinitePromo} className={styles.expiredInfinitePromo} />
-                        <div className={styles.expiredModalText}>
-                            {'Oh no. Your infinite blueprint has expired for the following team(s):'}
-                        </div>
-                        <div className={styles.expiredModalTeams}>
-                            {expiredSubscriptions.map(subscription => (
-                                <div className={styles.expiredModalTeam}>
-                                    → {subscription.teamName}
-                                </div>
-                            ))}
-                        </div>
-                        <div className={styles.expiredModalText}>
-                            {'You can renew your infinite blueprint(s) for this year here:'}
-                        </div>
-                        <button
-                            className={styles.continueSubscriptionButton}
-                            onClick={() => {
-                                window.open('https://bit.ly/domainbp', '_blank', 'noopener,noreferrer');
-                            }}
-                        >
-                            {'>> CONTINUE MY SUBSCRIPTION <<'}
-                        </button>
-                        <div className={styles.expiredModalText}>
-                            {'After you renew, message Nathan or Avery on Discord and get some free stuff!'}
-                        </div>
-                    </Box>
-                </Modal>
+                <>
+                    <Modal
+                        open={showExpiredPopup}
+                        onClose={() => {
+                            acknowledgeExpiredSubscriptions();
+                            setShowExpiredPopup(false);
+                        }}
+                    >
+                        <Box className={styles.expiredModal}>
+                            <img src={expiredInfinitePromo} className={styles.expiredInfinitePromo} />
+                            <div className={styles.expiredModalText}>
+                                {'Oh no. Your infinite blueprint has expired for the following team(s):'}
+                            </div>
+                            <div className={styles.expiredModalTeams}>
+                                {expiredSubscriptions.map(subscription => (
+                                    <div className={styles.expiredModalTeam}>
+                                        → {subscription.teamName}
+                                    </div>
+                                ))}
+                            </div>
+                            <div className={styles.expiredModalText}>
+                                {'You can renew your infinite blueprint(s) for this year here:'}
+                            </div>
+                            <button
+                                className={styles.continueSubscriptionButton}
+                                onClick={() => {
+                                    window.open('https://bit.ly/domainbp', '_blank', 'noopener,noreferrer');
+                                }}
+                            >
+                                {'>> CONTINUE MY SUBSCRIPTION <<'}
+                            </button>
+                            <div className={styles.expiredModalText}>
+                                {'After you renew, message Nathan or Avery on Discord and get some free stuff!'}
+                            </div>
+                        </Box>
+                    </Modal>
+                    <Modal
+                        open={showMembershipExpiredPopup}
+                        onClose={() => {
+                            setShowMembershipExpiredPopup(false);
+                        }}
+                    >
+                        <Box className={styles.expiredMembershipModal}>
+                            <img src={expiredMembershipPromo} className={styles.expiredInfinitePromo} />
+                            <div className={styles.expiredModalText}>
+                                {'Oh no. Your domain membership has expired! We would love to have you back. '
+                                    + 'To access your infinite blueprint, renew your subscription here:'}
+                            </div>
+                            <button
+                                className={styles.continueSubscriptionButtonGreen}
+                                onClick={() => {
+                                    window.open('https://bit.ly/domainbp', '_blank', 'noopener,noreferrer');
+                                }}
+                            >
+                                {'>> CONTINUE MY SUBSCRIPTION <<'}
+                            </button>
+                            <div className={styles.expiredModalText}>
+                                {'After you renew, message Nathan or Avery on Discord and get some free stuff!'}
+                            </div>
+                        </Box>
+                    </Modal>
+                </>
             )}
             <Modal
                 open={loginModalOpen}

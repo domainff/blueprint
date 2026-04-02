@@ -268,7 +268,7 @@ a:active {
   color: var(--dd-light-blue-rb, #00B1FF);
 }
 
-.expiredModal {
+.expiredModal, .expiredMembershipModal {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -282,11 +282,18 @@ a:active {
 
     padding: 10px;
 
-    border: 5px solid var(--dd-light-blue-rb, #00B1FF);
     border-radius: 10px;
 
     width: 600px;
     max-width: 90%;
+}
+
+.expiredModal {
+    border: 5px solid #00B1FF;
+}
+
+.expiredMembershipModal {
+    border: 5px solid  #1AE069;
 }
 
 .expiredInfinitePromo {
@@ -312,7 +319,7 @@ a:active {
     margin-left: 15%;
 }
 
-.continueSubscriptionButton {
+.continueSubscriptionButton, .continueSubscriptionButtonGreen {
     color: #FFF;
     text-align: center;
     font-family: Prohibition;
@@ -327,6 +334,19 @@ a:active {
     width: 80%;
     padding-top: 10px;
     padding-bottom: 12px;
+}
+
+.continueSubscriptionButton {
+    background: var(--DD-Light-Blue-Gradient, linear-gradient(180deg, #00B1FF 0%, #006A99 100%));
+}
+
+.continueSubscriptionButtonGreen {
+    background: var(--DD-Green-Gradient, linear-gradient(180deg, #1AE069 0%, #0E7A39 100%));
+}
+
+.continueSubscriptionButtonGreen:hover {
+    cursor: pointer;
+    background: var(--DD-Green-Gradient, linear-gradient(180deg, #76efa6 0%, #57b77d 100%));
 }
 
 .continueSubscriptionButton:hover {

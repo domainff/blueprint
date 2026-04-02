@@ -52,6 +52,7 @@ import inProgressStatus from '../assets/blueprintDashboard/statuses/in_progress_
 import sentStatus from '../assets/blueprintDashboard/statuses/sent_status.png';
 import waitTime from '../assets/blueprintDashboard/waitTime.png';
 import expiredInfinitePromo from '../assets/blueprintDashboard/expiredInfinitePromo.png';
+import expiredMembershipPromo from '../assets/blueprintDashboard/expiredMembershipPromo.png';
 import shoppingCart from '../assets/blueprintDashboard/shoppingCart.png';
 
 const teamLogos: Map<string, string> = new Map([
@@ -419,4 +420,5 @@ export {
     waitTime,
     expiredInfinitePromo,
     shoppingCart,
+    expiredMembershipPromo,
 };
