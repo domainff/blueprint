@@ -1171,7 +1171,7 @@ export function OverallGrade({
 }) {
     return (
         <div className={styles.overallGrade} style={style}>
-            {overallGrade}
+            {Math.round(overallGrade * 10) / 10}
         </div>
     );
 }

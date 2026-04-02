@@ -320,8 +320,8 @@
 .percentile {
     position: absolute;
     color: #FFF;
-    text-align: center;
     font-family: Erbaum;
+    line-height: 1.47;
     font-size: 40.13px;
     font-weight: 400;
     text-align: center;
