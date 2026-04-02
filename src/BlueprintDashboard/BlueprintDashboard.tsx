@@ -3,8 +3,8 @@ import newInfiniteStyles from '../NewInfinite/NewInfinite.module.css';
 import newRookieStyles from '../NewRookieDraft/NewRookieDraft.module.css';
 import newV1Styles from '../NewV1/NewV1.module.css';
 import premiumStyles from '../Premium/Premium.module.css';
-import {flockDomainLogo, logoHorizontal} from '../consts/images';
-import {useBlueprintsForDomainUser, useTitle} from '../hooks/hooks';
+import {expiredInfinitePromo, flockDomainLogo, logoHorizontal} from '../consts/images';
+import {Subscription, useBlueprintsForDomainUser, useInfiniteSubscriptions, useTitle} from '../hooks/hooks';
 import {Box, Button, CircularProgress, IconButton, Modal} from '@mui/material';
 import {useEffect, useState} from 'react';
 import DomainTextField from '../shared/DomainTextField';
@@ -93,6 +93,9 @@ export default function BlueprintDashboard() {
         error: blueprintsError,
         isLoading: blueprintsLoading,
     } = useBlueprintsForDomainUser();
+    const {subscriptions} = useInfiniteSubscriptions();
+    const [expiredSubscriptions, setExpiredSubscriptions] = useState<Subscription[]>([]);
+    const [showExpiredPopup, setShowExpiredPopup] = useState(false);
 
     const [downloadModalOpen, setDownloadModalOpen] = useState(false);
     const [downloadBlueprintId, setDownloadBlueprintId] = useState('');
@@ -106,6 +109,18 @@ export default function BlueprintDashboard() {
     );
     const [searchParams] = useSearchParams();
     const statusTrackerFlag = searchParams.get('statusTracker')?.toLowerCase() === 'true';
+    const expiredPopupFlag = searchParams.get('expiredPopup')?.toLowerCase() === 'true';
+
+    useEffect(() => {
+        if (!subscriptions) return;
+        const expiredSubscriptions = subscriptions.filter(
+            sub => isInThePast(sub.expiresUtc) && !sub.expirationAcknowledged
+        );
+        setExpiredSubscriptions(expiredSubscriptions);
+        if (expiredSubscriptions.length > 0) {
+            setShowExpiredPopup(true);
+        }
+    }, [subscriptions]);
 
     useEffect(() => {
         if (!blueprintsError) return;
@@ -214,6 +229,24 @@ export default function BlueprintDashboard() {
                 blueprintId: '' + blueprint.blueprintId,
             }));
 
+    function isInThePast(utcDateString: string): boolean {
+        const date = new Date(utcDateString + 'Z'); // Append 'Z' to ensure it's parsed as UTC
+        const now = new Date();
+        return date < now;
+    }
+
+    async function acknowledgeExpiredSubscriptions() {
+        const authToken = localStorage.getItem('flockAuthToken');
+        const options = {
+            method: 'POST',
+            url: 'https://domainffapi.azurewebsites.net/api/InfiniteSubscriptions/acknowledge-expired',
+            headers: {
+                Authorization: `Bearer ${authToken}`,
+            },
+        };
+        await axios.request(options);
+    }
+
     async function submitLogin() {
         setIsLoggingIn(true);
         const options = {
@@ -231,6 +264,10 @@ export default function BlueprintDashboard() {
                     localStorage.setItem(
                         'flockUsername',
                         res.data.flockUsername
+                    );
+                    localStorage.setItem(
+                        'domainUserId',
+                        res.data.domainUserId
                     );
                     setIsLoggedIn(true);
                     setLoginModalOpen(false);
@@ -460,6 +497,38 @@ export default function BlueprintDashboard() {
 
     return (
         <div>
+            {expiredPopupFlag && (
+                <Modal
+                    open={showExpiredPopup}
+                    onClose={() => {
+                        acknowledgeExpiredSubscriptions();
+                        setShowExpiredPopup(false);
+                    }}
+                >
+                    <Box className={styles.expiredModal}>
+                        <img src={expiredInfinitePromo} className={styles.expiredInfinitePromo} />
+                        <div className={styles.expiredModalText}>
+                            {'Oh no. Your infinite blueprint has expired for the following team(s):'}
+                        </div>
+                        <div className={styles.expiredModalTeams}>
+                            {expiredSubscriptions.map(subscription => (
+                                <div className={styles.expiredModalTeam}>
+                                    → {subscription.teamName}
+                                </div>
+                            ))}
+                        </div>
+                        <div className={styles.expiredModalText}>
+                            {'You can renew your infinite blueprint(s) for this year here:'}
+                        </div>
+                        <button className={styles.continueSubscriptionButton}>
+                            {'>> CONTINUE MY SUBSCRIPTION <<'}
+                        </button>
+                        <div className={styles.expiredModalText}>
+                            {'After you renew, message Nathan or Avery on Discord and get some free stuff!'}
+                        </div>
+                    </Box>
+                </Modal>
+            )}
             <Modal
                 open={loginModalOpen}
                 onClose={() => {}} // prevent close on unless you login.

@@ -1,5 +1,3 @@
-// ONLY UPDATE THIS FILE WHEN CORRESPONDING FILE IN dynasty-ff REPO CHANGES
-
 import { Dispatch, SetStateAction, useCallback, useEffect, useState } from "react";
 import { Player, Roster, User } from "../sleeper-api/sleeper-api";
 import playersJson from "../data/players.json";
@@ -24,6 +22,50 @@ import axios from "axios";
 import { BuySellPlayerProps, verdictToEnum } from "../NewInfinite/NewInfinite";
 
 const AZURE_API_URL = 'https://domainffapi.azurewebsites.net/api/';
+
+export type Subscription = {
+    appUserId: string;
+    cancelledUtc: string;
+    createdUtc: string;
+    expirationAcknowledged: boolean;
+    expiresUtc: string;
+    teamName: string;
+};
+
+export type InfiniteSubscriptionsResponse = {
+    items: Subscription[];
+    page: number;
+    pageSize: number;
+    totalCount: number;
+}
+
+export function useInfiniteSubscriptions() {
+    const [subscriptions, setSubscriptions] = useState<Subscription[]>();
+    const authToken = localStorage.getItem('flockAuthToken');
+    const appUserId = localStorage.getItem('domainUserId');
+    const {data} = useQuery({
+        queryKey: ['infinitesubscriptions'],
+        queryFn: async () => {
+            const options = {
+                method: 'GET',
+                url: `${AZURE_API_URL}InfiniteSubscriptions/?AppUserId=${appUserId}`,
+                headers: {
+                    Authorization: `Bearer ${authToken}`,
+                },
+            };
+            const res = await axios.request(options);
+            return res.data as InfiniteSubscriptionsResponse;
+        },
+        retry: false,
+        enabled: !!authToken,
+    });
+    useEffect(() => {
+        if (!data) return;
+        setSubscriptions(data.items);
+    }, [data]);
+
+    return {subscriptions};
+}
 
 export type LeagueSettings = {
     numberOfTeams: number;
