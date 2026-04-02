@@ -10,6 +10,7 @@ import WeeklyAlgorithm from "./WeeklyAlgorithm/WeeklyAlgorithm.tsx";
 import BlueprintDashboard from "./BlueprintDashboard/BlueprintDashboard.tsx";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import BodyBackgroundController from "./BodyBackgroundController.tsx";
+import InfiniteSpotChecker from "./InfiniteSpotChecker/InfiniteSpotChecker.tsx";
 
 const queryClient = new QueryClient();
 
@@ -39,6 +40,10 @@ createRoot(document.getElementById("root")!).render(
                     <Route
                         path="/dashboard"
                         element={<BlueprintDashboard />}
+                    />
+                    <Route
+                        path="/infinitespotchecker"
+                        element={<InfiniteSpotChecker />}
                     />
                 </Routes>
         </HashRouter>
