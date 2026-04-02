@@ -520,7 +520,12 @@ export default function BlueprintDashboard() {
                         <div className={styles.expiredModalText}>
                             {'You can renew your infinite blueprint(s) for this year here:'}
                         </div>
-                        <button className={styles.continueSubscriptionButton}>
+                        <button
+                            className={styles.continueSubscriptionButton}
+                            onClick={() => {
+                                window.open('https://bit.ly/domainbp', '_blank', 'noopener,noreferrer');
+                            }}
+                        >
                             {'>> CONTINUE MY SUBSCRIPTION <<'}
                         </button>
                         <div className={styles.expiredModalText}>
