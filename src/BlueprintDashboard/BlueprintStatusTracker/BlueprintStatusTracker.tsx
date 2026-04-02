@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { BlueprintMetadata } from '../../hooks/hooks';
 import styles from './BlueprintStatusTracker.module.css';
 import DomainDropdown from '../../shared/DomainDropdown';
-import { inProgressStatus, queuedStatus, sentStatus, waitTime } from '../../consts/images';
+import { inProgressStatus, queuedStatus, sentStatus, shoppingCart, waitTime } from '../../consts/images';
 
 
 type BlueprintStatusTrackerProps = {
@@ -61,7 +61,115 @@ export default function BlueprintStatusTracker({
                 return '';
         }
     }
-    if (isMobile) return null;
+    if (isMobile) {
+        return (
+            <div className={styles.blueprintStatusTrackerMobile}>
+                <div className={styles.title} style={{fontSize: '30px'}}>
+                    Blueprint Status Tracker
+                </div>
+                <DomainDropdown
+                    renderValue={(value) => {
+                        const bp = blueprints.find(
+                            (bp) => getBpDisplayName(bp) === value
+                        );
+                        return bp ? bp.teamName : '';
+                    }}
+                    options={blueprints.map(
+                        (bp) => getBpDisplayName(bp)
+                    )}
+                    value={
+                        selectedBlueprint
+                            ? getBpDisplayName(selectedBlueprint)
+                            : ''
+                    }
+                    onChange={(e) => {
+                        const {
+                            target: { value },
+                        } = e;
+                        setSelectedBlueprint(
+                            blueprints.find(
+                                (bp) => getBpDisplayName(bp) === value
+                            )
+                        );
+                    }}
+                />
+                {selectedBlueprint && (
+                    <>
+                        <img
+                            className={styles.statusImageMobile}
+                            src={getStatusImageUrl(selectedBlueprint)}
+                            alt="Status"
+                        />
+                        <div
+                            className={styles.mobileDeliveryStatus}
+                            style={{color: getDeliveryStatusColor(selectedBlueprint)}}
+                        >
+                            {getDeliveryStatusString(selectedBlueprint)}
+                        </div>
+                        <div className={styles.lastUpdated} style={{alignSelf: 'center'}}>
+                            {`Last Updated: ${formatUpdatedDate(selectedBlueprint.updatedUtc)}`}
+                        </div>
+                        <div className={styles.waitTimeLabelMobile}>Current wait time:</div>
+                        <div className={styles.waitTimeMobile}>3-5 days</div>
+                        <div className={styles.mobileButtonRow}>
+                            <div className={styles.buttonContainerMobile}>
+                                <button
+                                    className={styles.buyABlueprintButtonMobile}
+                                    onClick={() => 
+                                        window.open('https://bit.ly/domainbp', '_blank', 'noopener,noreferrer')
+                                    }
+                                >
+                                    <img src={shoppingCart} className={styles.shoppingCart} />
+                                </button>
+                                <div className={styles.buttonLabelMobile}>Buy a BP</div>
+                            </div>
+                            <div className={styles.buttonContainerMobile}>
+                                <button
+                                    className={styles.openTicketMobile}
+                                    // onClick={() => 
+                                    //     window.open('https://bit.ly/domainbp', '_blank', 'noopener,noreferrer')
+                                    // }
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="81" height="80" viewBox="0 0 81 80" fill="none">
+                                        <path opacity="0.75" d="M59.2011 39.8058C59.2011 29.5855 50.7787 21.2999 40.3895 21.2999C30.0004 21.2999 21.5779 29.5855 21.5779 39.8058C21.5779 50.0262 30.0004 58.3118 40.3895 58.3118C50.7787 58.3118 59.2011 50.0262 59.2011 39.8058ZM80.8634 33.9942L80.7806 45.6263L71.1564 47.9403C70.5676 50.5758 69.4472 53.0971 68.0618 55.4141L73.1201 63.6952C73.0764 63.953 72.9108 64.1426 72.7722 64.353C72.1337 65.3233 66.7652 70.5513 65.7066 71.3423C65.1509 71.7571 64.7067 72.2075 63.9763 71.7794L56.2963 66.984C53.9697 68.3602 51.4368 69.4846 48.7442 69.9883L46.392 79.4576L34.5211 79.4561L32.2351 70.3024C31.958 69.9454 28.8544 69.1024 28.0954 68.8002C26.7808 68.2758 25.1228 66.8522 23.7856 67.3514L16.744 71.8416L15.7321 71.8475L7.79299 63.6952L12.8031 55.6244C11.5276 53.1016 10.219 50.5728 9.57145 47.7966L0 45.4486L0.04668 33.7394L9.53982 31.5469C10.5759 29.0537 11.2641 26.4004 12.8407 24.1561L7.93756 16.3964L7.86076 15.4675C9.38924 14.475 14.7864 7.94189 15.9128 7.6382C16.2094 7.55672 16.476 7.57302 16.741 7.73598L24.6138 12.5891C26.9555 11.2262 29.52 10.2337 32.1553 9.57442C32.4941 9.24554 33.6205 2.22508 34.0859 0.955505C34.253 0.496262 34.3268 0.0488739 34.9171 -1.52588e-05L46.398 0.111092L48.5725 9.37444C51.1567 10.3314 53.7679 11.1492 56.1502 12.5536L64.5636 7.59821L65.178 7.72709L73.1442 15.6379L68.0723 23.9872C69.2379 26.5189 70.5224 28.9677 71.2347 31.6817L80.8634 33.9942Z" fill="white"/>
+                                    </svg>
+                                </button>
+                                <div className={styles.buttonLabelMobile}>Open Ticket</div>
+                            </div>
+                        </div>
+                        <div className={styles.mobileButtonRow}>
+                            <div className={styles.buttonContainerMobile}>
+                                <button
+                                    className={styles.discordButtonMobile}
+                                    // onClick={() => 
+                                    //     window.open('https://bit.ly/domainbp', '_blank', 'noopener,noreferrer')
+                                    // }
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="96" height="67" viewBox="0 0 96 67" fill="none">
+                                        <path opacity="0.75" d="M61.6598 29.7609C56.0886 30.2454 53.1458 36.1097 54.5065 41.0274C56.2475 47.3243 64.1383 49.5582 68.6346 44.3826C73.4612 38.8281 69.6095 29.0687 61.6598 29.7609ZM31.7501 29.7609C25.6342 30.3319 22.7611 37.3002 25.1217 42.3719C28.0305 48.6255 36.5981 48.9508 39.8373 42.7924C42.8961 36.9766 38.9409 29.0878 31.7501 29.7609ZM34.9017 7.62939e-06C34.9464 0.240532 35.8124 0.944794 35.666 1.11091C29.7608 2.7565 23.9753 5.03023 18.7666 8.20029C17.3541 9.06203 15.9559 9.9774 14.7078 11.0485C17.4844 9.73688 20.2719 8.46677 23.1789 7.43546C34.491 3.41578 48.1317 2.30315 59.9938 4.41076C66.8239 5.62376 73.4219 7.89748 79.536 11.0502C79.6378 11.0122 79.4467 10.898 79.4146 10.872C78.3485 10.0155 77.1093 9.17969 75.9433 8.45293C70.9809 5.35554 65.3972 3.09047 59.7634 1.40854C59.6563 1.26838 60.7973 0.202461 60.9098 7.62939e-06H61.292L64.4561 0.308014C70.7202 1.16283 77.645 3.97816 82.7663 7.54794C83.9859 8.39756 84.0948 8.62597 84.7662 9.91165C91.0214 21.8928 95.4658 38.5858 95.6373 52.0257C95.6391 52.1503 95.5891 52.3545 95.7158 52.4324V54.7303C90.9767 61.5134 82.7555 65.4864 74.4772 66.5125L72.3077 66.7444H70.5488L65.1954 60.3299C66.0507 59.9942 66.9489 59.7727 67.8132 59.4577C71.9863 57.9437 76.4682 55.2754 79.2664 51.8735C79.3432 51.7818 79.8556 51.1502 79.8039 51.0965C76.0415 53.4758 71.9113 55.2754 67.681 56.7341C55.5154 60.932 42.7015 60.8888 30.4072 57.1979C25.5092 55.727 20.7486 53.7613 16.4666 51.0221C16.3952 51.1 17.1595 52.0102 17.2684 52.1365C20.1076 55.4398 24.3342 57.9506 28.4573 59.4577C28.7412 59.5616 30.5144 60.0738 30.5412 60.1828L25.111 66.7444H23.3503L21.1825 66.5125C13.9828 65.6144 6.70801 62.4461 1.89388 57.1044C1.22783 56.369 0.661782 55.5557 0.0189459 54.8047C0.0671587 53.5 -0.0417664 52.178 0.0189459 50.875C0.62964 38.1757 4.1331 24.8241 9.41507 13.2253C9.95255 12.0452 11.0686 9.33716 11.8114 8.42698C12.1203 8.04802 13.6578 7.09804 14.1613 6.77619C20.0112 3.0351 27.3984 0.306282 34.4428 7.62939e-06H34.9017Z" fill="white"/>
+                                    </svg>
+                                </button>
+                                <div className={styles.buttonLabelMobile}>Discord</div>
+                            </div>
+                            <div className={styles.buttonContainerMobile}>
+                                <button
+                                    className={styles.faqButtonMobile}
+                                    // onClick={() => 
+                                    //     window.open('https://bit.ly/domainbp', '_blank', 'noopener,noreferrer')
+                                    // }
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="35" height="65" viewBox="0 0 35 65" fill="none">
+                                        <path opacity="0.75" d="M28.6967 0L34.1881 5.28797V30.2779L28.6967 35.5658H21.1683L19.8397 36.8452L19.0426 43.4978H9.91986L8.76845 30.3632L14.3484 25.0752H21.6997L22.9397 23.7959V11.77L21.6997 10.5759H12.6655L11.337 11.77V18.3373H0V5.28797L5.49135 0H28.6967ZM10.4513 49.8092H18.2455L22.1425 53.562V61.0675L18.2455 64.8202H10.4513L6.55419 61.0675V53.562L10.4513 49.8092Z" fill="white"/>
+                                    </svg>
+                                </button>
+                                <div className={styles.buttonLabelMobile}>FAQ</div>
+                            </div>
+                        </div>
+                    </>
+                )}
+            </div>
+        );
+    }
     
     return (
         <div className={styles.blueprintStatusTracker}>

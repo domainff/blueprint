@@ -871,8 +871,20 @@ export default function BlueprintDashboard() {
                             Log Out
                         </Button>
                     </div>
-                    <div className={styles.bodyContainer} style={{width: width * 0.9}}>
-                        <div className={styles.bodySection1} style={{height: isMobile ? height * 0.75 : height * 0.8}}>
+                    <div
+                        className={styles.bodyContainer}
+                        style={{
+                            width: width * 0.9,
+                            flexDirection: isMobile ? 'column-reverse' : 'row',
+                        }}
+                    >
+                        <div
+                            className={styles.bodySection1} 
+                            style={{
+                                height: isMobile ? undefined : height * 0.8,
+                                overflowY: isMobile ? undefined : 'auto',
+                            }}
+                        >
                             {!isMobile && (
                                 <div>
                                     <div className={styles.welcome}>

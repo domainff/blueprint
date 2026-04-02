@@ -43,6 +43,7 @@ export function useInfiniteSubscriptions() {
     const [subscriptions, setSubscriptions] = useState<Subscription[]>();
     const authToken = localStorage.getItem('flockAuthToken');
     const appUserId = localStorage.getItem('domainUserId');
+    console.log('appUserId', appUserId);
     const {data} = useQuery({
         queryKey: ['infinitesubscriptions'],
         queryFn: async () => {

@@ -46,7 +46,7 @@
 .bodyContainer {
     display: flex;
     flex-direction: row;
-    justify-content: center ;
+    justify-content: center;
 }
 
 .bodySection1 {
@@ -54,8 +54,6 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 40px;
-
-    overflow-y: auto;
 }
 
 .myBlueprintsTitle {

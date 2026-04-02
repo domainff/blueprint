@@ -10,6 +10,15 @@
     gap: 10px;
 
     height: fit-content;
+
+    margin: 20px;
+}
+
+.blueprintStatusTrackerMobile {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
 }
 
 .title {
@@ -23,6 +32,11 @@
 
 .statusImage {
     width: 700px;
+    height: auto;
+}
+
+.statusImageMobile {
+    width: 85%;
     height: auto;
 }
 
@@ -54,6 +68,21 @@
         font-weight: 1000;
         text-transform: uppercase;
     }
+}
+
+.mobileDeliveryStatus {
+    font-family: Erbaum;
+    font-size: 14px;
+    font-style: normal;
+    line-height: normal;
+    background-color: rgba(255, 255, 255, 0.13);
+    border-radius: 15px;
+    width: 80%;
+    font-weight: 1000;
+    text-transform: uppercase;
+    text-align: center;
+
+    padding: 6px;
 }
 
 .cardContainer {
@@ -111,6 +140,24 @@
     flex-grow: 2;
 
     padding: 0 10px;
+}
+
+.waitTimeLabelMobile {
+    color: #FFF;
+    font-family: Prohibition;
+    font-size: 20.67px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+}
+
+.waitTimeMobile {
+    color: #28ABE2;
+    font-family: Prohibition;
+    font-size: 56.67px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 0.8;
 }
 
 .waitTimeText {
@@ -173,4 +220,56 @@
 .submitTicket:hover, .dynastyCommunity:hover {
     cursor: pointer;
     background-color: #50585d;
+}
+
+.mobileButtonRow {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+}
+
+.buyABlueprintButtonMobile {
+    width: 122px;
+    height: 117px;
+    border-radius: 18px;
+    background: #1AE069;
+}
+
+.openTicketMobile {
+    width: 122px;
+    height: 117px;
+    border-radius: 18px;
+    background: #F47F20;
+}
+
+.discordButtonMobile {
+    width: 122px;
+    height: 117px;
+    border-radius: 18px;
+    background: #B139E2;
+}
+
+.faqButtonMobile {
+    width: 122px;
+    height: 117px;
+    border-radius: 18px;
+    background: #E84D57;
+}
+
+.buttonContainerMobile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px
+}
+
+.buttonLabelMobile {
+    color: #FFF;
+    text-align: center;
+    font-family: "Acumin Pro ExtraCondensed";
+    font-size: 40px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: normal;
+    text-transform: uppercase;
 }

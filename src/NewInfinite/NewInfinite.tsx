@@ -301,13 +301,15 @@ export function WrappedNewInfinite({blueprintId}: {blueprintId: string}) {
         setTradeNeedleRotationDegrees(rotationDegrees);
         setCreatedDate(new Date(blueprint.createdUtc));
 
-        setMonthList(Array.from(
-            new Set(
-                blueprint.infiniteFeatures.positionalAgeData.map(
-                    p => p.month
+        setMonthList(
+            Array.from(
+                new Set(
+                    blueprint.infiniteFeatures.positionalAgeData.map(
+                        p => p.month
+                    )
                 )
-            )
-        ).sort().map(m => MONTHS[m - 1]));
+            ).sort().map(m => MONTHS[m - 1])
+        );
     }, [blueprint]);
 
     useEffect(() => {
