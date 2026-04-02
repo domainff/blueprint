@@ -113,7 +113,12 @@ export default function BlueprintStatusTracker({
                 </>
             )}
             <div className={styles.cardContainer}>
-                <button className={styles.buyABlueprint}>
+                <button
+                    className={styles.buyABlueprint}
+                    onClick={() => 
+                        window.open('https://bit.ly/domainbp', '_blank', 'noopener,noreferrer')
+                    }
+                >
                     <HalfCart />
                     <div className={styles.buyABlueprintText}>Buy a Blueprint</div>
                 </button>
