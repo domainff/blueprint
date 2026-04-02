@@ -200,7 +200,7 @@ export default function BlueprintDashboard() {
             }));
     const infinites: Array<{name: string; date: string; blueprintId: string}> =
         blueprints
-            .filter(bp => bp.blueprintType === 'Infinite')
+            .filter(bp => bp.blueprintType === 'Infinite' && bp.deliveryStatus === 'Published')
             .map(blueprint => ({
                 name: blueprint.teamName,
                 date: new Date(blueprint.createdUtc).toLocaleDateString(
