@@ -7,10 +7,12 @@ import { inProgressStatus, queuedStatus, sentStatus, waitTime } from '../../cons
 
 type BlueprintStatusTrackerProps = {
     blueprints: BlueprintMetadata[];
+    isMobile: boolean;
 };
 
 export default function BlueprintStatusTracker({
     blueprints,
+    isMobile,
 }: BlueprintStatusTrackerProps) {
     const [selectedBlueprint, setSelectedBlueprint] = useState<BlueprintMetadata>();
     useEffect(() => {
@@ -59,6 +61,7 @@ export default function BlueprintStatusTracker({
                 return '';
         }
     }
+    if (isMobile) return null;
     
     return (
         <div className={styles.blueprintStatusTracker}>
@@ -91,36 +94,38 @@ export default function BlueprintStatusTracker({
                     );
                 }}
             />
-            {
-                selectedBlueprint && (
-                    <>
-                        <img
-                            className={styles.statusImage}
-                            src={getStatusImageUrl(selectedBlueprint)}
-                            alt="Status"
-                        />
-                        <div className={styles.lastUpdated}>Last Updated: MM/DD/YYYY HH:MM AM PST</div>
-                        <div className={styles.currentStatus}>
-                            Current status:{' '}
-                            <span className={styles.deliveryStatus} style={{color: getDeliveryStatusColor(selectedBlueprint)}}>
-                                {getDeliveryStatusString(selectedBlueprint)}
-                            </span>
-                        </div>
-                    </>
-                )
-            }
+            {selectedBlueprint && (
+                <>
+                    <img
+                        className={styles.statusImage}
+                        src={getStatusImageUrl(selectedBlueprint)}
+                        alt="Status"
+                    />
+                    <div className={styles.lastUpdated}>
+                        {`Last Updated: ${formatUpdatedDate(selectedBlueprint.updatedUtc)}`}
+                    </div>
+                    <div className={styles.currentStatus}>
+                        Current status:{' '}
+                        <span className={styles.deliveryStatus} style={{color: getDeliveryStatusColor(selectedBlueprint)}}>
+                            {getDeliveryStatusString(selectedBlueprint)}
+                        </span>
+                    </div>
+                </>
+            )}
             <div className={styles.cardContainer}>
                 <button className={styles.buyABlueprint}>
                     <HalfCart />
                     <div className={styles.buyABlueprintText}>Buy a Blueprint</div>
                 </button>
-                <div className={styles.currentWaitTime}>
-                    <img src={waitTime} style={{height: '90%', width: 'auto'}} />
-                    <div className={styles.waitTimeText}>
-                        <div className={styles.waitTimeTextTitle}>Current Wait Time:</div>
-                        <div className={styles.waitTimeTextValue}>3-5 days</div>
+                {selectedBlueprint && (
+                    <div className={styles.currentWaitTime}>
+                        <img src={waitTime} style={{height: '90%', width: 'auto'}} />
+                        <div className={styles.waitTimeText}>
+                            <div className={styles.waitTimeTextTitle}>Current Wait Time:</div>
+                            <div className={styles.waitTimeTextValue}>3-5 days</div>
+                        </div>
                     </div>
-                </div>
+                )}
             </div>
             <div className={styles.buttonContainer}>
                 <button className={styles.submitTicket}>
@@ -135,6 +140,20 @@ export default function BlueprintStatusTracker({
         </div>
     );
 }
+
+const formatUpdatedDate = (isoString?: string): string => {
+    if (!isoString) return 'unknown';
+    const date = new Date(isoString);
+
+    return date.toLocaleString('en-US', {
+        month: '2-digit',
+        day: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        timeZoneName: 'short',
+    });
+};
 
 function Gear() {
     return (

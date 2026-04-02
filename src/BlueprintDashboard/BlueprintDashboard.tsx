@@ -1016,7 +1016,9 @@ export default function BlueprintDashboard() {
                                 </div>
                             </div>
                         </div>
-                        {statusTrackerFlag && <BlueprintStatusTracker blueprints={blueprints} />}
+                        {statusTrackerFlag && (
+                            <BlueprintStatusTracker blueprints={blueprints} isMobile={isMobile} />
+                        )}
                     </div>
                 </>
             )}

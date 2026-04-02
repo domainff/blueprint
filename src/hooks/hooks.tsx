@@ -327,6 +327,7 @@ export type BlueprintMetadata = {
     rosterId: number;
     teamName: string;
     createdUtc: string;
+    updatedUtc?: string;
     deliveryStatus: string;
 };
 
