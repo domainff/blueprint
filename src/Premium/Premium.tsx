@@ -627,6 +627,12 @@ export default function Premium({
     startingTeAge,
     rosterMakeup,
 }: PremiumProps) {
+    function getRosterMakeupScale() {
+        if (rosterMakeup.size <= 9) return 1;
+        if (rosterMakeup.size === 10) return 0.95;
+        return 0.9;
+    }
+
     return (
         <div className={`exportableClassPremium ${styles.fullBlueprint}`}>
             <img src={premiumAssets} className={styles.assets} />
@@ -882,6 +888,8 @@ export default function Premium({
                 style={{
                     top: '334px',
                     left: '1337px',
+                    scale:`${getRosterMakeupScale()}`,
+                    transformOrigin: 'top center',
                 }}
             />
             <LeaguePowerRanks
