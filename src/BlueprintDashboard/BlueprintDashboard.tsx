@@ -109,8 +109,8 @@ export default function BlueprintDashboard() {
     const [username, setUsername] = useState(
         localStorage.getItem('flockUsername')
     );
-    const [searchParams] = useSearchParams();
-    const statusTrackerFlag = searchParams.get('statusTracker')?.toLowerCase() === 'true';
+    // const [searchParams] = useSearchParams();
+    const statusTrackerFlag = true;
     const expiredPopupFlag = true;
 
     useEffect(() => {
