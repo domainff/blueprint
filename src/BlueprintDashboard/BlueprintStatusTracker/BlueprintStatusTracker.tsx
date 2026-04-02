@@ -126,9 +126,9 @@ export default function BlueprintStatusTracker({
                             <div className={styles.buttonContainerMobile}>
                                 <button
                                     className={styles.openTicketMobile}
-                                    // onClick={() => 
-                                    //     window.open('https://bit.ly/domainbp', '_blank', 'noopener,noreferrer')
-                                    // }
+                                    onClick={() => 
+                                        window.open(' https://discord.gg/6hcUy6Hrcu', '_blank', 'noopener,noreferrer')
+                                    }
                                 >
                                     <svg xmlns="http://www.w3.org/2000/svg" width="81" height="80" viewBox="0 0 81 80" fill="none">
                                         <path opacity="0.75" d="M59.2011 39.8058C59.2011 29.5855 50.7787 21.2999 40.3895 21.2999C30.0004 21.2999 21.5779 29.5855 21.5779 39.8058C21.5779 50.0262 30.0004 58.3118 40.3895 58.3118C50.7787 58.3118 59.2011 50.0262 59.2011 39.8058ZM80.8634 33.9942L80.7806 45.6263L71.1564 47.9403C70.5676 50.5758 69.4472 53.0971 68.0618 55.4141L73.1201 63.6952C73.0764 63.953 72.9108 64.1426 72.7722 64.353C72.1337 65.3233 66.7652 70.5513 65.7066 71.3423C65.1509 71.7571 64.7067 72.2075 63.9763 71.7794L56.2963 66.984C53.9697 68.3602 51.4368 69.4846 48.7442 69.9883L46.392 79.4576L34.5211 79.4561L32.2351 70.3024C31.958 69.9454 28.8544 69.1024 28.0954 68.8002C26.7808 68.2758 25.1228 66.8522 23.7856 67.3514L16.744 71.8416L15.7321 71.8475L7.79299 63.6952L12.8031 55.6244C11.5276 53.1016 10.219 50.5728 9.57145 47.7966L0 45.4486L0.04668 33.7394L9.53982 31.5469C10.5759 29.0537 11.2641 26.4004 12.8407 24.1561L7.93756 16.3964L7.86076 15.4675C9.38924 14.475 14.7864 7.94189 15.9128 7.6382C16.2094 7.55672 16.476 7.57302 16.741 7.73598L24.6138 12.5891C26.9555 11.2262 29.52 10.2337 32.1553 9.57442C32.4941 9.24554 33.6205 2.22508 34.0859 0.955505C34.253 0.496262 34.3268 0.0488739 34.9171 -1.52588e-05L46.398 0.111092L48.5725 9.37444C51.1567 10.3314 53.7679 11.1492 56.1502 12.5536L64.5636 7.59821L65.178 7.72709L73.1442 15.6379L68.0723 23.9872C69.2379 26.5189 70.5224 28.9677 71.2347 31.6817L80.8634 33.9942Z" fill="white"/>
@@ -241,7 +241,12 @@ export default function BlueprintStatusTracker({
                 )}
             </div>
             <div className={styles.buttonContainer}>
-                <button className={styles.submitTicket}>
+                <button
+                    className={styles.submitTicket}
+                    onClick={() => 
+                        window.open('https://discord.gg/6hcUy6Hrcu', '_blank', 'noopener,noreferrer')
+                    }
+                >
                     <Gear />
                     <div className={styles.submitTicketText}>Submit a Ticket</div>
                 </button>
