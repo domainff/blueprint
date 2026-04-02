@@ -872,7 +872,7 @@ export default function BlueprintDashboard() {
                         </Button>
                     </div>
                     <div className={styles.bodyContainer} style={{width: width * 0.9}}>
-                        <div className={styles.bodySection1}>
+                        <div className={styles.bodySection1} style={{height: isMobile ? height * 0.75 : height * 0.8}}>
                             {!isMobile && (
                                 <div>
                                     <div className={styles.welcome}>
