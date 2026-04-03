@@ -55,6 +55,8 @@ import expiredInfinitePromo from '../assets/blueprintDashboard/expiredInfinitePr
 import expiredMembershipPromo from '../assets/blueprintDashboard/expiredMembershipPromo.png';
 import shoppingCart from '../assets/blueprintDashboard/shoppingCart.png';
 
+import dashboardBg from '../assets/blueprintDashboard/background.png';
+
 const teamLogos: Map<string, string> = new Map([
     ['ari', ari],
     ['ARI', ari],
@@ -421,4 +423,5 @@ export {
     expiredInfinitePromo,
     shoppingCart,
     expiredMembershipPromo,
+    dashboardBg,
 };

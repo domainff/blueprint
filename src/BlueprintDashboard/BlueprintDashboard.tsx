@@ -278,6 +278,7 @@ export default function BlueprintDashboard() {
                     setIsLoggedIn(true);
                     setLoginModalOpen(false);
                     setLoginError('');
+                    setDomainUserNotFound(false);
                 } else {
                     setLoginError(`${res.data.code}: ${res.data.message}`);
                 }
