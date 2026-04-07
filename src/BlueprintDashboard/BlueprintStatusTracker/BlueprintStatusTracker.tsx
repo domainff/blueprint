@@ -110,7 +110,7 @@ export default function BlueprintStatusTracker({
                             {`Last Updated: ${formatUpdatedDate(selectedBlueprint.updatedUtc)}`}
                         </div>
                         <div className={styles.waitTimeLabelMobile}>Current wait time:</div>
-                        <div className={styles.waitTimeMobile}>3-5 days</div>
+                        <div className={styles.waitTimeMobile}>7-10 days</div>
                         <div className={styles.mobileButtonRow}>
                             <div className={styles.buttonContainerMobile}>
                                 <button
@@ -235,7 +235,7 @@ export default function BlueprintStatusTracker({
                         <img src={waitTime} style={{height: '90%', width: 'auto'}} />
                         <div className={styles.waitTimeText}>
                             <div className={styles.waitTimeTextTitle}>Current Wait Time:</div>
-                            <div className={styles.waitTimeTextValue}>3-5 days</div>
+                            <div className={styles.waitTimeTextValue}>7-10 days</div>
                         </div>
                     </div>
                 )}
