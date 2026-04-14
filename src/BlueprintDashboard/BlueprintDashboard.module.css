@@ -54,6 +54,15 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 40px;
+    scrollbar-width: thin;
+    scrollbar-color: #888 transparent;
+}
+
+.bodySection1::-webkit-scrollbar-thumb { 
+    background: #888; border-radius: 4px; 
+}
+.bodySection1::-webkit-scrollbar { 
+    width: 8px; 
 }
 
 .myBlueprintsTitle {
