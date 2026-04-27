@@ -406,7 +406,6 @@ export function WrappedNewV1({blueprintId}: {blueprintId: string}) {
         const years = Array.from(
             new Set(blueprint.draftPicks.map(p => p.season))
         ).sort();
-        console.log(years);
         setDraftYears(years.map(y => '' + y));
         let year1 = '2026';
         let year2 = '2027';
@@ -419,7 +418,6 @@ export function WrappedNewV1({blueprintId}: {blueprintId: string}) {
         setDraftCapitalNotesYear1(nextYearInfo);
         const followingYearInfo = getPicksInfo(myPicks, year2);
         setDraftCapitalNotesYear2(followingYearInfo);
-        console.log(nextYearInfo, followingYearInfo);
 
         setTopPriorities(blueprint.topPriorities.map(p => p.text));
 
