@@ -123,8 +123,10 @@ export function WrappedPremium({blueprintId}: {blueprintId: string}) {
     const [leaguePowerRanks, setLeaguePowerRanks] = useState<PowerRank[]>([]);
     const [makeup, setMakeup] = useState(new Map<string, number>());
     const [topPriorities, setTopPriorities] = useState<string[]>(['', '', '']);
-    const [draftCapitalNotes2026, setDraftCapitalNotes2026] = useState('');
-    const [draftCapitalNotes2027, setDraftCapitalNotes2027] = useState('');
+    const [draftYears, setDraftYears] = useState<string[]>(['2026', '2027']);
+    const [draftRecText, setDraftRecText] = useState<string[]>(['', '']);
+    const [draftCapitalNotesYear1, setDraftCapitalNotesYear1] = useState('');
+    const [draftCapitalNotesYear2, setDraftCapitalNotesYear2] = useState('');
     const [fullMoves, setFullMoves] = useState<FullMove[]>([
         {
             move: Move.DOWNTIER,
@@ -209,11 +211,11 @@ export function WrappedPremium({blueprintId}: {blueprintId: string}) {
     useEffect(() => {
         setDraftCapitalNotes(
             new Map([
-                [2026, draftCapitalNotes2026],
-                [2027, draftCapitalNotes2027],
+                [+draftYears[0], draftCapitalNotesYear1],
+                [+draftYears[1], draftCapitalNotesYear2],
             ])
         );
-    }, [draftCapitalNotes2026, draftCapitalNotes2027]);
+    }, [draftCapitalNotesYear1, draftCapitalNotesYear2, draftYears]);
     useEffect(() => {
         if (!blueprint) return;
         setApiStartingLineup(
@@ -275,13 +277,20 @@ export function WrappedPremium({blueprintId}: {blueprintId: string}) {
             })
         );
 
-        const year1 = '2026';
-        const year2 = '2027';
+        const years = blueprint.premiumFeatures.draftStrategies.map(s => s.season);
+        setDraftRecText(blueprint.premiumFeatures.draftStrategies.map(s => s.recommendationText));
+        setDraftYears(years);
+        let year1 = '2026';
+        let year2 = '2027';
+        if (years.length >= 2) {
+            year1 = '' + years[0];
+            year2 = '' + years[1];
+        }
         const myPicks = blueprint.draftPicks;
         const nextYearInfo = getPicksInfo(myPicks, year1);
-        setDraftCapitalNotes2026(nextYearInfo);
+        setDraftCapitalNotesYear1(nextYearInfo);
         const followingYearInfo = getPicksInfo(myPicks, year2);
-        setDraftCapitalNotes2027(followingYearInfo);
+        setDraftCapitalNotesYear2(followingYearInfo);
 
         const numYearOneFirsts = myPicks.filter(
             p => p.season === +year1 && p.round === 1
@@ -484,6 +493,8 @@ export function WrappedPremium({blueprintId}: {blueprintId: string}) {
             valueShare={`${blueprint?.valueSharePercentage}%`}
             productionShareRank={blueprint?.productionShareLeagueRank || 0}
             valueShareRank={blueprint?.valueShareLeagueRank || 0}
+            draftYears={draftYears}
+            draftRecText={draftRecText}
             draftCapitalNotes={draftCapitalNotes}
             tradePartners={blueprint?.idealTradePartners.slice(0, 2).map(tp => tp.teamName) || []}
             topPriorities={topPriorities}
@@ -561,6 +572,8 @@ type PremiumProps = {
     valueShare: string;
     productionShareRank: number;
     valueShareRank: number;
+    draftYears: string[];
+    draftRecText: string[];
     draftCapitalNotes: Map<number, string>;
     tradePartners: (string | undefined)[];
     topPriorities: string[];
@@ -626,6 +639,8 @@ export default function Premium({
     startingWrAge,
     startingTeAge,
     rosterMakeup,
+    draftYears,
+    draftRecText,
 }: PremiumProps) {
     function getRosterMakeupScale() {
         if (rosterMakeup.size <= 9) return 1;
@@ -792,15 +807,15 @@ export default function Premium({
             />
             <DraftCapitalNotes
                 labelColor="#CD00FF"
-                year={2026}
-                notes={draftCapitalNotes.get(2026) || ''}
+                year={+draftYears[0]}
+                notes={draftCapitalNotes.get(+draftYears[0]) || ''}
                 style={{left: '85px', top: '630px'}}
                 premium
             />
             <DraftCapitalNotes
                 labelColor="#F05A28"
-                year={2027}
-                notes={draftCapitalNotes.get(2027) || ''}
+                year={+draftYears[1]}
+                notes={draftCapitalNotes.get(+draftYears[1]) || ''}
                 style={{left: '85px', top: '670px'}}
                 premium
             />
@@ -856,17 +871,19 @@ export default function Premium({
             <DraftStrategyItem
                 labelColor="#CD00FF"
                 draftStrategyLabel={draftStrategy[0]}
-                year={2026}
+                year={+draftYears[0]}
                 outlook={twoYearOutlook[0]}
                 draftCapitalNotes={draftCapitalNotes}
+                recText={draftRecText[0]}
                 style={{left: '1560px', top: '311px'}}
             />
             <DraftStrategyItem
                 labelColor="rgb(240, 90, 40)"
                 draftStrategyLabel={draftStrategy[1]}
-                year={2027}
+                year={+draftYears[1]}
                 outlook={twoYearOutlook[1]}
                 draftCapitalNotes={draftCapitalNotes}
+                recText={draftRecText[1]}
                 style={{left: '1560px', top: '438px'}}
             />
             <TrueRanks
@@ -1703,6 +1720,7 @@ function DraftStrategyItem({
     outlook,
     draftCapitalNotes,
     labelColor,
+    recText,
     style,
 }: {
     draftStrategyLabel: DraftStrategyLabel;
@@ -1710,6 +1728,7 @@ function DraftStrategyItem({
     draftCapitalNotes: Map<number, string>;
     outlook: OutlookOption;
     labelColor: string;
+    recText?: string;
     style?: CSSProperties;
 }) {
     function getStrategyText() {
@@ -1788,7 +1807,7 @@ function DraftStrategyItem({
             >
                 {draftStrategyLabel}
             </div>
-            <div className={styles.draftStrategyText}>{getStrategyText()}</div>
+            <div className={styles.draftStrategyText}>{recText || getStrategyText()}</div>
         </div>
     );
 }
