@@ -314,8 +314,9 @@ export function WrappedNewV1({blueprintId}: {blueprintId: string}) {
         {player: RosterPlayer; position: string}[]
     >([]);
     const [topPriorities, setTopPriorities] = useState<string[]>(['', '', '']);
-    const [draftCapitalNotes2026, setDraftCapitalNotes2026] = useState('');
-    const [draftCapitalNotes2027, setDraftCapitalNotes2027] = useState('');
+    const [draftYears, setDraftYears] = useState<string[]>(['2026', '2027']);
+    const [draftCapitalNotesYear1, setDraftCapitalNotesYear1] = useState('');
+    const [draftCapitalNotesYear2, setDraftCapitalNotesYear2] = useState('');
     const {getSleeperIdFromApiId} = useSleeperIdMap();
     const [fullMoves, setFullMoves] = useState<FullMove[]>([
         {
@@ -391,24 +392,32 @@ export function WrappedNewV1({blueprintId}: {blueprintId: string}) {
     useEffect(() => {
         setDraftCapitalNotes(
             new Map([
-                [2026, draftCapitalNotes2026],
-                [2027, draftCapitalNotes2027],
+                [2026, draftCapitalNotesYear1],
+                [2027, draftCapitalNotesYear2],
             ])
         );
-    }, [draftCapitalNotes2026, draftCapitalNotes2027]);
+    }, [draftCapitalNotesYear1, draftCapitalNotesYear2]);
     useEffect(() => {
         if (!blueprint) return;
         setApiStartingLineup(
             getApiStartingLineup(blueprint.leagueSettings, blueprint.rosterPlayers)
         );
 
-        const year1 = '2026';
-        const year2 = '2027';
+        const years = Array.from(
+            new Set(blueprint.draftPicks.map(p => p.season))
+        ).sort();
+        setDraftYears(years.map(y => '' + y));
+        let year1 = '2026';
+        let year2 = '2027';
+        if (years.length >= 2) {
+            year1 = '' + years[0];
+            year2 = '' + years[1];
+        }
         const myPicks = blueprint.draftPicks;
         const nextYearInfo = getPicksInfo(myPicks, year1);
-        setDraftCapitalNotes2026(nextYearInfo);
+        setDraftCapitalNotesYear1(nextYearInfo);
         const followingYearInfo = getPicksInfo(myPicks, year2);
-        setDraftCapitalNotes2027(followingYearInfo);
+        setDraftCapitalNotesYear2(followingYearInfo);
 
         setTopPriorities(blueprint.topPriorities.map(p => p.text));
 
@@ -574,6 +583,7 @@ export function WrappedNewV1({blueprintId}: {blueprintId: string}) {
             productionShareRank={blueprint?.productionShareLeagueRank || 0}
             valueShareRank={blueprint?.valueShareLeagueRank || 0}
             draftCapitalNotes={draftCapitalNotes}
+            draftYears={draftYears}
             tradePartners={blueprint?.idealTradePartners.slice(0, 2).map(tp => tp.teamName) || []}
             topPriorities={topPriorities}
             tradeStrategy={fullMoves}
@@ -605,6 +615,7 @@ type NewV1Props = {
     productionShareRank: number;
     valueShareRank: number;
     draftCapitalNotes: Map<number, string>;
+    draftYears: string[];
     tradePartners: (string | undefined)[];
     topPriorities: string[];
     tradeStrategy: FullMove[];
@@ -643,6 +654,7 @@ export default function NewV1({
     tradePartners,
     topPriorities,
     tradeStrategy,
+    draftYears,
 }: NewV1Props) {
     return (
         <div className={`exportableClassV1 ${styles.fullBlueprint}`}>
@@ -735,14 +747,14 @@ export default function NewV1({
             />
             <DraftCapitalNotes
                 labelColor="#CD00FF"
-                year={2026}
-                notes={draftCapitalNotes.get(2026) || ''}
+                year={+draftYears[0]}
+                notes={draftCapitalNotes.get(+draftYears[0]) || ''}
                 style={{left: '70px', top: '580px'}}
             />
             <DraftCapitalNotes
                 labelColor="#F05A28"
-                year={2027}
-                notes={draftCapitalNotes.get(2027) || ''}
+                year={+draftYears[1]}
+                notes={draftCapitalNotes.get(+draftYears[1]) || ''}
                 style={{left: '70px', top: '620px'}}
             />
             <TopPriorities
