@@ -392,11 +392,11 @@ export function WrappedNewV1({blueprintId}: {blueprintId: string}) {
     useEffect(() => {
         setDraftCapitalNotes(
             new Map([
-                [2026, draftCapitalNotesYear1],
-                [2027, draftCapitalNotesYear2],
+                [+draftYears[0], draftCapitalNotesYear1],
+                [+draftYears[1], draftCapitalNotesYear2],
             ])
         );
-    }, [draftCapitalNotesYear1, draftCapitalNotesYear2]);
+    }, [draftCapitalNotesYear1, draftCapitalNotesYear2, draftYears]);
     useEffect(() => {
         if (!blueprint) return;
         setApiStartingLineup(
@@ -406,6 +406,7 @@ export function WrappedNewV1({blueprintId}: {blueprintId: string}) {
         const years = Array.from(
             new Set(blueprint.draftPicks.map(p => p.season))
         ).sort();
+        console.log(years);
         setDraftYears(years.map(y => '' + y));
         let year1 = '2026';
         let year2 = '2027';
@@ -418,6 +419,7 @@ export function WrappedNewV1({blueprintId}: {blueprintId: string}) {
         setDraftCapitalNotesYear1(nextYearInfo);
         const followingYearInfo = getPicksInfo(myPicks, year2);
         setDraftCapitalNotesYear2(followingYearInfo);
+        console.log(nextYearInfo, followingYearInfo);
 
         setTopPriorities(blueprint.topPriorities.map(p => p.text));
 
