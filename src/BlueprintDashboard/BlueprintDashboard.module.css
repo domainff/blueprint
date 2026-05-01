@@ -362,3 +362,9 @@ a:active {
     cursor: pointer;
     background: var(--DD-Light-Blue-Gradient, linear-gradient(180deg, #63ccf9 0%, #39738d 100%));
 }
+
+.expiredModalHeader {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+}
