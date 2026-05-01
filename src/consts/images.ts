@@ -230,6 +230,17 @@ import tedHurst from '../assets/rookieDraft/2026/rookieCards/Ted Hurst.png';
 import tySimpson from '../assets/rookieDraft/2026/rookieCards/Ty Simpson.png';
 import zachariahBranch from '../assets/rookieDraft/2026/rookieCards/Zachariah Branch.png';
 import zavionThomas from '../assets/rookieDraft/2026/rookieCards/Zavion Thomas.png';
+import adamRandall from '../assets/rookieDraft/2026/rookieCards/Adam Randall.png';
+import calebDouglas from '../assets/rookieDraft/2026/rookieCards/Caleb Douglas.png';
+import colePayton from '../assets/rookieDraft/2026/rookieCards/Cole Payton.png';
+import eliRaridon from '../assets/rookieDraft/2026/rookieCards/Eli Raridon.png';
+import justinJoly from '../assets/rookieDraft/2026/rookieCards/Justin Joly.png';
+import kevinColemanJr from '../assets/rookieDraft/2026/rookieCards/Kevin Coleman Jr..png';
+import marlinKlein from '../assets/rookieDraft/2026/rookieCards/Marlin Klein.png';
+import oscarDelp from '../assets/rookieDraft/2026/rookieCards/Oscar Delp.png';
+import sethMcGowan from '../assets/rookieDraft/2026/rookieCards/Seth McGowan.png';
+import tannerKoziol from '../assets/rookieDraft/2026/rookieCards/Tanner Koziol.png';
+import taylenGreen from '../assets/rookieDraft/2026/rookieCards/Taylen Green.png';
 
 const newRookieCardMap = new Map<string, string>([
     ['Aaron Anderson', aaronAnderson],
@@ -283,6 +294,17 @@ const newRookieCardMap = new Map<string, string>([
     ['Ty Simpson', tySimpson],
     ['Zachariah Branch', zachariahBranch],
     ['Zavion Thomas', zavionThomas],
+    ['Adam Randall', adamRandall],
+    ['Caleb Douglas', calebDouglas],
+    ['Cole Payton', colePayton],
+    ['Eli Raridon', eliRaridon],
+    ['Justin Joly', justinJoly],
+    ['Kevin Coleman Jr.', kevinColemanJr],
+    ['Marlin Klein', marlinKlein],
+    ['Oscar Delp', oscarDelp],
+    ['Seth McGowan', sethMcGowan],
+    ['Tanner Koziol', tannerKoziol],
+    ['Taylen Green', taylenGreen],
 ]);
 
 const rookieTiers: Map<string, string> = new Map([
