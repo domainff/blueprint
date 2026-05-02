@@ -39,7 +39,7 @@ import newInfiniteBg from '../assets/newinfinite/Infinite.png';
 import bakeryCardFeb from '../assets/newinfinite/bakery/bakery_feb.png';
 import bakeryCardMar from '../assets/newinfinite/bakery/bakery_mar.png';
 import bakeryCardApr from '../assets/newinfinite/bakery/bakery_apr.jpg';
-import bakeryCardMay from '../assets/newinfinite/bakery/bakery_may.jpg';
+import bakeryCardMay from '../assets/newinfinite/bakery/bakery_may.png';
 import domainShield from '../assets/newinfinite/domain_shield.png';
 import nflSilhouette from '../assets/newinfinite/nfl_logo.png';
 
