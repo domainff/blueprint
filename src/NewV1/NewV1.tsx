@@ -1812,7 +1812,8 @@ export function rookiePickIdToString(rookiePickId: string, numTeams: number) {
         const year = spl[2];
         const round = spl[3];
         const overallSlot = spl[4];
-        if (overallSlot && overallSlot !== '0') {
+        console.log(rookiePickId, year, round, overallSlot);
+        if (overallSlot && overallSlot !== '0' && overallSlot !== 'null') {
             const slot = +overallSlot % numTeams || numTeams;
             return `Rookie Pick ${round}.${slot < 10 ? '0' : ''}${slot}`;
         }
