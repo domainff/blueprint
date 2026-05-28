@@ -137,6 +137,7 @@ export type RosterPlayer = {
     compositePositionRank: string;
     teamAbbreviation: string;
     valueChangeIndicator: number;
+    valueScore: number;
 };
 
 type Blueprint = {

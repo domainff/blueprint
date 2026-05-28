@@ -28,14 +28,13 @@ import {
     TwoYearOutlook,
     ValueArchetypeComponent,
 } from '../NewV1/NewV1';
-import {CSSProperties, useEffect, useState} from 'react';
+import {CSSProperties, useCallback, useEffect, useState} from 'react';
 import {QB, RB, TE, WR} from '../consts/fantasy';
 import {
     DomainTrueRank,
     PowerRank,
     RosterPlayer,
     ThreeFactorGrades,
-    useAdpData,
     useBlueprint,
     useSleeperIdMap,
 } from '../hooks/hooks';
@@ -647,6 +646,13 @@ export default function Premium({
         if (rosterMakeup.size === 10) return 0.95;
         return 0.9;
     }
+    const sortNamesByValueScore = useCallback(
+        (a: string, b: string) => {
+            const aScore = apiRosterPlayers.find(p => p.playerName === a)?.valueScore || 0;
+            const bScore = apiRosterPlayers.find(p => p.playerName === b)?.valueScore || 0;
+            return bScore - aScore;
+        }, [apiRosterPlayers]
+    );
 
     return (
         <div className={`exportableClassPremium ${styles.fullBlueprint}`}>
@@ -892,6 +898,7 @@ export default function Premium({
                     left: '1163px',
                     top: '649px',
                 }}
+                sortNamesByValueScore={sortNamesByValueScore}
             />
             <ThreeFactorAnalysis
                 threeFactorGrades={threeFactorGrades}
@@ -1568,14 +1575,15 @@ function ThreeFactorAnalysis({
 function TrueRanks({
     domainTrueRanks,
     style,
+    sortNamesByValueScore,
 }: {
     domainTrueRanks: DomainTrueRank[];
     style?: CSSProperties;
+    sortNamesByValueScore: (a: string, b: string) => number;
 }) {
-    const {sortNamesByAdp} = useAdpData();
     const top20DomainTrueRanks = new Set(
         domainTrueRanks
-            .sort((a, b) => sortNamesByAdp(a.playerName, b.playerName))
+            .sort((a, b) => sortNamesByValueScore(a.playerName, b.playerName))
             .slice(0, 20)
     );
     return (

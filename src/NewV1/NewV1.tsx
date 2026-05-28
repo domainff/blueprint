@@ -800,7 +800,7 @@ export function Roster({
     return (
         <div className={styles.roster} style={style}>
             {[QB, RB, WR, TE].map(pos => (
-                <div className={styles.playersColumn}>
+                <div className={styles.playersColumn} key={pos}>
                     {apiRosterPlayers.length
                         ? apiRosterPlayers
                               .filter(p => p && p.position === pos)
