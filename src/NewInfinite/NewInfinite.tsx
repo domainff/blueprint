@@ -3,6 +3,7 @@ import styles from './NewInfinite.module.css';
 import {
     bakeryCardApr,
     bakeryCardFeb,
+    bakeryCardJun,
     bakeryCardMar,
     bakeryCardMay,
     domainShield,
@@ -241,6 +242,8 @@ export function WrappedNewInfinite({blueprintId}: {blueprintId: string}) {
                 return bakeryCardApr;
             case 4:
                 return bakeryCardMay;
+            case 5:
+                return bakeryCardJun;
             default:
                 return '';
         }
