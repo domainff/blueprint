@@ -91,6 +91,7 @@ const TYPE_META: Record<
 
 type TeamBlueprint = {
     blueprintId: string;
+    leagueId: string;
     teamName: string;
     blueprintType: string;
     typeLabel: string;
@@ -144,7 +145,9 @@ export default function BlueprintDashboard() {
         isMock ? MOCK_USERNAME : localStorage.getItem('flockUsername')
     );
     const [groupMode, setGroupMode] = useState<GroupMode>('type');
-    const [selectedTeam, setSelectedTeam] = useState<string | null>(null);
+    // The "By Team" view is keyed by leagueId, not teamName: users who name
+    // every team after their username would otherwise collapse into one group.
+    const [selectedLeagueId, setSelectedLeagueId] = useState<string | null>(null);
     const statusTrackerFlag = true;
     // Caps the preview modal width so portrait blueprints aren't lost in dead
     // space; the zoom calc below clamps to the same value so nothing overflows.
@@ -567,8 +570,8 @@ export default function BlueprintDashboard() {
     ];
 
     // ----- "By Team" grouping -----
-    // Flatten all published blueprints into a uniform shape, then group by team
-    // name with each team's blueprints sorted newest-first.
+    // Flatten all published blueprints into a uniform shape, then group by
+    // leagueId with each league's blueprints sorted newest-first.
     const publishedItems: TeamBlueprint[] = blueprints
         .filter(
             bp =>
@@ -579,6 +582,7 @@ export default function BlueprintDashboard() {
             const meta = TYPE_META[bp.blueprintType];
             return {
                 blueprintId: '' + bp.blueprintId,
+                leagueId: bp.leagueId,
                 teamName: bp.teamName,
                 blueprintType: bp.blueprintType,
                 typeLabel: meta.label,
@@ -593,21 +597,31 @@ export default function BlueprintDashboard() {
             };
         });
 
-    const teamGroups: Array<{teamName: string; items: TeamBlueprint[]}> = (() => {
-        const byTeam = new Map<string, TeamBlueprint[]>();
+    const teamGroups: Array<{
+        leagueId: string;
+        teamName: string;
+        items: TeamBlueprint[];
+    }> = (() => {
+        const byLeague = new Map<string, TeamBlueprint[]>();
         publishedItems.forEach(item => {
-            const list = byTeam.get(item.teamName) ?? [];
+            const list = byLeague.get(item.leagueId) ?? [];
             list.push(item);
-            byTeam.set(item.teamName, list);
+            byLeague.set(item.leagueId, list);
         });
-        const groups = Array.from(byTeam.entries()).map(([teamName, items]) => ({
-            teamName,
-            items: [...items].sort(
+        const groups = Array.from(byLeague.entries()).map(([leagueId, items]) => {
+            const sorted = [...items].sort(
                 (a, b) =>
                     new Date(b.createdUtc).getTime() -
                     new Date(a.createdUtc).getTime()
-            ),
-        }));
+            );
+            return {
+                leagueId,
+                // All blueprints in a league belong to the same team; label the
+                // group with the most recent blueprint's team name.
+                teamName: sorted[0].teamName,
+                items: sorted,
+            };
+        });
         // Most recently active team first.
         groups.sort(
             (a, b) =>
@@ -617,9 +631,26 @@ export default function BlueprintDashboard() {
         return groups;
     })();
 
-    const selectedTeamItems: TeamBlueprint[] = selectedTeam
-        ? teamGroups.find(t => t.teamName === selectedTeam)?.items ?? []
-        : [];
+    // Team names shared by more than one league get a subtitle so the otherwise
+    // identical cards can be told apart.
+    const duplicatedTeamNames = (() => {
+        const counts = new Map<string, number>();
+        teamGroups.forEach(g =>
+            counts.set(g.teamName, (counts.get(g.teamName) ?? 0) + 1)
+        );
+        return new Set(
+            Array.from(counts.entries())
+                .filter(([, n]) => n > 1)
+                .map(([name]) => name)
+        );
+    })();
+
+    const leagueLabel = (leagueId: string) => `League …${leagueId.slice(-4)}`;
+
+    const selectedGroup = selectedLeagueId
+        ? teamGroups.find(t => t.leagueId === selectedLeagueId) ?? null
+        : null;
+    const selectedTeamItems: TeamBlueprint[] = selectedGroup?.items ?? [];
 
     // One chip per blueprint type present on a team (in TYPE_META order).
     const teamTypeChips = (items: TeamBlueprint[]) => {
@@ -1100,7 +1131,7 @@ export default function BlueprintDashboard() {
                                         }`}
                                         onClick={() => {
                                             setGroupMode('type');
-                                            setSelectedTeam(null);
+                                            setSelectedLeagueId(null);
                                         }}
                                     >
                                         Type
@@ -1113,7 +1144,7 @@ export default function BlueprintDashboard() {
                                         }`}
                                         onClick={() => {
                                             setGroupMode('team');
-                                            setSelectedTeam(null);
+                                            setSelectedLeagueId(null);
                                         }}
                                     >
                                         Team
@@ -1194,7 +1225,7 @@ export default function BlueprintDashboard() {
                                     </section>
                                 ))}
 
-                            {groupMode === 'team' && selectedTeam === null && (
+                            {groupMode === 'team' && selectedLeagueId === null && (
                                 <div className={styles.teamGrid}>
                                     {blueprintsLoading &&
                                         teamGroups.length === 0 && (
@@ -1210,10 +1241,12 @@ export default function BlueprintDashboard() {
                                         )}
                                     {teamGroups.map(team => (
                                         <button
-                                            key={team.teamName}
+                                            key={team.leagueId}
                                             className={styles.teamCell}
                                             onClick={() =>
-                                                setSelectedTeam(team.teamName)
+                                                setSelectedLeagueId(
+                                                    team.leagueId
+                                                )
                                             }
                                         >
                                             <div className={styles.teamCellTop}>
@@ -1232,6 +1265,17 @@ export default function BlueprintDashboard() {
                                                     {team.items.length}
                                                 </span>
                                             </div>
+                                            {duplicatedTeamNames.has(
+                                                team.teamName
+                                            ) && (
+                                                <span
+                                                    className={
+                                                        styles.teamCellSubtitle
+                                                    }
+                                                >
+                                                    {leagueLabel(team.leagueId)}
+                                                </span>
+                                            )}
                                             <div className={styles.teamCellChips}>
                                                 {teamTypeChips(team.items).map(
                                                     chip => (
@@ -1258,18 +1302,31 @@ export default function BlueprintDashboard() {
                                 </div>
                             )}
 
-                            {groupMode === 'team' && selectedTeam !== null && (
+                            {groupMode === 'team' && selectedGroup !== null && (
                                 <section className={styles.section}>
                                     <div className={styles.teamDetailHead}>
                                         <button
                                             className={styles.backButton}
-                                            onClick={() => setSelectedTeam(null)}
+                                            onClick={() => setSelectedLeagueId(null)}
                                         >
                                             ← All Teams
                                         </button>
                                         <span className={styles.teamDetailTitle}>
-                                            {selectedTeam}
+                                            {selectedGroup.teamName}
                                         </span>
+                                        {duplicatedTeamNames.has(
+                                            selectedGroup.teamName
+                                        ) && (
+                                            <span
+                                                className={
+                                                    styles.teamDetailSubtitle
+                                                }
+                                            >
+                                                {leagueLabel(
+                                                    selectedGroup.leagueId
+                                                )}
+                                            </span>
+                                        )}
                                         <span className={styles.teamDetailCount}>
                                             {selectedTeamItems.length}{' '}
                                             {selectedTeamItems.length === 1

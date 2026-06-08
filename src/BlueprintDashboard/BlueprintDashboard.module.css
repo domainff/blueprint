@@ -387,6 +387,20 @@
     text-overflow: ellipsis;
 }
 
+/* Disambiguates teams that share a name across leagues. */
+.teamCellSubtitle {
+    margin-top: 2px;
+    color: rgba(255, 255, 255, 0.5);
+    font-family: "Acumin Pro";
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
 .teamCellCount {
     flex-shrink: 0;
     min-width: 26px;
@@ -468,6 +482,15 @@
     font-size: 30px;
     font-weight: 400;
     color: #F47F20;
+}
+
+/* Disambiguates teams that share a name across leagues. */
+.teamDetailSubtitle {
+    color: rgba(255, 255, 255, 0.5);
+    font-family: "Acumin Pro";
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
 }
 
 .teamDetailCount {
