@@ -406,6 +406,7 @@ export type BlueprintMetadata = {
     blueprintId: string;
     blueprintType: string;
     platform: string;
+    leagueId: string;
     ownerUserId: string;
     rosterId: number;
     teamName: string;

@@ -6,7 +6,7 @@ import premiumStyles from '../Premium/Premium.module.css';
 import {expiredInfinitePromo, expiredMembershipPromo, flockDomainLogo, logoHorizontal} from '../consts/images';
 import {Subscription, useBlueprintsForDomainUser, useDomainAppUser, useInfiniteSubscriptions, useTitle} from '../hooks/hooks';
 import {Box, Button, CircularProgress, IconButton, Modal} from '@mui/material';
-import {useEffect, useState} from 'react';
+import {useEffect, useState, type CSSProperties} from 'react';
 import DomainTextField from '../shared/DomainTextField';
 import {WrappedNewInfinite} from '../NewInfinite/NewInfinite';
 import {toPng} from 'html-to-image';
@@ -20,15 +20,8 @@ import { WrappedNewRookieDraft } from '../NewRookieDraft/NewRookieDraft';
 import { WrappedNewV1 } from '../NewV1/NewV1';
 import { WrappedPremium } from '../Premium/Premium';
 import BlueprintStatusTracker from './BlueprintStatusTracker/BlueprintStatusTracker';
-
-const COLOR_LIST = [
-    '#F47F20',
-    '#28ABE2',
-    '#FABF4A',
-    '#B139E2',
-    '#1AE069',
-    '#E84D57',
-];
+import { useSearchParams } from 'react-router-dom';
+import { MOCK_BLUEPRINTS, MOCK_USERNAME } from './__mockDashboardData';
 
 
 export const useScreenSize = () => {
@@ -71,14 +64,56 @@ enum PreviewType {
     Premium,
 }
 
+// Natural (unscaled) dimensions of each blueprint type. These match the
+// fit-to-view constants used in the zoom calculation, and let the preview
+// wrapper reserve a footprint equal to its scaled size so it can be centered
+// in the modal. (Does not affect the download — that captures the inner
+// blueprint element at its natural size, independent of this wrapper.)
+const PREVIEW_DIMS: Partial<Record<PreviewType, {w: number; h: number}>> = {
+    [PreviewType.Infinite]: {w: 1700, h: 2102},
+    [PreviewType.Rookie]: {w: 1400, h: 1032},
+    [PreviewType.Standard]: {w: 800, h: 1060},
+    [PreviewType.Premium]: {w: 1900, h: 1045},
+};
+
+// Maps the API's blueprintType string to its display label, brand accent
+// color, and the corresponding preview enum. Used by both the "By Type" and
+// "By Team" groupings. Order here defines the order types are listed.
+const TYPE_META: Record<
+    string,
+    {label: string; accent: string; preview: PreviewType}
+> = {
+    Standard: {label: 'Standard', accent: '#F47F20', preview: PreviewType.Standard},
+    Premium: {label: 'Premium', accent: '#B139E2', preview: PreviewType.Premium},
+    RookieDraft: {label: 'Rookie Draft', accent: '#00B1FF', preview: PreviewType.Rookie},
+    Infinite: {label: 'Infinite', accent: '#1AE069', preview: PreviewType.Infinite},
+};
+
+type TeamBlueprint = {
+    blueprintId: string;
+    leagueId: string;
+    teamName: string;
+    blueprintType: string;
+    typeLabel: string;
+    accent: string;
+    previewType: PreviewType;
+    createdUtc: string;
+    date: string;
+};
+
+type GroupMode = 'type' | 'team';
+
 export default function BlueprintDashboard() {
     useTitle('Blueprint Dashboard');
+    // DEV-ONLY: `?mock=1` previews the logged-in home page with sample data.
+    const [searchParams] = useSearchParams();
+    const isMock = searchParams.get('mock') === '1';
     const {width, height} = useScreenSize();
     const isMobile = width < 768;
     const [isLoggedIn, setIsLoggedIn] = useState(
-        localStorage.getItem('flockAuthToken') !== null
+        isMock || localStorage.getItem('flockAuthToken') !== null
     );
-    const [loginModalOpen, setLoginModalOpen] = useState(!isLoggedIn);
+    const [loginModalOpen, setLoginModalOpen] = useState(!isMock && !isLoggedIn);
     const [loginEmail, setLoginEmail] = useState('');
     const [loginPassword, setLoginPassword] = useState('');
     const [isLoggingIn, setIsLoggingIn] = useState(false);
@@ -88,10 +123,11 @@ export default function BlueprintDashboard() {
     const [loginError, setLoginError] = useState('');
     const [domainUserNotFound, setDomainUserNotFound] = useState(false);
     const {
-        blueprints,
+        blueprints: fetchedBlueprints,
         error: blueprintsError,
         isLoading: blueprintsLoading,
     } = useBlueprintsForDomainUser();
+    const blueprints = isMock ? MOCK_BLUEPRINTS : fetchedBlueprints;
     const {subscriptions} = useInfiniteSubscriptions();
     const {appUser} = useDomainAppUser();
     const [expiredSubscriptions, setExpiredSubscriptions] = useState<Subscription[]>([]);
@@ -106,9 +142,23 @@ export default function BlueprintDashboard() {
     const [isDownloading, setIsDownloading] = useState(false);
     const [previewType, setPreviewType] = useState(PreviewType.None);
     const [username, setUsername] = useState(
-        localStorage.getItem('flockUsername')
+        isMock ? MOCK_USERNAME : localStorage.getItem('flockUsername')
     );
+    const [groupMode, setGroupMode] = useState<GroupMode>('type');
+    // The "By Team" view is keyed by leagueId, not teamName: users who name
+    // every team after their username would otherwise collapse into one group.
+    const [selectedLeagueId, setSelectedLeagueId] = useState<string | null>(null);
     const statusTrackerFlag = true;
+    // Caps the preview modal width so portrait blueprints aren't lost in dead
+    // space; the zoom calc below clamps to the same value so nothing overflows.
+    const PREVIEW_MODAL_MAX_WIDTH = 1100;
+    const toolbarIconSx = {
+        backgroundColor: 'rgba(255, 255, 255, 0.08)',
+        border: '1px solid rgba(255, 255, 255, 0.12)',
+        '&:hover': {
+            backgroundColor: 'rgba(255, 255, 255, 0.18)',
+        },
+    } as const;
 
     useEffect(() => {
         if (!subscriptions) return;
@@ -145,7 +195,9 @@ export default function BlueprintDashboard() {
     }, [localStorage.getItem('flockUsername')]);
 
     useEffect(() => {
-        const displayWidth = width * (isMaximized ? 1 : 0.9);
+        const displayWidth = isMaximized
+            ? width
+            : Math.min(width * 0.9, PREVIEW_MODAL_MAX_WIDTH);
         const displayHeight = height * (isMaximized ? 1 : 0.9) - 85;
         if (previewType === PreviewType.Infinite) {
             setZoomLevel(Math.min(displayHeight / 2102, displayWidth / 1700));
@@ -501,6 +553,128 @@ export default function BlueprintDashboard() {
         setIsDownloading(false);
     };
 
+    const blueprintSections = [
+        {key: 'standard', title: 'My Blueprints', accent: '#F47F20', items: bps, preview: PreviewType.Standard, showHelp: false},
+        {key: 'premium', title: 'My Premium Blueprints', accent: '#B139E2', items: premiumBps, preview: PreviewType.Premium, showHelp: false},
+        {key: 'rookie', title: 'My Rookie Blueprints', accent: '#00B1FF', items: rookieBps, preview: PreviewType.Rookie, showHelp: false},
+        {key: 'infinite', title: 'My Infinite Blueprints', accent: '#1AE069', items: infinites, preview: PreviewType.Infinite, showHelp: true},
+    ];
+    const totalBlueprints =
+        bps.length + premiumBps.length + rookieBps.length + infinites.length;
+    const statCards = [
+        {label: 'Total', value: totalBlueprints, accent: '#FFFFFF'},
+        {label: 'Standard', value: bps.length, accent: '#F47F20'},
+        {label: 'Premium', value: premiumBps.length, accent: '#B139E2'},
+        {label: 'Rookie', value: rookieBps.length, accent: '#00B1FF'},
+        {label: 'Infinite', value: infinites.length, accent: '#1AE069'},
+    ];
+
+    // ----- "By Team" grouping -----
+    // Flatten all published blueprints into a uniform shape, then group by
+    // leagueId with each league's blueprints sorted newest-first.
+    const publishedItems: TeamBlueprint[] = blueprints
+        .filter(
+            bp =>
+                bp.deliveryStatus === 'Published' &&
+                TYPE_META[bp.blueprintType] !== undefined
+        )
+        .map(bp => {
+            const meta = TYPE_META[bp.blueprintType];
+            return {
+                blueprintId: '' + bp.blueprintId,
+                leagueId: bp.leagueId,
+                teamName: bp.teamName,
+                blueprintType: bp.blueprintType,
+                typeLabel: meta.label,
+                accent: meta.accent,
+                previewType: meta.preview,
+                createdUtc: bp.createdUtc,
+                date: new Date(bp.createdUtc).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: '2-digit',
+                }),
+            };
+        });
+
+    const teamGroups: Array<{
+        leagueId: string;
+        teamName: string;
+        items: TeamBlueprint[];
+    }> = (() => {
+        const byLeague = new Map<string, TeamBlueprint[]>();
+        publishedItems.forEach(item => {
+            const list = byLeague.get(item.leagueId) ?? [];
+            list.push(item);
+            byLeague.set(item.leagueId, list);
+        });
+        const groups = Array.from(byLeague.entries()).map(([leagueId, items]) => {
+            const sorted = [...items].sort(
+                (a, b) =>
+                    new Date(b.createdUtc).getTime() -
+                    new Date(a.createdUtc).getTime()
+            );
+            return {
+                leagueId,
+                // All blueprints in a league belong to the same team; label the
+                // group with the most recent blueprint's team name.
+                teamName: sorted[0].teamName,
+                items: sorted,
+            };
+        });
+        // Most recently active team first.
+        groups.sort(
+            (a, b) =>
+                new Date(b.items[0].createdUtc).getTime() -
+                new Date(a.items[0].createdUtc).getTime()
+        );
+        return groups;
+    })();
+
+    // Team names shared by more than one league get a subtitle so the otherwise
+    // identical cards can be told apart.
+    const duplicatedTeamNames = (() => {
+        const counts = new Map<string, number>();
+        teamGroups.forEach(g =>
+            counts.set(g.teamName, (counts.get(g.teamName) ?? 0) + 1)
+        );
+        return new Set(
+            Array.from(counts.entries())
+                .filter(([, n]) => n > 1)
+                .map(([name]) => name)
+        );
+    })();
+
+    const leagueLabel = (leagueId: string) => `League …${leagueId.slice(-4)}`;
+
+    const selectedGroup = selectedLeagueId
+        ? teamGroups.find(t => t.leagueId === selectedLeagueId) ?? null
+        : null;
+    const selectedTeamItems: TeamBlueprint[] = selectedGroup?.items ?? [];
+
+    // One chip per blueprint type present on a team (in TYPE_META order).
+    const teamTypeChips = (items: TeamBlueprint[]) => {
+        const counts = new Map<string, number>();
+        items.forEach(it =>
+            counts.set(it.blueprintType, (counts.get(it.blueprintType) ?? 0) + 1)
+        );
+        return Object.keys(TYPE_META)
+            .filter(type => counts.has(type))
+            .map(type => ({
+                type,
+                label: TYPE_META[type].label,
+                accent: TYPE_META[type].accent,
+                count: counts.get(type) ?? 0,
+            }));
+    };
+
+    const openPreview = (item: TeamBlueprint) => {
+        setDownloadBlueprintId(item.blueprintId);
+        setDownloadBlueprintName(item.teamName);
+        setPreviewType(item.previewType);
+        setDownloadModalOpen(true);
+    };
+
     return (
         <div>
             <Modal
@@ -751,25 +925,32 @@ export default function BlueprintDashboard() {
                     sx={{
                         width: isMaximized ? '100%' : null,
                         height: isMaximized ? '100%' : null,
+                        maxWidth: isMaximized
+                            ? 'none'
+                            : `${PREVIEW_MODAL_MAX_WIDTH}px`,
                     }}
                 >
                     <div className={styles.downloadModalHeader}>
                         <Button
-                            variant="text"
+                            variant="contained"
+                            disableElevation
                             style={{
-                                padding: '10px 15px 6px 15px',
-                                height: '50px',
+                                height: '40px',
                             }}
                             sx={{
-                                backgroundColor: '#474E51',
-                                color: 'white',
-                                borderRadius: '5px',
+                                background:
+                                    'linear-gradient(180deg, #EA9A19 0%, #FF4200 100%)',
+                                color: '#04121C',
+                                borderRadius: '8px',
+                                padding: '6px 18px 4px',
                                 '&:hover': {
-                                    backgroundColor: '#676b6dff',
+                                    background:
+                                        'linear-gradient(180deg, #f4ad3d 0%, #ff5a26 100%)',
                                 },
                                 fontFamily: 'Acumin Pro',
                                 fontWeight: '1000',
-                                fontSize: '30px',
+                                fontSize: '18px',
+                                flexShrink: 0,
                             }}
                             onClick={() => {
                                 switch (previewType) {
@@ -792,129 +973,106 @@ export default function BlueprintDashboard() {
                         >
                             {isMobile ? <DownloadIcon /> : 'DOWNLOAD'}
                         </Button>
-                        <IconButton
-                            sx={{
-                                backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                                '&:hover': {
-                                    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                                },
-                            }}
-                            TouchRippleProps={{
-                                style: {
-                                    color: 'white',
-                                },
-                            }}
-                            onClick={() => zoomOut()}
-                        >
-                            <ZoomOutIcon sx={{color: 'white'}} />
-                        </IconButton>
-                        <IconButton
-                            sx={{
-                                backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                                '&:hover': {
-                                    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                                },
-                            }}
-                            TouchRippleProps={{
-                                style: {
-                                    color: 'white',
-                                },
-                            }}
-                            onClick={() => zoomIn()}
-                        >
-                            <ZoomInIcon sx={{color: 'white'}} />
-                        </IconButton>
-                        <IconButton
-                            sx={{
-                                backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                                '&:hover': {
-                                    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                                },
-                            }}
-                            TouchRippleProps={{
-                                style: {
-                                    color: 'white',
-                                },
-                            }}
-                            onClick={() => setIsMaximized(!isMaximized)}
-                        >
-                            {isMaximized ? (
-                                <CloseFullscreenIcon sx={{color: 'white'}} />
-                            ) : (
-                                <OpenInFullIcon sx={{color: 'white'}} />
-                            )}
-                        </IconButton>
-                        <IconButton
-                            sx={{
-                                backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                                '&:hover': {
-                                    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                                },
-                            }}
-                            TouchRippleProps={{
-                                style: {
-                                    color: 'white',
-                                },
-                            }}
-                            onClick={() => setDownloadModalOpen(false)}
-                        >
-                            <Close sx={{color: 'white'}} />
-                        </IconButton>
+                        {!isMobile && downloadBlueprintName && (
+                            <div className={styles.downloadModalTitle}>
+                                {downloadBlueprintName}
+                            </div>
+                        )}
+                        <div className={styles.toolbarControls}>
+                            <IconButton
+                                size="small"
+                                sx={toolbarIconSx}
+                                TouchRippleProps={{style: {color: 'white'}}}
+                                onClick={() => zoomOut()}
+                            >
+                                <ZoomOutIcon sx={{color: 'white'}} />
+                            </IconButton>
+                            <IconButton
+                                size="small"
+                                sx={toolbarIconSx}
+                                TouchRippleProps={{style: {color: 'white'}}}
+                                onClick={() => zoomIn()}
+                            >
+                                <ZoomInIcon sx={{color: 'white'}} />
+                            </IconButton>
+                            <IconButton
+                                size="small"
+                                sx={toolbarIconSx}
+                                TouchRippleProps={{style: {color: 'white'}}}
+                                onClick={() => setIsMaximized(!isMaximized)}
+                            >
+                                {isMaximized ? (
+                                    <CloseFullscreenIcon sx={{color: 'white'}} />
+                                ) : (
+                                    <OpenInFullIcon sx={{color: 'white'}} />
+                                )}
+                            </IconButton>
+                            <span className={styles.toolbarDivider} />
+                            <IconButton
+                                size="small"
+                                sx={toolbarIconSx}
+                                TouchRippleProps={{style: {color: 'white'}}}
+                                onClick={() => setDownloadModalOpen(false)}
+                            >
+                                <Close sx={{color: 'white'}} />
+                            </IconButton>
+                        </div>
                     </div>
                     <div
                         className={styles.zoomWrapper}
                         style={{
-                            transform: `scale(${zoomLevel})`,
+                            width: PREVIEW_DIMS[previewType]
+                                ? `${PREVIEW_DIMS[previewType]!.w * zoomLevel}px`
+                                : undefined,
+                            height: PREVIEW_DIMS[previewType]
+                                ? `${PREVIEW_DIMS[previewType]!.h * zoomLevel}px`
+                                : undefined,
                         }}
                     >
-                        {previewType === PreviewType.Infinite && (
-                            <WrappedNewInfinite blueprintId={downloadBlueprintId} />
-                        )}
-                        {previewType === PreviewType.Rookie && (
-                            <WrappedNewRookieDraft blueprintId={downloadBlueprintId} />
-                        )}
-                        {previewType === PreviewType.Standard && (
-                            <WrappedNewV1 blueprintId={downloadBlueprintId} />
-                        )}
-                        {previewType === PreviewType.Premium && (
-                            <WrappedPremium blueprintId={downloadBlueprintId} />
-                        )}
+                        <div
+                            className={styles.zoomScaler}
+                            style={{transform: `scale(${zoomLevel})`}}
+                        >
+                            {previewType === PreviewType.Infinite && (
+                                <WrappedNewInfinite blueprintId={downloadBlueprintId} />
+                            )}
+                            {previewType === PreviewType.Rookie && (
+                                <WrappedNewRookieDraft blueprintId={downloadBlueprintId} />
+                            )}
+                            {previewType === PreviewType.Standard && (
+                                <WrappedNewV1 blueprintId={downloadBlueprintId} />
+                            )}
+                            {previewType === PreviewType.Premium && (
+                                <WrappedPremium blueprintId={downloadBlueprintId} />
+                            )}
+                        </div>
                     </div>
                 </Box>
             </Modal>
             {isLoggedIn && (
-                <>
-                    <div
-                        className={styles.headerContainer}
-                        style={{flexDirection: isMobile ? 'column' : 'row', width: width * 0.9}}
-                    >
-                        <img
-                            src={logoHorizontal}
-                            className={styles.domainLogo}
-                            style={{width: isMobile ? '90%' : ''}}
-                        />
-                        <div
-                            className={styles.title}
-                            style={{fontSize: isMobile ? '40px' : ''}}
-                        >
+                <div className={styles.page}>
+                    <header className={styles.topbar}>
+                        <img src={logoHorizontal} className={styles.logo} />
+                        <div className={styles.topbarTitle}>
                             BLUEPRINT DASHBOARD
                         </div>
                         <Button
                             variant="text"
                             style={{
-                                padding: '10px 15px 6px 15px',
-                                height: '50px',
+                                padding: '8px 16px 5px 16px',
+                                height: '42px',
                             }}
                             sx={{
                                 backgroundColor: '#474E51',
                                 color: 'white',
-                                borderRadius: '5px',
+                                borderRadius: '8px',
                                 '&:hover': {
                                     backgroundColor: '#676b6dff',
                                 },
                                 fontFamily: 'Acumin Pro',
                                 fontWeight: '1000',
-                                fontSize: '30px',
+                                fontSize: '18px',
+                                flexShrink: 0,
                             }}
                             onClick={() => {
                                 logout();
@@ -922,243 +1080,286 @@ export default function BlueprintDashboard() {
                         >
                             Log Out
                         </Button>
-                    </div>
-                    <div
-                        className={styles.bodyContainer}
-                        style={{
-                            width: width * 0.9,
-                            flexDirection: isMobile ? 'column-reverse' : 'row',
-                        }}
-                    >
-                        <div
-                            className={styles.bodySection1} 
-                            style={{
-                                height: isMobile ? undefined : height * 0.8,
-                                overflowY: isMobile ? undefined : 'auto',
-                            }}
-                        >
-                            {!isMobile && (
-                                <div>
-                                    <div className={styles.welcome}>
-                                        Welcome back,{' '}
-                                        <span className={styles.username}>
-                                            {username}
-                                        </span>
-                                    </div>
-                                    <div className={styles.description}>
-                                        Track your blueprints, review all of
-                                        your blueprints in one place, open a
-                                        support ticket, and more!
-                                    </div>
-                                </div>
-                            )}
-                            <div
-                                className={styles.myBlueprints}
-                                style={{
-                                    marginLeft: isMobile ? '0' : '',
-                                    alignItems: isMobile ? 'center' : '',
-                                }}
-                            >
-                                <div
-                                    className={styles.myBlueprintsTitle}
-                                    style={{
-                                        textAlign: isMobile
-                                            ? 'center'
-                                            : undefined,
-                                        fontSize: isMobile ? '30px' : undefined,
-                                    }}
-                                >
-                                    My Blueprints{' '}
-                                    <MyBpIcon isMobile={isMobile} />
-                                </div>
-                                <div
-                                    className={styles.myBlueprintsList}
-                                    style={{
-                                        width: isMobile
-                                            ? `${width * 0.8}px`
-                                            : '',
-                                    }}
-                                >
-                                    {bps.map((bp, idx) => (
-                                        <BlueprintItem
-                                            key={idx}
-                                            index={idx}
-                                            screenWidth={width}
-                                            setDownloadBlueprintId={(
-                                                id: string
-                                            ) => {
-                                                setDownloadBlueprintId(id);
-                                                setPreviewType(PreviewType.Standard);
-                                            }}
-                                            setDownloadBlueprintName={(
-                                                name: string
-                                            ) => setDownloadBlueprintName(name)}
-                                            setDownloadModalOpen={(
-                                                open: boolean
-                                            ) => setDownloadModalOpen(open)}
-                                            {...bp}
-                                        />
-                                    ))}
-                                </div>
+                    </header>
+
+                    <section className={styles.hero}>
+                        <div className={styles.heroText}>
+                            <div className={styles.welcome}>
+                                Welcome back,{' '}
+                                <span className={styles.username}>
+                                    {username}
+                                </span>
                             </div>
-                            <div
-                                className={styles.myPremiumBlueprints}
-                                style={{
-                                    marginLeft: isMobile ? '0' : '',
-                                    alignItems: isMobile ? 'center' : '',
-                                }}
-                            >
-                                <div
-                                    className={styles.myPremiumBlueprintsTitle}
-                                    style={{
-                                        textAlign: isMobile
-                                            ? 'center'
-                                            : undefined,
-                                        fontSize: isMobile ? '30px' : undefined,
-                                        justifyContent: isMobile ? 'center' : 'flex-start',
-                                    }}
-                                >
-                                    <>My Premium Blueprints</>
-                                </div>
-                                <div
-                                    className={styles.myBlueprintsList}
-                                    style={{
-                                        width: isMobile
-                                            ? `${width * 0.8}px`
-                                            : '',
-                                    }}
-                                >
-                                    {blueprintsLoading && <CircularProgress />}
-                                    {premiumBps.map((bp, idx) => (
-                                        <BlueprintItem
-                                            key={idx}
-                                            index={idx}
-                                            screenWidth={width}
-                                            setDownloadBlueprintId={(
-                                                id: string
-                                            ) => {
-                                                setDownloadBlueprintId(id);
-                                                setPreviewType(PreviewType.Premium);
-                                            }}
-                                            setDownloadBlueprintName={(
-                                                name: string
-                                            ) => setDownloadBlueprintName(name)}
-                                            setDownloadModalOpen={(
-                                                open: boolean
-                                            ) => setDownloadModalOpen(open)}
-                                            {...bp}
-                                        />
-                                    ))}
-                                </div>
-                            </div>
-                            <div
-                                className={styles.myBlueprints}
-                                style={{
-                                    marginLeft: isMobile ? '0' : '',
-                                    alignItems: isMobile ? 'center' : '',
-                                }}
-                            >
-                                <div
-                                    className={styles.myBlueprintsTitle}
-                                    style={{
-                                        textAlign: isMobile
-                                            ? 'center'
-                                            : undefined,
-                                        fontSize: isMobile ? '30px' : undefined,
-                                    }}
-                                >
-                                    My Rookie Blueprints{' '}
-                                    <MyBpIcon isMobile={isMobile} />
-                                </div>
-                                <div
-                                    className={styles.myBlueprintsList}
-                                    style={{
-                                        width: isMobile
-                                            ? `${width * 0.8}px`
-                                            : '',
-                                    }}
-                                >
-                                    {rookieBps.map((bp, idx) => (
-                                        <BlueprintItem
-                                            key={idx}
-                                            index={idx}
-                                            screenWidth={width}
-                                            setDownloadBlueprintId={(
-                                                id: string
-                                            ) => {
-                                                setDownloadBlueprintId(id);
-                                                setPreviewType(PreviewType.Rookie);
-                                            }}
-                                            setDownloadBlueprintName={(
-                                                name: string
-                                            ) => setDownloadBlueprintName(name)}
-                                            setDownloadModalOpen={(
-                                                open: boolean
-                                            ) => setDownloadModalOpen(open)}
-                                            {...bp}
-                                        />
-                                    ))}
-                                </div>
-                            </div>
-                            <div
-                                className={styles.myInfiniteBlueprints}
-                                style={{
-                                    marginLeft: isMobile ? '0' : '',
-                                    alignItems: isMobile ? 'center' : '',
-                                }}
-                            >
-                                <div
-                                    className={styles.myInfiniteBlueprintsTitle}
-                                    style={{
-                                        textAlign: isMobile
-                                            ? 'center'
-                                            : undefined,
-                                        fontSize: isMobile ? '30px' : undefined,
-                                        justifyContent: isMobile ? 'center' : 'flex-start',
-                                    }}
-                                >
-                                    <>My Infinite Blueprints</>
-                                    <div className={styles.needHelp}>
-                                        <a href={'https://discord.gg/hCPWDGn9Yb'} target="_blank">Need Help?</a>
-                                    </div>
-                                </div>
-                                <div
-                                    className={styles.myBlueprintsList}
-                                    style={{
-                                        width: isMobile
-                                            ? `${width * 0.8}px`
-                                            : '',
-                                    }}
-                                >
-                                    {blueprintsLoading && <CircularProgress />}
-                                    {infinites.map((bp, idx) => (
-                                        <BlueprintItem
-                                            key={idx}
-                                            index={idx}
-                                            screenWidth={width}
-                                            setDownloadBlueprintId={(
-                                                id: string
-                                            ) => {
-                                                setDownloadBlueprintId(id);
-                                                setPreviewType(PreviewType.Infinite);
-                                            }}
-                                            setDownloadBlueprintName={(
-                                                name: string
-                                            ) => setDownloadBlueprintName(name)}
-                                            setDownloadModalOpen={(
-                                                open: boolean
-                                            ) => setDownloadModalOpen(open)}
-                                            {...bp}
-                                        />
-                                    ))}
-                                </div>
+                            <div className={styles.description}>
+                                Track your blueprints, review all of your
+                                blueprints in one place, open a support ticket,
+                                and more!
                             </div>
                         </div>
-                        {statusTrackerFlag && (
-                            <BlueprintStatusTracker blueprints={blueprints} isMobile={isMobile} />
-                        )}
+                        <div className={styles.statRow}>
+                            {statCards.map(stat => (
+                                <div
+                                    key={stat.label}
+                                    className={styles.statCard}
+                                    style={{
+                                        ['--accent' as string]: stat.accent,
+                                    } as CSSProperties}
+                                >
+                                    <div className={styles.statValue}>
+                                        {stat.value}
+                                    </div>
+                                    <div className={styles.statLabel}>
+                                        {stat.label}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </section>
+
+                    <div className={styles.layout}>
+                        <main className={styles.main}>
+                            <div className={styles.viewBar}>
+                                <span className={styles.viewBarLabel}>
+                                    Group by
+                                </span>
+                                <div className={styles.viewToggle}>
+                                    <button
+                                        className={`${styles.viewToggleBtn} ${
+                                            groupMode === 'type'
+                                                ? styles.viewToggleBtnActive
+                                                : ''
+                                        }`}
+                                        onClick={() => {
+                                            setGroupMode('type');
+                                            setSelectedLeagueId(null);
+                                        }}
+                                    >
+                                        Type
+                                    </button>
+                                    <button
+                                        className={`${styles.viewToggleBtn} ${
+                                            groupMode === 'team'
+                                                ? styles.viewToggleBtnActive
+                                                : ''
+                                        }`}
+                                        onClick={() => {
+                                            setGroupMode('team');
+                                            setSelectedLeagueId(null);
+                                        }}
+                                    >
+                                        Team
+                                    </button>
+                                </div>
+                            </div>
+
+                            {groupMode === 'type' &&
+                                blueprintSections.map(sec => (
+                                    <section
+                                        key={sec.key}
+                                        className={styles.section}
+                                        style={{
+                                            ['--accent' as string]: sec.accent,
+                                        } as CSSProperties}
+                                    >
+                                        <div className={styles.sectionHead}>
+                                            <span className={styles.sectionTitle}>
+                                                {sec.title}
+                                            </span>
+                                            <span className={styles.countPill}>
+                                                {sec.items.length}
+                                            </span>
+                                            <span className={styles.sectionRule} />
+                                            {sec.showHelp && (
+                                                <div className={styles.needHelp}>
+                                                    <a
+                                                        href={
+                                                            'https://discord.gg/hCPWDGn9Yb'
+                                                        }
+                                                        target="_blank"
+                                                    >
+                                                        Need Help?
+                                                    </a>
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div className={styles.cardGrid}>
+                                            {blueprintsLoading &&
+                                                sec.items.length === 0 && (
+                                                    <CircularProgress
+                                                        sx={{color: sec.accent}}
+                                                    />
+                                                )}
+                                            {!blueprintsLoading &&
+                                                sec.items.length === 0 && (
+                                                    <div
+                                                        className={
+                                                            styles.emptyState
+                                                        }
+                                                    >
+                                                        No blueprints here yet.
+                                                    </div>
+                                                )}
+                                            {sec.items.map(bp => (
+                                                <BlueprintItem
+                                                    key={bp.blueprintId}
+                                                    name={bp.name}
+                                                    date={bp.date}
+                                                    accentColor={sec.accent}
+                                                    onPreview={() => {
+                                                        setDownloadBlueprintId(
+                                                            bp.blueprintId
+                                                        );
+                                                        setDownloadBlueprintName(
+                                                            bp.name
+                                                        );
+                                                        setPreviewType(
+                                                            sec.preview
+                                                        );
+                                                        setDownloadModalOpen(
+                                                            true
+                                                        );
+                                                    }}
+                                                />
+                                            ))}
+                                        </div>
+                                    </section>
+                                ))}
+
+                            {groupMode === 'team' && selectedLeagueId === null && (
+                                <div className={styles.teamGrid}>
+                                    {blueprintsLoading &&
+                                        teamGroups.length === 0 && (
+                                            <CircularProgress
+                                                sx={{color: '#F47F20'}}
+                                            />
+                                        )}
+                                    {!blueprintsLoading &&
+                                        teamGroups.length === 0 && (
+                                            <div className={styles.emptyState}>
+                                                No blueprints yet.
+                                            </div>
+                                        )}
+                                    {teamGroups.map(team => (
+                                        <button
+                                            key={team.leagueId}
+                                            className={styles.teamCell}
+                                            onClick={() =>
+                                                setSelectedLeagueId(
+                                                    team.leagueId
+                                                )
+                                            }
+                                        >
+                                            <div className={styles.teamCellTop}>
+                                                <span
+                                                    className={
+                                                        styles.teamCellName
+                                                    }
+                                                >
+                                                    {team.teamName}
+                                                </span>
+                                                <span
+                                                    className={
+                                                        styles.teamCellCount
+                                                    }
+                                                >
+                                                    {team.items.length}
+                                                </span>
+                                            </div>
+                                            {duplicatedTeamNames.has(
+                                                team.teamName
+                                            ) && (
+                                                <span
+                                                    className={
+                                                        styles.teamCellSubtitle
+                                                    }
+                                                >
+                                                    {leagueLabel(team.leagueId)}
+                                                </span>
+                                            )}
+                                            <div className={styles.teamCellChips}>
+                                                {teamTypeChips(team.items).map(
+                                                    chip => (
+                                                        <span
+                                                            key={chip.type}
+                                                            className={
+                                                                styles.typeChip
+                                                            }
+                                                            style={{
+                                                                ['--chip' as string]:
+                                                                    chip.accent,
+                                                            } as CSSProperties}
+                                                        >
+                                                            {chip.label}
+                                                            {chip.count > 1
+                                                                ? ` ×${chip.count}`
+                                                                : ''}
+                                                        </span>
+                                                    )
+                                                )}
+                                            </div>
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+
+                            {groupMode === 'team' && selectedGroup !== null && (
+                                <section className={styles.section}>
+                                    <div className={styles.teamDetailHead}>
+                                        <button
+                                            className={styles.backButton}
+                                            onClick={() => setSelectedLeagueId(null)}
+                                        >
+                                            ← All Teams
+                                        </button>
+                                        <span className={styles.teamDetailTitle}>
+                                            {selectedGroup.teamName}
+                                        </span>
+                                        {duplicatedTeamNames.has(
+                                            selectedGroup.teamName
+                                        ) && (
+                                            <span
+                                                className={
+                                                    styles.teamDetailSubtitle
+                                                }
+                                            >
+                                                {leagueLabel(
+                                                    selectedGroup.leagueId
+                                                )}
+                                            </span>
+                                        )}
+                                        <span className={styles.teamDetailCount}>
+                                            {selectedTeamItems.length}{' '}
+                                            {selectedTeamItems.length === 1
+                                                ? 'blueprint'
+                                                : 'blueprints'}
+                                        </span>
+                                    </div>
+                                    <div className={styles.cardGrid}>
+                                        {selectedTeamItems.map(item => (
+                                            <BlueprintItem
+                                                key={item.blueprintId}
+                                                name={item.typeLabel}
+                                                date={item.date}
+                                                accentColor={item.accent}
+                                                onPreview={() =>
+                                                    openPreview(item)
+                                                }
+                                            />
+                                        ))}
+                                    </div>
+                                </section>
+                            )}
+                        </main>
+                        <aside className={styles.sidebar}>
+                            {statusTrackerFlag && (
+                                <BlueprintStatusTracker
+                                    blueprints={blueprints}
+                                    isMobile={isMobile}
+                                />
+                            )}
+                        </aside>
                     </div>
-                </>
+                </div>
             )}
         </div>
     );
@@ -1167,84 +1368,56 @@ export default function BlueprintDashboard() {
 type BlueprintItemProps = {
     name: string;
     date: string;
-    index: number;
-    screenWidth: number;
-    blueprintId: string;
-    setDownloadBlueprintId: (id: string) => void;
-    setDownloadBlueprintName: (name: string) => void;
-    setDownloadModalOpen: (open: boolean) => void;
+    accentColor: string;
+    onPreview: () => void;
 };
 
 function BlueprintItem({
     name,
     date,
-    index,
-    screenWidth,
-    blueprintId,
-    setDownloadBlueprintId,
-    setDownloadBlueprintName,
-    setDownloadModalOpen,
+    accentColor,
+    onPreview,
 }: BlueprintItemProps) {
-    const [isMobile] = useState(screenWidth < 600);
-
     return (
         <div
-            className={styles.blueprintItem}
-            style={{width: isMobile ? `${screenWidth * 0.7}px` : ''}}
+            className={styles.card}
+            style={{['--accent' as string]: accentColor} as CSSProperties}
         >
-            <div className={styles.blueprintItemHeader}>
-                <div className={styles.domainShieldContainer}>
-                    <DomainShield
-                        color={COLOR_LIST[index % COLOR_LIST.length]}
-                    />
+            <div className={styles.cardAccent} />
+            <div className={styles.cardTop}>
+                <div className={styles.shieldWrap}>
+                    <DomainShield color={accentColor} />
                 </div>
-                <div className={styles.blueprintMetadata}>
-                    <div
-                        className={styles.blueprintName}
-                        style={{
-                            fontSize: isMobile ? '30px' : undefined,
-                            maxWidth: isMobile ? `${screenWidth * 0.5}px` : '',
-                        }}
-                    >
-                        {name}
-                    </div>
-                    <div
-                        className={styles.blueprintDate}
-                        style={{
-                            fontSize: isMobile ? '15px' : undefined,
-                        }}
-                    >
-                        {date}
-                    </div>
+                <div className={styles.cardMeta}>
+                    <div className={styles.cardName}>{name}</div>
+                    <div className={styles.cardDate}>{date}</div>
                 </div>
             </div>
-            <div className={styles.blueprintItemFooter}>
-                <Button
-                    variant="text"
-                    style={{
-                        padding: '10px 15px 6px 15px',
-                        height: '50px',
-                    }}
-                    sx={{
-                        backgroundColor: '#474E51',
-                        color: 'white',
-                        borderRadius: '5px',
-                        '&:hover': {
-                            backgroundColor: '#676b6dff',
-                        },
-                        fontFamily: 'Acumin Pro',
-                        fontWeight: '1000',
-                        fontSize: '30px',
-                    }}
-                    onClick={() => {
-                        setDownloadModalOpen(true);
-                        setDownloadBlueprintId(blueprintId);
-                        setDownloadBlueprintName(name);
-                    }}
-                >
-                    PREVIEW
-                </Button>
-            </div>
+            <Button
+                variant="text"
+                fullWidth
+                style={{
+                    padding: '8px 14px 5px 14px',
+                    height: '40px',
+                }}
+                sx={{
+                    backgroundColor: '#0F1A1F',
+                    color: 'white',
+                    borderRadius: '8px',
+                    border: '1px solid #2E4349',
+                    '&:hover': {
+                        backgroundColor: accentColor,
+                        color: '#04121C',
+                        borderColor: accentColor,
+                    },
+                    fontFamily: 'Acumin Pro',
+                    fontWeight: '1000',
+                    fontSize: '16px',
+                }}
+                onClick={onPreview}
+            >
+                PREVIEW
+            </Button>
         </div>
     );
 }
@@ -1337,31 +1510,6 @@ const DomainShield = ({color = '#F47F20'}: {color?: string}) => (
         <path
             d="M32.6405 88.3354L32.6385 88.3334L32.6405 88.3354Z"
             fill={color}
-        />
-    </svg>
-);
-
-const MyBpIcon = ({isMobile}: {isMobile: boolean}) => (
-    <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="65"
-        height="85"
-        viewBox="0 0 65 85"
-        fill="none"
-        className={styles.myBpIcon}
-        style={{width: isMobile ? '20px' : ''}}
-    >
-        <path
-            d="M61.4755 10.6397V10.673H55.7102C55.4409 10.673 55.4755 10.7064 55.4755 10.4544V4.94237C55.2742 2.70638 60.9715 9.79971 61.4755 10.6397Z"
-            fill="white"
-        />
-        <path
-            d="M55.2566 25.0272C54.8033 26.4218 54.2819 26.3712 52.7859 26.3218H50.2646C44.3646 26.1872 33.7433 26.5898 28.5153 26.1698L28.3979 26.0685C27.2379 24.9938 27.2553 21.2285 29.5246 21.2952H54.0459C55.3233 21.2952 55.6766 23.9512 55.2566 25.0272ZM54.5006 36.8098C47.7606 37.0952 35.4913 36.9778 28.9699 36.8592L28.8353 36.7925C28.3473 36.5738 27.5233 35.6325 27.5739 34.5565C27.6073 33.3978 28.0619 32.1872 28.9019 31.9178C31.2219 31.9018 52.3486 31.9018 54.1473 31.9178C55.7779 32.2712 55.7779 36.0018 54.5006 36.8098ZM39.3233 47.4818C36.5326 47.7845 31.2886 48.0205 28.9859 47.2805C27.3059 46.4405 26.8006 43.5498 28.6499 42.7258L28.8019 42.6578C31.1033 42.2712 36.2139 42.3725 38.8859 42.5072C42.2806 42.2712 42.4659 46.8765 39.3233 47.4818ZM56.4833 63.0965C59.5926 63.6178 62.3326 61.8192 64.0473 59.1978C64.6859 58.1885 64.9206 57.7858 64.9886 56.9618V18.7578C64.9553 18.0685 65.0553 16.6738 64.9206 16.4552C62.5339 15.9338 57.7953 16.4045 55.1059 16.2538C52.5006 16.3712 50.6686 14.7738 50.9713 12.1018C50.9206 8.92584 51.1046 3.02584 50.8873 0.252506L50.8526 0.185841C44.3486 -0.218159 29.6579 0.185837 25.9939 0.0338364C25.3699 0.00850296 24.7286 0.072506 24.0913 0.21384C20.3446 1.04717 17.7913 4.5565 17.7993 8.39517C17.8273 23.4992 18.0606 37.9338 18.0606 52.8605C18.0606 53.4165 18.1246 54.0912 18.3139 54.8338C19.6073 59.8805 24.3126 63.3032 29.5219 63.2698L56.4833 63.0965Z"
-            fill="white"
-        />
-        <path
-            d="M13.439 57.1972C13.4217 61.5505 18.5817 66.9118 21.8604 67.8865C23.5404 68.3412 25.0537 68.2572 26.9017 68.3238C33.2044 68.3905 42.8364 67.7185 45.3404 68.3745C46.651 69.0638 46.4164 70.6438 46.5497 72.5252C46.567 76.2905 46.0457 80.3078 43.4577 82.4932C42.483 83.3332 41.3737 83.8878 40.1964 84.0732C34.3817 85.1318 16.179 84.9638 9.64038 84.5772C9.61238 84.5758 9.58305 84.5732 9.55371 84.5718C4.90705 84.2892 1.27505 80.4358 1.15905 75.7812L0.00304666 29.2105C-0.04762 27.1318 0.53238 25.0452 1.83905 23.4278C2.64038 22.4385 3.61505 21.6652 4.78305 21.3972H12.6404L13.439 57.1972Z"
-            fill="white"
         />
     </svg>
 );
