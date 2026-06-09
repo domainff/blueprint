@@ -192,12 +192,16 @@
 }
 
 .submitTicket, .dynastyCommunity {
+    flex: 1 1 0;
+    min-width: 0;
+
     display: flex;
     flex-direction: row;
-    gap: 10px;
+    gap: 8px;
     align-items: center;
+    justify-content: center;
 
-    height: 33px;
+    min-height: 48px;
     background-color: #182328;
 
     text-transform: uppercase;
@@ -207,17 +211,17 @@
     font-size: 16px;
     font-style: normal;
     font-weight: 400;
-    line-height: normal;
+    line-height: 1.05;
 
     border: #FFF 2px solid;
     border-radius: 15px;
 
-    padding-left: 10px;
-    padding-right: 10px;
+    padding: 6px 10px;
 }
 
 .submitTicketText, .dynastyCommunityText {
     padding-bottom: 2px;
+    text-align: center;
 }
 
 .submitTicket:hover, .dynastyCommunity:hover {
