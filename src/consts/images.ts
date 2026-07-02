@@ -41,6 +41,7 @@ import bakeryCardMar from '../assets/newinfinite/bakery/bakery_mar.png';
 import bakeryCardApr from '../assets/newinfinite/bakery/bakery_apr.jpg';
 import bakeryCardMay from '../assets/newinfinite/bakery/bakery_may.png';
 import bakeryCardJun from '../assets/newinfinite/bakery/bakery_jun.png';
+import bakeryCardJul from '../assets/newinfinite/bakery/bakery_jul.png';
 import domainShield from '../assets/newinfinite/domain_shield.png';
 import nflSilhouette from '../assets/newinfinite/nfl_logo.png';
 
@@ -450,4 +451,5 @@ export {
     dashboardBg,
     bakeryCardMay,
     bakeryCardJun,
+    bakeryCardJul,
 };
