@@ -403,6 +403,7 @@ export {
     logo,
     newInfiniteBg,
     bakeryCardFeb,
+    bakeryCardJul,
     flockDomainLogo,
     domainShield,
     nflSilhouette,

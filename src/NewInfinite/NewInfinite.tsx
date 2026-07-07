@@ -3,6 +3,7 @@ import styles from './NewInfinite.module.css';
 import {
     bakeryCardApr,
     bakeryCardFeb,
+    bakeryCardJul,
     bakeryCardJun,
     bakeryCardMar,
     bakeryCardMay,
