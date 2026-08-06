@@ -7,6 +7,7 @@ import {
     bakeryCardMar,
     bakeryCardMay,
     bakeryCardJul,
+    bakeryCardAug,
     domainShield,
     newInfiniteBg,
     nflSilhouette,
@@ -247,6 +248,8 @@ export function WrappedNewInfinite({blueprintId}: {blueprintId: string}) {
                 return bakeryCardJun;
             case 6:
                 return bakeryCardJul;
+            case 7:
+                return bakeryCardAug;
             default:
                 return '';
         }
