@@ -5,6 +5,9 @@ import NonSleeperInput from "./NonSleeperInput";
 import { Box, Button, Modal } from "@mui/material";
 import styles from "./NonSleeperInputWrapper.module.css";
 import axios from "axios";
+import GoogleSignInButton from '../shared/GoogleSignInButton';
+import {loginWithGoogle, persistDomainLogin} from '../auth/domainLogin';
+import {googleSignInEnabled} from '../auth/googleSignIn';
 import { flockDomainLogo } from "../consts/images";
 import DomainTextField from "../shared/DomainTextField";
 import { useScreenSize } from "../BlueprintDashboard/BlueprintDashboard";
@@ -112,16 +115,7 @@ export default function NonSleeperInputWrapper() {
             .request(options)
             .then(res => {
                 if (res.data.success) {
-                    localStorage.setItem('flockAuthToken', res.data.token);
-                    localStorage.setItem('flockEmail', res.data.flockEmail);
-                    localStorage.setItem(
-                        'flockUsername',
-                        res.data.flockUsername
-                    );
-                    localStorage.setItem(
-                        'domainUserId',
-                        res.data.domainUserId
-                    );
+                    persistDomainLogin(res.data);
                     setIsLoggedIn(true);
                     setLoginModalOpen(false);
                     setLoginError('');
@@ -143,6 +137,24 @@ export default function NonSleeperInputWrapper() {
                 setIsLoggingIn(false);
                 setLoginPassword('');
             });
+    }
+
+    async function submitGoogleLogin(idToken: string) {
+        setIsLoggingIn(true);
+        setLoginError('');
+        try {
+            const result = await loginWithGoogle(idToken);
+            if (result.success) {
+                persistDomainLogin(result);
+                setIsLoggedIn(true);
+                setLoginModalOpen(false);
+                setDomainUserNotFound(false);
+            } else {
+                setLoginError(`${result.code}: ${result.message}`);
+            }
+        } finally {
+            setIsLoggingIn(false);
+        }
     }
 
     function logout() {
@@ -172,9 +184,20 @@ export default function NonSleeperInputWrapper() {
                         BLUEPRINT DASHBOARD LOGIN
                     </div>
                     <div className={styles.loginDescription}>
-                        Login using the same email and password used on the
-                        Flock Fantasy website
+                        {googleSignInEnabled
+                            ? 'Signed up for Flock with Google? Use the Google button. Otherwise, sign in with the same email and password you use on the Flock Fantasy website.'
+                            : 'Login using the same email and password used on the Flock Fantasy website'}
                     </div>
+                    {googleSignInEnabled && (
+                        <>
+                            <GoogleSignInButton
+                                onCredential={submitGoogleLogin}
+                                disabled={isLoggingIn}
+                                width={isMobile ? Math.round(width * 0.65) : 360}
+                            />
+                            <div className={styles.loginDivider}>OR</div>
+                        </>
+                    )}
                     <div>
                         <div className={styles.inputLabel}>Email Address</div>
                         <DomainTextField
