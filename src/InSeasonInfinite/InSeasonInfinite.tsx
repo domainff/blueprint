@@ -25,7 +25,7 @@ function sleeperHeadshot(sleeperBotId: number | null): string {
 
 // ─── Props ──────────────────────────────────────────────────────────────────
 
-export type Outlook = "Contending" | "Reloading" | "Rebuilding";
+export type Outlook = "Contending" | "Wait & See" | "Rebuilding";
 export type LineupSlot = "QB" | "RB" | "WR" | "TE" | "FL" | "SF";
 export type NflPosition = "QB" | "RB" | "WR" | "TE";
 export type EosValue = "Riser" | "Neutral" | "Faller";
@@ -269,7 +269,7 @@ function DashedLine({ x, y, w }: { x: number; y: number; w: number }) {
 
 // ─── Header ─────────────────────────────────────────────────────────────────
 
-const OUTLOOKS: Outlook[] = ["Contending", "Reloading", "Rebuilding"];
+const OUTLOOKS: Outlook[] = ["Contending", "Wait & See", "Rebuilding"];
 const PILL_LEFT = [2114, 2668.12, 3222.24];
 
 function OutlookPill({ left, label, active }: { left: number; label: string; active: boolean }) {
