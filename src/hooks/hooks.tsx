@@ -140,7 +140,7 @@ export type RosterPlayer = {
     valueScore: number;
 };
 
-type Blueprint = {
+export type Blueprint = {
     id: number;
     blueprintType: string;
     platform: string;
@@ -192,6 +192,12 @@ type Blueprint = {
         sortOrder: number;
     }>;
     infiniteFeatures: InfiniteFeatures;
+    /**
+     * In-season Infinite format (2026+). Shares blueprintType "Infinite" with the
+     * legacy monthly format; exactly one of infiniteFeatures /
+     * inSeasonInfiniteFeatures is non-null on an Infinite blueprint.
+     */
+    inSeasonInfiniteFeatures: InSeasonInfiniteFeatures | null;
     premiumFeatures: PremiumFeatures;
     createdUtc: string;
     rookieDraftFeatures: RookieDraftFeatures | null;
@@ -305,6 +311,97 @@ type InfiniteFeatures = {
     }>;
 };
 
+// ----- In-Season Infinite (2026+) -----
+// Mirrors InSeasonInfiniteBlueprintFeaturesDto in the Domain API. Enum values are the
+// API's string names (JsonStringEnumConverter).
+export type InSeasonOutlook = 'Contend' | 'Reload' | 'Rebuild';
+export type InSeasonRankTrend = 'Flat' | 'Up' | 'Down';
+export type InSeasonEosValue = 'Neutral' | 'Riser' | 'Faller';
+/** The weekly player-data 7-tier verdict scale (strongest buy → strongest sell). */
+export type InSeasonVerdict =
+    | 'HardBuy'
+    | 'Buy'
+    | 'SoftBuy'
+    | 'Hold'
+    | 'SoftSell'
+    | 'Sell'
+    | 'HardSell';
+export type InSeasonLight = 'Green' | 'Yellow' | 'Red';
+
+export type InSeasonInfiniteLineupSlot = {
+    id: number;
+    sortOrder: number;
+    /** Sleeper slot: QB, RB, WR, TE, FLEX, SUPER_FLEX, REC_FLEX, WRRB_FLEX */
+    slot: string;
+    playerId: number;
+    playerSleeperBotId: number | null;
+    playerName: string;
+    position: string;
+    teamAbbreviation: string | null;
+    marketDelta: number | null;
+    rosPositionRank: number | null;
+    rosTrend: InSeasonRankTrend | null;
+    eosValue: InSeasonEosValue | null;
+    verdict: InSeasonVerdict | null;
+    matchupLight: InSeasonLight | null;
+    offenseLight: InSeasonLight | null;
+    vegasLight: InSeasonLight | null;
+};
+
+export type InSeasonInfinitePowerRank = {
+    id: number;
+    rank: number;
+    rosterId: number;
+    teamName: string;
+    isCurrentTeam: boolean;
+    wins: number;
+    losses: number;
+    totalPointsFor: number;
+    rosProjection: number | null;
+    rosProjectionRank: number | null;
+    rosProjectionDelta: number | null;
+    playoffOddsPct: number | null;
+    playoffOddsDelta: number | null;
+    championshipOddsPct: number | null;
+    championshipOddsDelta: number | null;
+    projectedWins: number | null;
+    averageSeed: number | null;
+};
+
+export type InSeasonInfiniteOddsPoint = {
+    id: number;
+    weekNumber: number;
+    playoffOddsPct: number;
+    championshipOddsPct: number;
+};
+
+export type InSeasonInfiniteFeatures = {
+    id: number;
+    weekId: number;
+    season: number;
+    weekNumber: number;
+    generatedUtc: string;
+    outlook: InSeasonOutlook;
+    wins: number;
+    losses: number;
+    ties: number;
+    totalPointsFor: number;
+    pointsForLeagueRank: number;
+    rosProjection: number | null;
+    rosProjectionLeagueRank: number | null;
+    playoffOddsPct: number | null;
+    championshipOddsPct: number | null;
+    playoffOddsIfWinPct: number | null;
+    playoffOddsIfLosePct: number | null;
+    championshipOddsIfWinPct: number | null;
+    championshipOddsIfLosePct: number | null;
+    projectedWins: number | null;
+    averageSeed: number | null;
+    lineupSlots: InSeasonInfiniteLineupSlot[];
+    powerRanks: InSeasonInfinitePowerRank[];
+    oddsHistory: InSeasonInfiniteOddsPoint[];
+};
+
 export function useBlueprint(blueprintId: string) {
     const [blueprint, setBlueprint] = useState<Blueprint>();
     const authToken = localStorage.getItem('authToken');
@@ -337,7 +434,8 @@ export function useNewInfiniteBuysSells(blueprint: Blueprint | undefined) {
     const [sells, setSells] = useState<BuySellPlayerProps[]>([]);
 
     useEffect(() => {
-        if (!blueprint) return;
+        // In-season (2026+) Infinites carry no legacy satellite.
+        if (!blueprint?.infiniteFeatures) return;
         const buySellRecommendations =
             blueprint.infiniteFeatures.buySellRecommendations;
         const buys = buySellRecommendations
@@ -413,6 +511,13 @@ export type BlueprintMetadata = {
     createdUtc: string;
     updatedUtc?: string;
     deliveryStatus: string;
+    season?: number | null;
+    /**
+     * NFL week for in-season Infinite blueprints (2026+); null/absent for every
+     * other blueprint, including legacy Infinites. Both formats report
+     * blueprintType "Infinite", so this is the list-level discriminator.
+     */
+    weekNumber?: number | null;
 };
 
 export function useBlueprintsForDomainUser() {

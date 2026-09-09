@@ -19,6 +19,8 @@ import {
     useNewInfiniteBuysSells,
 } from '../hooks/hooks';
 import {logoImage} from '../shared/Utilities';
+import InSeasonInfinite from '../InSeasonInfinite/InSeasonInfinite';
+import {buildInSeasonInfiniteProps} from '../InSeasonInfinite/buildInSeasonInfiniteProps';
 import {
     FLEX,
     QB,
@@ -256,7 +258,9 @@ export function WrappedNewInfinite({blueprintId}: {blueprintId: string}) {
     }, [createdDate]);
 
     useEffect(() => {
-        if (!blueprint) return;
+        // In-season (2026+) Infinites have no legacy satellite; they render via
+        // InSeasonInfinite below, so skip the legacy derivations entirely.
+        if (!blueprint?.infiniteFeatures) return;
         setApiStartingLineup(
             getApiStartingLineup(
                 blueprint.leagueSettings,
@@ -339,6 +343,13 @@ export function WrappedNewInfinite({blueprintId}: {blueprintId: string}) {
                 .toUpperCase()
         );
     }, [apiStartingLineup, blueprint?.rosterPlayers]);
+
+    // Safety net for callers that reach this renderer by id alone (e.g. the
+    // /infinitespotchecker route): both Infinite formats share blueprintType
+    // "Infinite", and only the in-season one has this satellite.
+    if (blueprint?.inSeasonInfiniteFeatures) {
+        return <InSeasonInfinite {...buildInSeasonInfiniteProps(blueprint)} />;
+    }
 
     return (
         <div className={styles.fullBlueprint}>

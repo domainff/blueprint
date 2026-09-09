@@ -51,6 +51,21 @@ export const MOCK_BLUEPRINTS: BlueprintMetadata[] = [
         updatedUtc: '2026-05-20T12:00:00',
         deliveryStatus: 'Published',
     },
+    // In-season (weekly) Infinite: same blueprintType, distinguished by weekNumber.
+    {
+        blueprintId: '4101',
+        blueprintType: 'Infinite',
+        platform: 'Sleeper',
+        leagueId: '1124000000000000111',
+        ownerUserId: 'u1',
+        rosterId: 1,
+        teamName: 'Gridiron Gurus',
+        createdUtc: '2026-09-15T12:00:00',
+        updatedUtc: '2026-09-15T12:00:00',
+        deliveryStatus: 'Published',
+        season: 2026,
+        weekNumber: 1,
+    },
     // --- The Replacements: 2 blueprints (Standard + Rookie) ---
     {
         blueprintId: '1002',

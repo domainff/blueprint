@@ -1,14 +1,16 @@
 import styles from './BlueprintDashboard.module.css';
 import newInfiniteStyles from '../NewInfinite/NewInfinite.module.css';
+import inSeasonInfiniteStyles from '../InSeasonInfinite/InSeasonInfinite.module.css';
 import newRookieStyles from '../NewRookieDraft/NewRookieDraft.module.css';
 import newV1Styles from '../NewV1/NewV1.module.css';
 import premiumStyles from '../Premium/Premium.module.css';
 import {expiredInfinitePromo, expiredMembershipPromo, flockDomainLogo, logoHorizontal} from '../consts/images';
-import {Subscription, useBlueprintsForDomainUser, useDomainAppUser, useInfiniteSubscriptions, useTitle} from '../hooks/hooks';
+import {Subscription, useBlueprintsForDomainUser, useDomainAppUser, useInfiniteSubscriptions, useTitle, type BlueprintMetadata} from '../hooks/hooks';
 import {Box, Button, CircularProgress, IconButton, Modal} from '@mui/material';
 import {useEffect, useState, type CSSProperties} from 'react';
 import DomainTextField from '../shared/DomainTextField';
 import {WrappedNewInfinite} from '../NewInfinite/NewInfinite';
+import {WrappedInSeasonInfinite} from '../InSeasonInfinite/WrappedInSeasonInfinite';
 import {toPng} from 'html-to-image';
 import { Close, ZoomOut as ZoomOutIcon } from '@mui/icons-material';
 import ZoomInIcon from '@mui/icons-material/ZoomIn';
@@ -65,6 +67,7 @@ enum PreviewType {
     Rookie,
     Standard,
     Premium,
+    InSeasonInfinite,
 }
 
 // Natural (unscaled) dimensions of each blueprint type. These match the
@@ -77,11 +80,12 @@ const PREVIEW_DIMS: Partial<Record<PreviewType, {w: number; h: number}>> = {
     [PreviewType.Rookie]: {w: 1400, h: 1032},
     [PreviewType.Standard]: {w: 800, h: 1060},
     [PreviewType.Premium]: {w: 1900, h: 1045},
+    [PreviewType.InSeasonInfinite]: {w: 6134, h: 3795},
 };
 
-// Maps the API's blueprintType string to its display label, brand accent
-// color, and the corresponding preview enum. Used by both the "By Type" and
-// "By Team" groupings. Order here defines the order types are listed.
+// Maps a blueprint's type key (see typeKey below) to its display label, brand
+// accent color, and the corresponding preview enum. Used by both the "By Type"
+// and "By Team" groupings. Order here defines the order types are listed.
 const TYPE_META: Record<
     string,
     {label: string; accent: string; preview: PreviewType}
@@ -89,7 +93,28 @@ const TYPE_META: Record<
     Standard: {label: 'Standard', accent: '#F47F20', preview: PreviewType.Standard},
     Premium: {label: 'Premium', accent: '#B139E2', preview: PreviewType.Premium},
     RookieDraft: {label: 'Rookie Draft', accent: '#00B1FF', preview: PreviewType.Rookie},
+    InSeasonInfinite: {label: 'In-Season Infinite', accent: '#1AE069', preview: PreviewType.InSeasonInfinite},
     Infinite: {label: 'Infinite', accent: '#1AE069', preview: PreviewType.Infinite},
+};
+
+// The API reports both Infinite formats as blueprintType "Infinite". The in-season
+// (weekly, 2026+) format is the one that carries a weekNumber; legacy monthly
+// Infinites never do. Every grouping below keys off this rather than the raw
+// blueprintType so the two formats get their own renderer.
+const typeKey = (bp: BlueprintMetadata): string =>
+    bp.blueprintType === 'Infinite' && bp.weekNumber != null
+        ? 'InSeasonInfinite'
+        : bp.blueprintType;
+
+// Card subtitle: in-season blueprints are identified by their week, everything
+// else by the date it was created.
+const dateLabel = (bp: BlueprintMetadata): string => {
+    const date = new Date(bp.createdUtc).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: '2-digit',
+    });
+    return bp.weekNumber != null ? `Week ${bp.weekNumber} · ${date}` : date;
 };
 
 type TeamBlueprint = {
@@ -205,6 +230,9 @@ export default function BlueprintDashboard() {
         if (previewType === PreviewType.Infinite) {
             setZoomLevel(Math.min(displayHeight / 2102, displayWidth / 1700));
         }
+        if (previewType === PreviewType.InSeasonInfinite) {
+            setZoomLevel(Math.min(displayHeight / 3795, displayWidth / 6134));
+        }
         if (previewType === PreviewType.Rookie) {
             setZoomLevel(Math.min(displayHeight / 1032, displayWidth / 1400));
         }
@@ -275,7 +303,7 @@ export default function BlueprintDashboard() {
             }));
     const infinites: Array<{name: string; date: string; blueprintId: string}> =
         blueprints
-            .filter(bp => bp.blueprintType === 'Infinite' && bp.deliveryStatus === 'Published')
+            .filter(bp => typeKey(bp) === 'Infinite' && bp.deliveryStatus === 'Published')
             .map(blueprint => ({
                 name: blueprint.teamName,
                 date: new Date(blueprint.createdUtc).toLocaleDateString(
@@ -286,6 +314,16 @@ export default function BlueprintDashboard() {
                         day: '2-digit',
                     }
                 ),
+                blueprintId: '' + blueprint.blueprintId,
+            }));
+    // Weekly (2026+) Infinite format: one row per team per week. The API returns
+    // newest first, so the current week leads.
+    const inSeasonInfinites: Array<{name: string; date: string; blueprintId: string}> =
+        blueprints
+            .filter(bp => typeKey(bp) === 'InSeasonInfinite' && bp.deliveryStatus === 'Published')
+            .map(blueprint => ({
+                name: blueprint.teamName,
+                date: dateLabel(blueprint),
                 blueprintId: '' + blueprint.blueprintId,
             }));
 
@@ -433,6 +471,50 @@ export default function BlueprintDashboard() {
         setIsDownloading(false);
     };
 
+    // The in-season canvas is 6134x3795 (23 MP). Exporting at half pixel ratio
+    // keeps the PNG at 3067x1898: under the canvas-size ceiling of mobile
+    // browsers, still nearly twice the legacy Infinite's width.
+    const downloadInSeasonInfiniteBlueprint = async () => {
+        const element = document.getElementsByClassName(
+            inSeasonInfiniteStyles.fullBlueprint
+        )[0] as HTMLElement | undefined;
+        if (!element) return;
+        setIsDownloading(true);
+
+        try {
+            await new Promise(resolve => setTimeout(resolve, 3000));
+
+            // html-to-image occasionally returns a near-empty image on its first
+            // pass (fonts/headshots not yet embedded); retry a couple of times.
+            let dataUrl = '';
+            const minDataLength = 1000000;
+            let i = 0;
+            const maxAttempts = 3;
+
+            while (dataUrl.length < minDataLength && i < maxAttempts) {
+                dataUrl = await toPng(element, {
+                    backgroundColor: 'rgba(0, 0, 0, 0)',
+                    cacheBust: true,
+                    pixelRatio: 0.5,
+                    fetchRequestInit: {
+                        mode: 'cors',
+                        cache: 'reload',
+                    },
+                });
+                i += 1;
+            }
+
+            const link = document.createElement('a');
+            link.href = dataUrl;
+            link.download = `${downloadBlueprintName}.png`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } finally {
+            setIsDownloading(false);
+        }
+    };
+
     const downloadRookieBlueprint = async () => {
         setIsDownloading(true);
         const element = document.getElementsByClassName(
@@ -569,16 +651,17 @@ export default function BlueprintDashboard() {
         {key: 'standard', title: 'My Blueprints', accent: '#F47F20', items: bps, preview: PreviewType.Standard, showHelp: false},
         {key: 'premium', title: 'My Premium Blueprints', accent: '#B139E2', items: premiumBps, preview: PreviewType.Premium, showHelp: false},
         {key: 'rookie', title: 'My Rookie Blueprints', accent: '#00B1FF', items: rookieBps, preview: PreviewType.Rookie, showHelp: false},
+        {key: 'inSeasonInfinite', title: 'My In-Season Infinite Blueprints', accent: '#1AE069', items: inSeasonInfinites, preview: PreviewType.InSeasonInfinite, showHelp: true},
         {key: 'infinite', title: 'My Infinite Blueprints', accent: '#1AE069', items: infinites, preview: PreviewType.Infinite, showHelp: true},
     ];
     const totalBlueprints =
-        bps.length + premiumBps.length + rookieBps.length + infinites.length;
+        bps.length + premiumBps.length + rookieBps.length + infinites.length + inSeasonInfinites.length;
     const statCards = [
         {label: 'Total', value: totalBlueprints, accent: '#FFFFFF'},
         {label: 'Standard', value: bps.length, accent: '#F47F20'},
         {label: 'Premium', value: premiumBps.length, accent: '#B139E2'},
         {label: 'Rookie', value: rookieBps.length, accent: '#00B1FF'},
-        {label: 'Infinite', value: infinites.length, accent: '#1AE069'},
+        {label: 'Infinite', value: infinites.length + inSeasonInfinites.length, accent: '#1AE069'},
     ];
 
     // ----- "By Team" grouping -----
@@ -588,24 +671,21 @@ export default function BlueprintDashboard() {
         .filter(
             bp =>
                 bp.deliveryStatus === 'Published' &&
-                TYPE_META[bp.blueprintType] !== undefined
+                TYPE_META[typeKey(bp)] !== undefined
         )
         .map(bp => {
-            const meta = TYPE_META[bp.blueprintType];
+            const key = typeKey(bp);
+            const meta = TYPE_META[key];
             return {
                 blueprintId: '' + bp.blueprintId,
                 leagueId: bp.leagueId,
                 teamName: bp.teamName,
-                blueprintType: bp.blueprintType,
+                blueprintType: key,
                 typeLabel: meta.label,
                 accent: meta.accent,
                 previewType: meta.preview,
                 createdUtc: bp.createdUtc,
-                date: new Date(bp.createdUtc).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'short',
-                    day: '2-digit',
-                }),
+                date: dateLabel(bp),
             };
         });
 
@@ -980,6 +1060,9 @@ export default function BlueprintDashboard() {
                                     case PreviewType.Infinite:
                                         downloadInfiniteBlueprint();
                                         break;
+                                    case PreviewType.InSeasonInfinite:
+                                        downloadInSeasonInfiniteBlueprint();
+                                        break;
                                     case PreviewType.Rookie:
                                         downloadRookieBlueprint();
                                         break;
@@ -1058,6 +1141,9 @@ export default function BlueprintDashboard() {
                         >
                             {previewType === PreviewType.Infinite && (
                                 <WrappedNewInfinite blueprintId={downloadBlueprintId} />
+                            )}
+                            {previewType === PreviewType.InSeasonInfinite && (
+                                <WrappedInSeasonInfinite blueprintId={downloadBlueprintId} />
                             )}
                             {previewType === PreviewType.Rookie && (
                                 <WrappedNewRookieDraft blueprintId={downloadBlueprintId} />
