@@ -1,0 +1,80 @@
+/* In-Season Infinite blueprint. Canvas is 1:1 with the Figma frame
+   (6134 x 3795), so every coordinate in InSeasonInfinite.tsx is a Figma
+   frame coordinate. Static chrome is baked into inSeasonInfiniteBkg.png; only
+   data-bearing elements are DOM.
+
+   VENDORED from the DomainFantasyFootball repo
+   (client/src/pages/blueprint-module/preview/InSeasonInfinitePreview.module.css).
+   Only the font path below differs; keep the rest byte-identical and re-copy
+   when the source changes. */
+
+/* The only ExtraCondensed file in the repo is the Regular cut. This design uses
+   Semibold/Bold ExtraCondensed everywhere; registering the file at its true
+   weight under a scoped family lets Chromium embolden it for 600+ until the
+   real Semibold/Bold cuts are added. */
+@font-face {
+    font-family: 'Acumin Pro ExtraCondensed ISI';
+    src: url('../fonts/Acumin_Pro_ExtraCondensed.otf') format('opentype');
+    font-weight: 400;
+    font-style: normal;
+}
+
+.fullBlueprint {
+    width: 6134px;
+    position: relative;
+    overflow: hidden;
+}
+
+.backgroundImg {
+    width: 6134px;
+    display: block;
+}
+
+.abs {
+    position: absolute;
+}
+
+.img {
+    position: absolute;
+    display: block;
+}
+
+/* Figma text boxes are measured cap-height to baseline and the glyphs sit
+   vertically centered in the box. text-box (Chrome 133+) reproduces that;
+   older engines fall back to the normal line box, which is a few px lower. */
+.t {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    white-space: nowrap;
+    box-sizing: border-box;
+}
+
+.t p,
+.p {
+    margin: 0;
+    line-height: normal;
+    text-box: trim-both cap alphabetic;
+}
+
+.p {
+    position: absolute;
+    white-space: nowrap;
+}
+
+.gradientText {
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+}
+
+/* Figma renders "N." as a numbered-list marker: right-aligned, ending ~29px
+   before the name (name starts at left + 101.6). */
+.rank {
+    display: inline-block;
+    width: 101.6px;
+    padding-right: 23px;
+    box-sizing: border-box;
+    text-align: right;
+}
