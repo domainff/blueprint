@@ -32,7 +32,8 @@ import type {
 // product defines them. The championship dial is the one exception to "percent drives
 // everything": its needle slot and colour follow the team's league rank (see below).
 
-const OUTLOOK: Record<string, Outlook> = { Contend: "Contending", Reload: "Reloading", Rebuild: "Rebuilding" };
+// The stored enum keeps "Reload" (shared with the dynasty two-year outlook); in-season it reads "Wait & See".
+const OUTLOOK: Record<string, Outlook> = { Contend: "Contending", Reload: "Wait & See", Rebuild: "Rebuilding" };
 const SLOT: Record<string, LineupSlot> = {
   QB: "QB", RB: "RB", WR: "WR", TE: "TE",
   FLEX: "FL", REC_FLEX: "FL", WRRB_FLEX: "FL", SUPER_FLEX: "SF",
