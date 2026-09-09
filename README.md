@@ -48,3 +48,32 @@ export default tseslint.config({
   },
 })
 ```
+
+## Google sign-in
+
+The login modal offers "Continue with Google" for customers whose Flock account was
+created with Google (they have no Flock password). The button needs a Google OAuth
+web-client ID in `.env`:
+
+```
+VITE_GOOGLE_CLIENT_ID=<client id>.apps.googleusercontent.com
+```
+
+The same client ID must be configured on the Domain API as `Google:ClientId`, and the
+site origin (`https://domainff.github.io` and `http://localhost:5173` for dev) must be
+listed under the client's Authorized JavaScript origins. Leave the value empty to hide
+the button.
+
+### Local end-to-end test
+
+Create a throwaway OAuth web client in your own Google Cloud project with
+`http://localhost:5173` and `http://localhost` as authorized origins. Put it in
+`.env.local` (gitignored) along with a pointer at a locally running Domain API:
+
+```
+VITE_GOOGLE_CLIENT_ID=<dev client id>.apps.googleusercontent.com
+VITE_DOMAIN_API_BASE=http://localhost:5003/api
+```
+
+Give the API the same dev client ID without touching tracked files:
+`dotnet user-secrets set "Google:ClientId" "<dev client id>"` inside the API project.

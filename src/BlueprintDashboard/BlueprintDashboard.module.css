@@ -800,3 +800,22 @@ a:active {
     flex-direction: row;
     align-items: flex-start;
 }
+.loginDivider {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: rgba(255, 255, 255, 0.6);
+    font-family: "Acumin Pro Condensed";
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+.loginDivider::before,
+.loginDivider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.25);
+}

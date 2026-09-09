@@ -16,6 +16,9 @@ import OpenInFullIcon from '@mui/icons-material/OpenInFull';
 import CloseFullscreenIcon from '@mui/icons-material/CloseFullscreen';
 import DownloadIcon from '@mui/icons-material/Download';
 import axios from 'axios';
+import GoogleSignInButton from '../shared/GoogleSignInButton';
+import {loginWithGoogle, persistDomainLogin} from '../auth/domainLogin';
+import {googleSignInEnabled} from '../auth/googleSignIn';
 import { WrappedNewRookieDraft } from '../NewRookieDraft/NewRookieDraft';
 import { WrappedNewV1 } from '../NewV1/NewV1';
 import { WrappedPremium } from '../Premium/Premium';
@@ -316,16 +319,7 @@ export default function BlueprintDashboard() {
             .request(options)
             .then(res => {
                 if (res.data.success) {
-                    localStorage.setItem('flockAuthToken', res.data.token);
-                    localStorage.setItem('flockEmail', res.data.flockEmail);
-                    localStorage.setItem(
-                        'flockUsername',
-                        res.data.flockUsername
-                    );
-                    localStorage.setItem(
-                        'domainUserId',
-                        res.data.domainUserId
-                    );
+                    persistDomainLogin(res.data);
                     setIsLoggedIn(true);
                     setLoginModalOpen(false);
                     setLoginError('');
@@ -353,6 +347,24 @@ export default function BlueprintDashboard() {
     const zoomIn = () => setZoomLevel(prev => prev * 1.1);
         // setZoomIndex(prev => Math.min(prev + 1, ZOOM_LEVELS.length - 1));
     const zoomOut = () => setZoomLevel(prev => prev / 1.1); //() => setZoomIndex(prev => Math.max(prev - 1, 0));
+
+    async function submitGoogleLogin(idToken: string) {
+        setIsLoggingIn(true);
+        setLoginError('');
+        try {
+            const result = await loginWithGoogle(idToken);
+            if (result.success) {
+                persistDomainLogin(result);
+                setIsLoggedIn(true);
+                setLoginModalOpen(false);
+                setDomainUserNotFound(false);
+            } else {
+                setLoginError(`${result.code}: ${result.message}`);
+            }
+        } finally {
+            setIsLoggingIn(false);
+        }
+    }
 
     function logout() {
         localStorage.removeItem('flockAuthToken');
@@ -770,9 +782,20 @@ export default function BlueprintDashboard() {
                         BLUEPRINT DASHBOARD LOGIN
                     </div>
                     <div className={styles.loginDescription}>
-                        Login using the same email and password used on the
-                        Flock Fantasy website
+                        {googleSignInEnabled
+                            ? 'Signed up for Flock with Google? Use the Google button. Otherwise, sign in with the same email and password you use on the Flock Fantasy website.'
+                            : 'Login using the same email and password used on the Flock Fantasy website'}
                     </div>
+                    {googleSignInEnabled && (
+                        <>
+                            <GoogleSignInButton
+                                onCredential={submitGoogleLogin}
+                                disabled={isLoggingIn}
+                                width={isMobile ? Math.round(width * 0.65) : 360}
+                            />
+                            <div className={styles.loginDivider}>OR</div>
+                        </>
+                    )}
                     <div>
                         <div className={styles.inputLabel}>Email Address</div>
                         <DomainTextField
