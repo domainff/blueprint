@@ -2,7 +2,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import App from "./App.tsx";
-import { HashRouter, Navigate, Route, Routes } from "react-router-dom";
+import { HashRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import NonSleeperInputWrapper from "./NonSleeperInput/NonSleeperInputWrapper.tsx";
 import UserIdFinder from "./UserIdFinder/UserIdFinder.tsx";
 import BlueprintDownloader from "./BlueprintDownloader/BlueprintDownloader.tsx";
@@ -14,16 +14,20 @@ import InfiniteSpotChecker from "./InfiniteSpotChecker/InfiniteSpotChecker.tsx";
 
 const queryClient = new QueryClient();
 
+// The dashboard now lives at the site root. Old links still point at
+// #/dashboard, so send those to "/" and keep any query string (e.g. ?mock=1).
+function LegacyDashboardRedirect() {
+    const { search } = useLocation();
+    return <Navigate to={{ pathname: "/", search }} replace />;
+}
+
 createRoot(document.getElementById("root")!).render(
     <StrictMode>
         <QueryClientProvider client={queryClient}>
             <HashRouter basename="/">
                 <BodyBackgroundController />
                 <Routes>
-                    <Route
-                        path="/"
-                        element={<Navigate to="/dashboard" replace />}
-                    />
+                    <Route path="/" element={<BlueprintDashboard />} />
                     <Route path="/findteamid" element={<App />} />
                     <Route
                         path="/nonsleeper"
@@ -43,16 +47,13 @@ createRoot(document.getElementById("root")!).render(
                     />
                     <Route
                         path="/dashboard"
-                        element={<BlueprintDashboard />}
+                        element={<LegacyDashboardRedirect />}
                     />
                     <Route
                         path="/infinitespotchecker"
                         element={<InfiniteSpotChecker />}
                     />
-                    <Route
-                        path="*"
-                        element={<Navigate to="/dashboard" replace />}
-                    />
+                    <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
         </HashRouter>
         </QueryClientProvider>
