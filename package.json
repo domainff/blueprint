@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://doimainff.github.io/blueprint/",
+  "homepage": "https://blueprint.domainfantasyfootball.com/",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
