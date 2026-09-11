@@ -6,19 +6,12 @@ export default function BodyBackgroundController() {
     const location = useLocation();
 
     useEffect(() => {
-        // Map routes to background colors
-        const routeBg: Record<string, string> = {
-            '/': '#ffffff',
-            // '/blueprintmodule': '#04121C',
-            // '/blueprintpremiummodule': '#04121C',
-            // '/live': '#04121C',
-            '/dashboard': '#04121C',
-        };
+        // The dashboard is served at the site root ("/"); every other
+        // route gets the plain white background.
+        const isDashboard = location.pathname === '/';
+        document.body.style.backgroundColor = isDashboard ? '#04121C' : '#ffffff';
 
-        const bg = routeBg[location.pathname.toLowerCase()] || '#ffffff';
-        document.body.style.backgroundColor = bg;
-
-        if (location.pathname.toLowerCase() === '/dashboard') {
+        if (isDashboard) {
             document.body.style.backgroundImage =
                 'url(' + dashboardBg + ')';
             // A global `body { display:grid; place-items:center; padding:2rem 1rem }`
