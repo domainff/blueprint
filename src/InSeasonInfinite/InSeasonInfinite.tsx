@@ -85,6 +85,17 @@ export interface PowerRankRow {
   isUserTeam?: boolean;
 }
 
+/** A "Market Buys" card: a random buy-tier player who is not on the roster. */
+export interface MarketBuy {
+  playerName: string;
+  playerSleeperBotId: number | null;
+  /** NFL position; drives the card colour and the "RB - VIKINGS" line. */
+  position: NflPosition;
+  teamAbbreviation: string | null;
+  /** Team nickname ("Vikings"); null renders the position alone. */
+  teamName: string | null;
+}
+
 export interface ChartSeries {
   position: NflPosition;
   values: (number | null)[];
@@ -113,6 +124,8 @@ export interface InSeasonInfinitePreviewProps {
   rosProjection: number | null;
   rosProjectionRank: number | null;
   powerRanks: PowerRankRow[];
+  /** Up to three cards; fewer (or none) when the week's pool is short. */
+  marketBuys: MarketBuy[];
   /**
    * Legacy position-value chart. The final design fills the verdict panel with copy and no
    * longer reserves a slot for it, so leave this unset: drawing it would overlay the paragraphs.
@@ -649,6 +662,68 @@ function VerdictChart({ chart }: { chart: ChartData }) {
   );
 }
 
+// ─── Verdict copy ───────────────────────────────────────────────────────────
+
+// The "How does Domain reach the verdict?" panel is baked into the background except
+// for this paragraph: the approved Current Market copy exists in Figma only at the old
+// 52.98px size (STATIC → "Current Market copy — HIDDEN") and the copy fonts are not
+// installed where the export runs, so it is set here in the web font at the re-flowed
+// 37.98px size. Bake it and delete this once that Figma node can be resized.
+const CURRENT_MARKET_COPY =
+  "The current market is how Nathan and Avery value a player, relative to the current market; however, this does not take a team’s roster or competitive outlook into consideration quite yet.";
+
+function VerdictCopy() {
+  return (
+    <p className={s.para} style={{ left: 137, top: 2805, width: 1735, fontFamily: F.acCond, fontSize: 37.98, color: C.white }}>
+      {CURRENT_MARKET_COPY}
+    </p>
+  );
+}
+
+// ─── Market buys ────────────────────────────────────────────────────────────
+
+// Three cards down the "Market Buys" panel: card x 2272, first top 2634, pitch 350. The
+// "+" badge overhangs the card's left edge by 34px. Chrome follows the player's position
+// colour; the team logo sits behind the headshot at 15%, cropped the way the Figma image
+// fill is (112.27% wide, offset -12.27%). Every tint is the position gradient at 20%.
+const MB = { x: 2272, top: 2634, pitch: 350, w: 923, h: 262.752, radius: 33.863, stroke: 4.724, badge: 95.532 };
+const MB_FILL: Record<NflPosition, string> = {
+  QB: "linear-gradient(180deg, rgba(219,35,53,0.2) 0%, rgba(117,19,28,0.2) 100%)",
+  RB: "linear-gradient(180deg, rgba(0,177,255,0.2) 0%, rgba(0,106,153,0.2) 100%)",
+  WR: "linear-gradient(180deg, rgba(26,224,105,0.2) 0%, rgba(14,122,57,0.2) 100%)",
+  TE: "linear-gradient(180deg, rgba(234,186,16,0.2) 0%, rgba(132,105,9,0.2) 100%)",
+};
+
+function MarketBuyCard({ buy, top }: { buy: MarketBuy; top: number }) {
+  const x = MB.x;
+  return (
+    <>
+      <div className={s.abs} style={{ left: x, top, width: MB.w, height: MB.h, borderRadius: MB.radius, overflow: "hidden", background: MB_FILL[buy.position] }}>
+        <div className={s.abs} style={{ left: 0, top: 4.21, width: 226.539, height: 254.33, overflow: "hidden", opacity: 0.15 }}>
+          <img src={teamLogos.get(buy.teamAbbreviation ?? "") ?? nflLogo} alt="" style={{ position: "absolute", left: "-12.27%", top: 0, width: "112.27%", height: "100%", objectFit: "contain" }} />
+        </div>
+        <img
+          className={s.img}
+          src={sleeperHeadshot(buy.playerSleeperBotId)}
+          onError={({ currentTarget }) => { currentTarget.onerror = null; currentTarget.src = HEADSHOT_FALLBACK; }}
+          alt=""
+          style={{ left: 53.056, top: 4.21, width: 346.967, height: 254.33, objectFit: "contain" }}
+        />
+        <div className={s.abs} style={{ inset: 0, borderRadius: MB.radius, border: `${MB.stroke}px solid ${POS_COLOR[buy.position]}`, boxSizing: "border-box" }} />
+      </div>
+      <Txt x={x + 344.68} y={top + 76.06} h={52} align="left" font={F.prohibition} size={67.096} upper>{buy.playerName}</Txt>
+      <Txt x={x + 414.34} y={top + 151.32} h={51.37} align="left" font={F.acXCond} size={67.096} weight={600} upper>
+        {buy.teamName ? `${buy.position} - ${buy.teamName}` : buy.position}
+      </Txt>
+      <img className={s.img} src={A.buyBadge} alt="" style={{ left: x - 34, top: top + 88, width: MB.badge, height: MB.badge }} />
+    </>
+  );
+}
+
+function MarketBuys({ rows }: { rows: MarketBuy[] }) {
+  return <>{rows.slice(0, 3).map((buy, i) => <MarketBuyCard key={i} buy={buy} top={MB.top + MB.pitch * i} />)}</>;
+}
+
 // ─── Composition ────────────────────────────────────────────────────────────
 
 export default function InSeasonInfinitePreview(p: InSeasonInfinitePreviewProps) {
@@ -661,6 +736,8 @@ export default function InSeasonInfinitePreview(p: InSeasonInfinitePreviewProps)
       <OddsPanelView p={p.championship} dx={1022} dy={-0.97} />
       <PfBoxes totalPf={p.totalPf} leagueRank={p.leagueRank} rosProjection={p.rosProjection} rosProjectionRank={p.rosProjectionRank} />
       <PowerRanks rows={p.powerRanks} />
+      <VerdictCopy />
+      <MarketBuys rows={p.marketBuys} />
       {p.chart && <VerdictChart chart={p.chart} />}
     </div>
   );
