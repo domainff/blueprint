@@ -63,6 +63,15 @@
     white-space: nowrap;
 }
 
+/* A wrapping, top-aligned Figma paragraph: the first line box starts at the node's
+   top edge, so no cap trimming here. */
+.para {
+    position: absolute;
+    margin: 0;
+    white-space: normal;
+    line-height: normal;
+}
+
 .gradientText {
     background-clip: text;
     -webkit-background-clip: text;

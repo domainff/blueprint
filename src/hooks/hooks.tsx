@@ -400,6 +400,21 @@ export type InSeasonInfiniteFeatures = {
     lineupSlots: InSeasonInfiniteLineupSlot[];
     powerRanks: InSeasonInfinitePowerRank[];
     oddsHistory: InSeasonInfiniteOddsPoint[];
+    marketBuys: InSeasonInfiniteMarketBuy[];
+};
+
+/** A "Market Buys" card: a random buy-tier player who is not on the roster. */
+export type InSeasonInfiniteMarketBuy = {
+    id: number;
+    sortOrder: number;
+    playerId: number;
+    playerSleeperBotId: number | null;
+    playerName: string;
+    position: string;
+    teamAbbreviation: string | null;
+    /** Team nickname ("Vikings"). */
+    teamName: string | null;
+    verdict: InSeasonVerdict;
 };
 
 export function useBlueprint(blueprintId: string) {

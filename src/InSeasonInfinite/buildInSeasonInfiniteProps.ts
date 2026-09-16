@@ -8,6 +8,7 @@ import type {
   Blueprint,
   InSeasonInfiniteFeatures,
   InSeasonInfiniteLineupSlot,
+  InSeasonInfiniteMarketBuy,
   InSeasonInfiniteOddsPoint,
   InSeasonInfinitePowerRank,
 } from "../hooks/hooks";
@@ -17,6 +18,7 @@ import type {
   Light,
   LineupRow,
   LineupSlot,
+  MarketBuy,
   NflPosition,
   OddsPanel,
   Outlook,
@@ -140,6 +142,16 @@ function oddsPanel(
   };
 }
 
+function marketBuy(m: InSeasonInfiniteMarketBuy): MarketBuy {
+  return {
+    playerName: m.playerName,
+    playerSleeperBotId: m.playerSleeperBotId,
+    position: (NFL_POSITIONS as string[]).includes(m.position) ? (m.position as NflPosition) : "WR",
+    teamAbbreviation: m.teamAbbreviation,
+    teamName: m.teamName,
+  };
+}
+
 function powerRankRow(r: InSeasonInfinitePowerRank, leagueSize: number): PowerRankRow {
   return {
     rank: r.rank,
@@ -176,6 +188,7 @@ export function buildInSeasonInfiniteProps(bp: Blueprint): InSeasonInfinitePrevi
       rosProjection: null,
       rosProjectionRank: null,
       powerRanks: [],
+      marketBuys: [],
     };
   }
 
@@ -208,6 +221,7 @@ export function buildInSeasonInfiniteProps(bp: Blueprint): InSeasonInfinitePrevi
     rosProjection: round(f.rosProjection),
     rosProjectionRank: f.rosProjectionLeagueRank,
     powerRanks: [...f.powerRanks].sort((a, b) => a.rank - b.rank).map((r) => powerRankRow(r, leagueSize)),
+    marketBuys: [...f.marketBuys].sort((a, b) => a.sortOrder - b.sortOrder).map(marketBuy),
     // chart: intentionally unset — the final design fills the verdict panel with copy and has no chart slot.
   };
 }

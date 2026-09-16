@@ -26,8 +26,10 @@ import chartLegendQb from "../assets/inSeasonInfinite/chart-legend-qb.svg";
 import chartLegendRb from "../assets/inSeasonInfinite/chart-legend-rb.svg";
 import chartLegendWr from "../assets/inSeasonInfinite/chart-legend-wr.svg";
 import chartLegendTe from "../assets/inSeasonInfinite/chart-legend-te.svg";
+import buyBadge from "../assets/inSeasonInfinite/buy-badge.svg";
 
 export {
+  buyBadge,
   trophy,
   lossX,
   marketBadge,
