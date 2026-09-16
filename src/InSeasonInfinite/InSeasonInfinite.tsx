@@ -578,11 +578,9 @@ function PowerRankRowView({ row, rc, k, isLast }: { row: PowerRankRow; rc: numbe
       <Txt x={3504} y={rc - 43.35 * k} w={618.879} h={86.703 * k} align="left" font={F.acXCond} size={67.728 * k} weight={row.isUserTeam ? 500 : 600} color={nameColor} upper>
         <span className={s.rank}>{row.rank}.</span>{row.teamName}
       </Txt>
-      {/* The user's own row shows the PF number on the highlight band with no pill. */}
-      {!row.isUserTeam && (
-        <Pill x={4279} y={rc - 66.35 * k} w={285} h={125 * k} radius={24 * k} strokeWidth={4} strokeAlign="CENTER"
-          stroke={TONE_PILL[row.totalPfTone].stroke} fill={TONE_PILL[row.totalPfTone].fill} />
-      )}
+      {/* Every row keeps its PF pill, the user's highlighted row included. */}
+      <Pill x={4279} y={rc - 66.35 * k} w={285} h={125 * k} radius={24 * k} strokeWidth={4} strokeAlign="CENTER"
+        stroke={TONE_PILL[row.totalPfTone].stroke} fill={TONE_PILL[row.totalPfTone].fill} />
       <Txt {...cbox(4421.73, rc - 3.85 * k, 232.251, 93 * k)} font={F.prohibition} size={86.87 * k} color={TONE_COLOR[row.totalPfTone]} upper>{row.totalPf}</Txt>
       <Txt {...cbox(4892.5, rc - 3.85 * k, 577, 93 * k)} {...cell}>
         {row.rosProjection == null ? "—" : row.rosProjection.toLocaleString("en-US")} | #{row.rosRank ?? "—"}<Delta value={row.rosDelta} />
