@@ -31,8 +31,7 @@ import type {
 // Maps the InSeasonInfiniteFeatures DTO onto the blueprint's props. Every value the
 // backend can leave null (odds, ROS projections, verdicts, lights) maps to null and
 // the blueprint renders "—" / skips the element. Tone thresholds are UI-only until
-// product defines them. The championship dial is the one exception to "percent drives
-// everything": its needle slot and colour follow the team's league rank (see below).
+// product defines them. The championship dial reads its percent on a 0–30 scale (see below).
 
 // The stored enum keeps "Reload" (shared with the dynasty two-year outlook); in-season it reads "Wait & See".
 const OUTLOOK: Record<string, Outlook> = { Contend: "Contending", Reload: "Wait & See", Rebuild: "Rebuilding" };
@@ -67,20 +66,19 @@ export function rankTone(rank: number, leagueSize: number): Tone {
   return rank <= third ? "good" : rank <= 2 * third ? "mid" : "bad";
 }
 
-/** Competition rank (ties share the better rank) of the current team's championship odds
- *  among the league's power ranks, or null when there's no current-team row or it has no odds. */
-export function championshipRank(powerRanks: InSeasonInfinitePowerRank[]): number | null {
-  const mine = powerRanks.find((r) => r.isCurrentTeam)?.championshipOddsPct;
-  if (mine == null) return null;
-  return 1 + powerRanks.filter((r) => r.championshipOddsPct != null && r.championshipOddsPct > mine).length;
+/** The championship dial's HIGH end: 30%+ pins the needle, 15% sits halfway. */
+export const CHAMPIONSHIP_DIAL_MAX = 30;
+
+/** Needle angle for a championship percent on the 0–30 LOW→HIGH arc. */
+export function championshipNeedleAngle(pct: number): number {
+  const clamped = Math.min(Math.max(pct, 0), CHAMPIONSHIP_DIAL_MAX);
+  return -90 + (clamped / CHAMPIONSHIP_DIAL_MAX) * 180;
 }
 
-/** Needle angle for slot `rank` of `leagueSize` equal bands across the LOW→HIGH arc: rank 1 sits
- *  centred in the rightmost (green) band, rank `leagueSize` centred in the leftmost (red) one. */
-export function rankNeedleAngle(rank: number, leagueSize: number): number {
-  if (leagueSize <= 0) return -90;
-  const slot = Math.min(Math.max(rank, 1), leagueSize);
-  return -90 + ((leagueSize - slot + 0.5) / leagueSize) * 180;
+/** Thirds of the 0–30 dial: ≥20 good, ≥10 mid, else bad. Null (no odds yet) reads as neutral. */
+export function championshipTone(pct: number | null): Tone {
+  if (pct == null) return "mid";
+  return pct >= 20 ? "good" : pct >= 10 ? "mid" : "bad";
 }
 
 const round = (v: number | null): number | null => (v == null ? null : Math.round(v));
@@ -129,13 +127,14 @@ function oddsPanel(
   winPct: number | null,
   losePct: number | null,
   pick: (p: InSeasonInfiniteOddsPoint) => number,
+  tone: (pct: number | null) => Tone,
 ): OddsPanel {
   const h = history(f.oddsHistory, f.weekNumber, pick);
   return {
     percent: round(percent),
-    tone: percentTone(percent),
+    tone: tone(round(percent)),
     ...h,
-    fromTone: percentTone(h.fromPct),
+    fromTone: tone(h.fromPct),
     week: f.weekNumber,
     winPct: round(winPct),
     losePct: round(losePct),
@@ -195,16 +194,12 @@ export function buildInSeasonInfiniteProps(bp: Blueprint): InSeasonInfinitePrevi
   const outlook = OUTLOOK[f.outlook] ?? "Contending";
   const leagueSize = f.powerRanks.length || bp.leagueSettings.numberOfTeams;
 
-  // Championship odds are positioned by league rank, not raw percent: 22% reads as mediocre on
-  // a 0–100 arc but is excellent when it's 2nd of 12 (Cole, Sep 9 2026). The big number stays
-  // the real percent; the needle's slot and the number's colour follow the rank. Playoff odds
-  // stay percent-based, and so does the history strip (it only stores percents per week).
-  const championship = oddsPanel(f, f.championshipOddsPct, f.championshipOddsIfWinPct, f.championshipOddsIfLosePct, (p) => p.championshipOddsPct);
-  const champRank = championship.percent == null ? null : championshipRank(f.powerRanks);
-  if (champRank != null) {
-    championship.needleAngleDeg = rankNeedleAngle(champRank, leagueSize);
-    championship.tone = rankTone(champRank, leagueSize);
-  }
+  // Championship odds read on a 0–30 dial (Sep 16 2026): 22% looks mediocre on a 0–100 arc but
+  // is excellent in a 12-team league, and 30%+ pins HIGH. It replaced a league-rank needle that
+  // parked 0% teams mid-dial whenever several teams tied at 0%. The big number stays the real
+  // percent; the needle and the colours (number and history strip) use the 0–30 thirds.
+  const championship = oddsPanel(f, f.championshipOddsPct, f.championshipOddsIfWinPct, f.championshipOddsIfLosePct, (p) => p.championshipOddsPct, championshipTone);
+  if (championship.percent != null) championship.needleAngleDeg = championshipNeedleAngle(championship.percent);
 
   return {
     teamName: bp.teamName,
@@ -214,7 +209,7 @@ export function buildInSeasonInfiniteProps(bp: Blueprint): InSeasonInfinitePrevi
     wins: f.wins,
     losses: f.losses,
     lineup: [...f.lineupSlots].sort((a, b) => a.sortOrder - b.sortOrder).map(lineupRow),
-    playoffs: oddsPanel(f, f.playoffOddsPct, f.playoffOddsIfWinPct, f.playoffOddsIfLosePct, (p) => p.playoffOddsPct),
+    playoffs: oddsPanel(f, f.playoffOddsPct, f.playoffOddsIfWinPct, f.playoffOddsIfLosePct, (p) => p.playoffOddsPct, percentTone),
     championship,
     totalPf: Math.round(f.totalPointsFor),
     leagueRank: f.pointsForLeagueRank,
