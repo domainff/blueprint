@@ -8,6 +8,7 @@ import {expiredInfinitePromo, expiredMembershipPromo, flockDomainLogo, logoHoriz
 import {Subscription, useBlueprintsForDomainUser, useDomainAppUser, useInfiniteSubscriptions, useTitle, type BlueprintMetadata} from '../hooks/hooks';
 import {Box, Button, CircularProgress, IconButton, Modal} from '@mui/material';
 import {useEffect, useState, type CSSProperties} from 'react';
+import {createdDate, leagueLabel, useLeagueNames, useNewBlueprints} from './dashboardData';
 import DomainTextField from '../shared/DomainTextField';
 import {WrappedNewInfinite} from '../NewInfinite/NewInfinite';
 import {WrappedInSeasonInfinite} from '../InSeasonInfinite/WrappedInSeasonInfinite';
@@ -112,9 +113,9 @@ const dateLabel = (bp: BlueprintMetadata): string => {
     const date = new Date(bp.createdUtc).toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'short',
-        day: '2-digit',
+        day: 'numeric',
     });
-    return bp.weekNumber != null ? `Week ${bp.weekNumber} · ${date}` : date;
+    return date;
 };
 
 type TeamBlueprint = {
@@ -127,9 +128,8 @@ type TeamBlueprint = {
     previewType: PreviewType;
     createdUtc: string;
     date: string;
+    weekNumber: number | null;
 };
-
-type GroupMode = 'type' | 'team';
 
 export default function BlueprintDashboard() {
     useTitle('Blueprint Dashboard');
@@ -172,7 +172,6 @@ export default function BlueprintDashboard() {
     const [username, setUsername] = useState(
         isMock ? MOCK_USERNAME : localStorage.getItem('flockUsername')
     );
-    const [groupMode, setGroupMode] = useState<GroupMode>('type');
     // The "By Team" view is keyed by leagueId, not teamName: users who name
     // every team after their username would otherwise collapse into one group.
     const [selectedLeagueId, setSelectedLeagueId] = useState<string | null>(null);
@@ -219,7 +218,8 @@ export default function BlueprintDashboard() {
     }, [isLoggedIn]);
 
     useEffect(() => {
-        setUsername(localStorage.getItem('flockUsername'));
+        if (!isMock) setUsername(localStorage.getItem('flockUsername'));
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [localStorage.getItem('flockUsername')]);
 
     useEffect(() => {
@@ -647,13 +647,6 @@ export default function BlueprintDashboard() {
         setIsDownloading(false);
     };
 
-    const blueprintSections = [
-        {key: 'standard', title: 'My Blueprints', accent: '#F47F20', items: bps, preview: PreviewType.Standard, showHelp: false},
-        {key: 'premium', title: 'My Premium Blueprints', accent: '#B139E2', items: premiumBps, preview: PreviewType.Premium, showHelp: false},
-        {key: 'rookie', title: 'My Rookie Blueprints', accent: '#00B1FF', items: rookieBps, preview: PreviewType.Rookie, showHelp: false},
-        {key: 'inSeasonInfinite', title: 'My In-Season Infinite Blueprints', accent: '#1AE069', items: inSeasonInfinites, preview: PreviewType.InSeasonInfinite, showHelp: true},
-        {key: 'infinite', title: 'My Infinite Blueprints', accent: '#1AE069', items: infinites, preview: PreviewType.Infinite, showHelp: true},
-    ];
     const totalBlueprints =
         bps.length + premiumBps.length + rookieBps.length + infinites.length + inSeasonInfinites.length;
     const statCards = [
@@ -686,6 +679,7 @@ export default function BlueprintDashboard() {
                 previewType: meta.preview,
                 createdUtc: bp.createdUtc,
                 date: dateLabel(bp),
+                weekNumber: bp.weekNumber ?? null,
             };
         });
 
@@ -723,22 +717,6 @@ export default function BlueprintDashboard() {
         return groups;
     })();
 
-    // Team names shared by more than one league get a subtitle so the otherwise
-    // identical cards can be told apart.
-    const duplicatedTeamNames = (() => {
-        const counts = new Map<string, number>();
-        teamGroups.forEach(g =>
-            counts.set(g.teamName, (counts.get(g.teamName) ?? 0) + 1)
-        );
-        return new Set(
-            Array.from(counts.entries())
-                .filter(([, n]) => n > 1)
-                .map(([name]) => name)
-        );
-    })();
-
-    const leagueLabel = (leagueId: string) => `League …${leagueId.slice(-4)}`;
-
     const selectedGroup = selectedLeagueId
         ? teamGroups.find(t => t.leagueId === selectedLeagueId) ?? null
         : null;
@@ -760,7 +738,27 @@ export default function BlueprintDashboard() {
             }));
     };
 
+    // NEW = recent and not yet previewed on this device; opening a preview clears it.
+    const {newIds, markSeen} = useNewBlueprints(blueprints);
+    const leagueNames = useLeagueNames(
+        teamGroups.map(t => t.leagueId),
+        isLoggedIn && !isMock,
+        isMock
+    );
+    const leagueOf = (leagueId: string) => leagueLabel(leagueId, leagueNames[leagueId]);
+    const newItems = publishedItems
+        .filter(item => newIds.has(item.blueprintId))
+        .sort((a, b) => createdDate(b).getTime() - createdDate(a).getTime());
+    const newCountFor = (items: TeamBlueprint[]) => items.filter(i => newIds.has(i.blueprintId)).length;
+    const initials = (name: string) =>
+        name.split(/\s+/).map(w => w[0]).filter(Boolean).slice(0, 2).join('').toUpperCase();
+    const latestLabel = (items: TeamBlueprint[]) => {
+        const d = createdDate(items[0]);
+        return `Latest ${d.toLocaleDateString('en-US', {month: 'short', day: 'numeric'})}`;
+    };
+
     const openPreview = (item: TeamBlueprint) => {
+        markSeen(item.blueprintId);
         setDownloadBlueprintId(item.blueprintId);
         setDownloadBlueprintName(item.teamName);
         setPreviewType(item.previewType);
@@ -1165,30 +1163,11 @@ export default function BlueprintDashboard() {
                         <div className={styles.topbarTitle}>
                             BLUEPRINT DASHBOARD
                         </div>
-                        <Button
-                            variant="text"
-                            style={{
-                                padding: '8px 16px 5px 16px',
-                                height: '42px',
-                            }}
-                            sx={{
-                                backgroundColor: '#474E51',
-                                color: 'white',
-                                borderRadius: '8px',
-                                '&:hover': {
-                                    backgroundColor: '#676b6dff',
-                                },
-                                fontFamily: 'Acumin Pro',
-                                fontWeight: '1000',
-                                fontSize: '18px',
-                                flexShrink: 0,
-                            }}
-                            onClick={() => {
-                                logout();
-                            }}
-                        >
-                            Log Out
-                        </Button>
+                        <div className={styles.topbarRight}>
+                            <button className={styles.btn} onClick={() => logout()}>
+                                Log out
+                            </button>
+                        </div>
                     </header>
 
                     <section className={styles.hero}>
@@ -1227,220 +1206,110 @@ export default function BlueprintDashboard() {
 
                     <div className={styles.layout}>
                         <main className={styles.main}>
-                            <div className={styles.viewBar}>
-                                <span className={styles.viewBarLabel}>
-                                    Group by
-                                </span>
-                                <div className={styles.viewToggle}>
-                                    <button
-                                        className={`${styles.viewToggleBtn} ${
-                                            groupMode === 'type'
-                                                ? styles.viewToggleBtnActive
-                                                : ''
-                                        }`}
-                                        onClick={() => {
-                                            setGroupMode('type');
-                                            setSelectedLeagueId(null);
-                                        }}
-                                    >
-                                        Type
-                                    </button>
-                                    <button
-                                        className={`${styles.viewToggleBtn} ${
-                                            groupMode === 'team'
-                                                ? styles.viewToggleBtnActive
-                                                : ''
-                                        }`}
-                                        onClick={() => {
-                                            setGroupMode('team');
-                                            setSelectedLeagueId(null);
-                                        }}
-                                    >
-                                        Team
-                                    </button>
-                                </div>
-                            </div>
-
-                            {groupMode === 'type' &&
-                                blueprintSections.map(sec => (
-                                    <section
-                                        key={sec.key}
-                                        className={styles.section}
-                                        style={{
-                                            ['--accent' as string]: sec.accent,
-                                        } as CSSProperties}
-                                    >
-                                        <div className={styles.sectionHead}>
-                                            <span className={styles.sectionTitle}>
-                                                {sec.title}
-                                            </span>
-                                            <span className={styles.countPill}>
-                                                {sec.items.length}
-                                            </span>
-                                            <span className={styles.sectionRule} />
-                                            {sec.showHelp && (
-                                                <div className={styles.needHelp}>
-                                                    <a
-                                                        href={
-                                                            'https://discord.gg/hCPWDGn9Yb'
-                                                        }
-                                                        target="_blank"
-                                                    >
-                                                        Need Help?
-                                                    </a>
-                                                </div>
-                                            )}
-                                        </div>
-                                        <div className={styles.cardGrid}>
-                                            {blueprintsLoading &&
-                                                sec.items.length === 0 && (
-                                                    <CircularProgress
-                                                        sx={{color: sec.accent}}
-                                                    />
-                                                )}
-                                            {!blueprintsLoading &&
-                                                sec.items.length === 0 && (
-                                                    <div
-                                                        className={
-                                                            styles.emptyState
-                                                        }
-                                                    >
-                                                        No blueprints here yet.
-                                                    </div>
-                                                )}
-                                            {sec.items.map(bp => (
-                                                <BlueprintItem
-                                                    key={bp.blueprintId}
-                                                    name={bp.name}
-                                                    date={bp.date}
-                                                    accentColor={sec.accent}
-                                                    onPreview={() => {
-                                                        setDownloadBlueprintId(
-                                                            bp.blueprintId
-                                                        );
-                                                        setDownloadBlueprintName(
-                                                            bp.name
-                                                        );
-                                                        setPreviewType(
-                                                            sec.preview
-                                                        );
-                                                        setDownloadModalOpen(
-                                                            true
-                                                        );
-                                                    }}
-                                                />
-                                            ))}
-                                        </div>
-                                    </section>
-                                ))}
-
-                            {groupMode === 'team' && selectedLeagueId === null && (
-                                <div className={styles.teamGrid}>
-                                    {blueprintsLoading &&
-                                        teamGroups.length === 0 && (
-                                            <CircularProgress
-                                                sx={{color: '#F47F20'}}
+                            {selectedGroup === null && newItems.length > 0 && (
+                                <section className={`${styles.section} ${styles.newStrip}`}>
+                                    <div className={styles.sectionHead}>
+                                        <span className={styles.sectionTitle}>
+                                            New since your <em>last visit</em>
+                                        </span>
+                                        <span className={`${styles.countPill} ${styles.countPillNew}`}>
+                                            {newItems.length} new
+                                        </span>
+                                        <span className={styles.sectionRule} />
+                                        <span className={styles.sectionWhen}>
+                                            Opening a blueprint clears its tag
+                                        </span>
+                                    </div>
+                                    <div className={styles.cardGrid}>
+                                        {newItems.map(item => (
+                                            <BlueprintItem
+                                                key={item.blueprintId}
+                                                name={item.teamName}
+                                                subtitle={`${item.typeLabel} · ${leagueOf(item.leagueId)}`}
+                                                date={item.date}
+                                                week={item.weekNumber}
+                                                accentColor={item.accent}
+                                                isNew
+                                                onPreview={() => openPreview(item)}
                                             />
-                                        )}
-                                    {!blueprintsLoading &&
-                                        teamGroups.length === 0 && (
-                                            <div className={styles.emptyState}>
-                                                No blueprints yet.
-                                            </div>
-                                        )}
-                                    {teamGroups.map(team => (
-                                        <button
-                                            key={team.leagueId}
-                                            className={styles.teamCell}
-                                            onClick={() =>
-                                                setSelectedLeagueId(
-                                                    team.leagueId
-                                                )
-                                            }
-                                        >
-                                            <div className={styles.teamCellTop}>
-                                                <span
-                                                    className={
-                                                        styles.teamCellName
-                                                    }
-                                                >
-                                                    {team.teamName}
-                                                </span>
-                                                <span
-                                                    className={
-                                                        styles.teamCellCount
-                                                    }
-                                                >
-                                                    {team.items.length}
-                                                </span>
-                                            </div>
-                                            {duplicatedTeamNames.has(
-                                                team.teamName
-                                            ) && (
-                                                <span
-                                                    className={
-                                                        styles.teamCellSubtitle
-                                                    }
-                                                >
-                                                    {leagueLabel(team.leagueId)}
-                                                </span>
-                                            )}
-                                            <div className={styles.teamCellChips}>
-                                                {teamTypeChips(team.items).map(
-                                                    chip => (
-                                                        <span
-                                                            key={chip.type}
-                                                            className={
-                                                                styles.typeChip
-                                                            }
-                                                            style={{
-                                                                ['--chip' as string]:
-                                                                    chip.accent,
-                                                            } as CSSProperties}
-                                                        >
-                                                            {chip.label}
-                                                            {chip.count > 1
-                                                                ? ` ×${chip.count}`
-                                                                : ''}
-                                                        </span>
-                                                    )
-                                                )}
-                                            </div>
-                                        </button>
-                                    ))}
-                                </div>
+                                        ))}
+                                    </div>
+                                </section>
                             )}
 
-                            {groupMode === 'team' && selectedGroup !== null && (
+                            {selectedGroup === null && (
+                                <section className={styles.section}>
+                                    <div className={styles.sectionHead}>
+                                        <span className={styles.sectionTitle}>Your teams</span>
+                                        <span className={styles.countPill}>{teamGroups.length}</span>
+                                        <span className={styles.sectionRule} />
+                                        <span className={styles.sectionWhen}>Most recent first</span>
+                                    </div>
+                                    <div className={styles.teamGrid}>
+                                        {blueprintsLoading && teamGroups.length === 0 && (
+                                            <CircularProgress sx={{color: '#F47F20'}} />
+                                        )}
+                                        {!blueprintsLoading && teamGroups.length === 0 && (
+                                            <div className={styles.emptyState}>No blueprints yet.</div>
+                                        )}
+                                        {teamGroups.map(team => {
+                                            const fresh = newCountFor(team.items);
+                                            return (
+                                                <button
+                                                    key={team.leagueId}
+                                                    className={`${styles.teamCell} ${fresh > 0 ? styles.teamCellNew : ''}`}
+                                                    onClick={() => setSelectedLeagueId(team.leagueId)}
+                                                >
+                                                    {fresh > 0 && (
+                                                        <span className={styles.teamCellNewBadge} aria-label={`${fresh} new`}>
+                                                            {fresh}
+                                                        </span>
+                                                    )}
+                                                    <div className={styles.teamCellTop}>
+                                                        <span className={styles.teamAvatar}>{initials(team.teamName)}</span>
+                                                        <span className={styles.teamCellText}>
+                                                            <span className={styles.teamCellName}>{team.teamName}</span>
+                                                            <span className={styles.teamCellSubtitle}>{leagueOf(team.leagueId)}</span>
+                                                        </span>
+                                                        <span className={styles.teamCellCount}>
+                                                            {team.items.length}
+                                                            <small>{team.items.length === 1 ? 'blueprint' : 'blueprints'}</small>
+                                                        </span>
+                                                    </div>
+                                                    <div className={styles.teamCellChips}>
+                                                        {teamTypeChips(team.items).map(chip => (
+                                                            <span
+                                                                key={chip.type}
+                                                                className={styles.typeChip}
+                                                                style={{['--chip' as string]: chip.accent} as CSSProperties}
+                                                            >
+                                                                {chip.label}
+                                                                {chip.count > 1 ? ` ×${chip.count}` : ''}
+                                                            </span>
+                                                        ))}
+                                                    </div>
+                                                    <span className={styles.teamCellLatest}>{latestLabel(team.items)}</span>
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                </section>
+                            )}
+
+                            {selectedGroup !== null && (
                                 <section className={styles.section}>
                                     <div className={styles.teamDetailHead}>
-                                        <button
-                                            className={styles.backButton}
-                                            onClick={() => setSelectedLeagueId(null)}
-                                        >
-                                            ← All Teams
+                                        <button className={styles.btn} onClick={() => setSelectedLeagueId(null)}>
+                                            ← All teams
                                         </button>
-                                        <span className={styles.teamDetailTitle}>
-                                            {selectedGroup.teamName}
-                                        </span>
-                                        {duplicatedTeamNames.has(
-                                            selectedGroup.teamName
-                                        ) && (
-                                            <span
-                                                className={
-                                                    styles.teamDetailSubtitle
-                                                }
-                                            >
-                                                {leagueLabel(
-                                                    selectedGroup.leagueId
-                                                )}
-                                            </span>
-                                        )}
+                                        <div style={{minWidth: 0}}>
+                                            <div className={styles.teamDetailTitle}>{selectedGroup.teamName}</div>
+                                            <div className={styles.teamDetailSubtitle}>{leagueOf(selectedGroup.leagueId)}</div>
+                                        </div>
                                         <span className={styles.teamDetailCount}>
                                             {selectedTeamItems.length}{' '}
-                                            {selectedTeamItems.length === 1
-                                                ? 'blueprint'
-                                                : 'blueprints'}
+                                            {selectedTeamItems.length === 1 ? 'blueprint' : 'blueprints'}
+                                            {newCountFor(selectedTeamItems) > 0 ? ` · ${newCountFor(selectedTeamItems)} new` : ''}
                                         </span>
                                     </div>
                                     <div className={styles.cardGrid}>
@@ -1448,13 +1317,17 @@ export default function BlueprintDashboard() {
                                             <BlueprintItem
                                                 key={item.blueprintId}
                                                 name={item.typeLabel}
+                                                subtitle={item.teamName}
                                                 date={item.date}
+                                                week={item.weekNumber}
                                                 accentColor={item.accent}
-                                                onPreview={() =>
-                                                    openPreview(item)
-                                                }
+                                                isNew={newIds.has(item.blueprintId)}
+                                                onPreview={() => openPreview(item)}
                                             />
                                         ))}
+                                    </div>
+                                    <div className={styles.needHelp}>
+                                        <a href={'https://discord.gg/hCPWDGn9Yb'} target="_blank">Need help with a blueprint?</a>
                                     </div>
                                 </section>
                             )}
@@ -1476,57 +1349,51 @@ export default function BlueprintDashboard() {
 
 type BlueprintItemProps = {
     name: string;
+    subtitle?: string;
     date: string;
+    week?: number | null;
     accentColor: string;
+    isNew?: boolean;
     onPreview: () => void;
 };
 
 function BlueprintItem({
     name,
+    subtitle,
     date,
+    week,
     accentColor,
+    isNew = false,
     onPreview,
 }: BlueprintItemProps) {
     return (
         <div
-            className={styles.card}
+            className={`${styles.card} ${isNew ? styles.cardNew : ''}`}
             style={{['--accent' as string]: accentColor} as CSSProperties}
         >
             <div className={styles.cardAccent} />
+            {isNew && <span className={styles.newChip}>New</span>}
             <div className={styles.cardTop}>
                 <div className={styles.shieldWrap}>
                     <DomainShield color={accentColor} />
                 </div>
                 <div className={styles.cardMeta}>
                     <div className={styles.cardName}>{name}</div>
-                    <div className={styles.cardDate}>{date}</div>
+                    {subtitle && <div className={styles.cardLeague}>{subtitle}</div>}
+                    <div className={styles.cardDate}>
+                        {week != null && <span className={styles.cardWeek}>Week {week}</span>}
+                        {date}
+                    </div>
                 </div>
             </div>
-            <Button
-                variant="text"
-                fullWidth
-                style={{
-                    padding: '8px 14px 5px 14px',
-                    height: '40px',
-                }}
-                sx={{
-                    backgroundColor: '#0F1A1F',
-                    color: 'white',
-                    borderRadius: '8px',
-                    border: '1px solid #2E4349',
-                    '&:hover': {
-                        backgroundColor: accentColor,
-                        color: '#04121C',
-                        borderColor: accentColor,
-                    },
-                    fontFamily: 'Acumin Pro',
-                    fontWeight: '1000',
-                    fontSize: '16px',
-                }}
-                onClick={onPreview}
-            >
-                PREVIEW
-            </Button>
+            <div className={styles.cardActions}>
+                <button
+                    className={`${styles.btn} ${isNew ? styles.btnPrimary : ''}`}
+                    onClick={onPreview}
+                >
+                    Preview
+                </button>
+            </div>
         </div>
     );
 }
