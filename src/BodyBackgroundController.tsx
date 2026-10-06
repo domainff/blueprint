@@ -1,6 +1,5 @@
 import {useEffect} from 'react';
 import {useLocation} from 'react-router-dom';
-import { dashboardBg } from './consts/images';
 
 export default function BodyBackgroundController() {
     const location = useLocation();
@@ -9,11 +8,9 @@ export default function BodyBackgroundController() {
         // The dashboard is served at the site root ("/"); every other
         // route gets the plain white background.
         const isDashboard = location.pathname === '/';
-        document.body.style.backgroundColor = isDashboard ? '#04121C' : '#ffffff';
+        document.body.style.backgroundColor = isDashboard ? '#0B2545' : '#ffffff';
 
         if (isDashboard) {
-            document.body.style.backgroundImage =
-                'url(' + dashboardBg + ')';
             // A global `body { display:grid; place-items:center; padding:2rem 1rem }`
             // leaks in from a CSS module and centers #root into a narrow,
             // content-width column. `place-items:center` is the real culprit:
