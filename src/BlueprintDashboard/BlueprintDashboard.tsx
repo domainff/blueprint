@@ -763,10 +763,9 @@ export default function BlueprintDashboard() {
     const trackerLabel = (bp: BlueprintMetadata) =>
         (trackerNames.get(bp.teamName)?.size ?? 0) > 1 ? `${bp.teamName} — ${leagueOf(bp.leagueId)}` : bp.teamName;
     // Team banner counts: total, then each type the team has, most first.
-    const teamCounts = (items: TeamBlueprint[]) => {
-        const chips = teamTypeChips(items).sort((a, b) => b.count - a.count);
-        return [{label: 'Total', value: items.length, color: '#EDEDE4'}, ...chips.map(c => ({label: c.type === 'InSeasonInfinite' ? 'In-Season' : c.label, value: c.count, color: c.accent}))];
-    };
+    // Team banner counts: each type the team has, most first; the mix bar below them uses the same order so the colours line up.
+    const teamTypeCounts = (items: TeamBlueprint[]) =>
+        teamTypeChips(items).sort((a, b) => b.count - a.count).map(c => ({type: c.type, label: c.type === 'InSeasonInfinite' ? 'In-Season' : c.label, value: c.count, color: c.accent}));
 
     const openPreview = (item: TeamBlueprint) => {
         markSeen(item.blueprintId);
@@ -1193,16 +1192,22 @@ export default function BlueprintDashboard() {
                                             </div>
                                         </div>
                                         <div className={styles.teamDetailCounts}>
-                                            <div className={styles.statRow}>
-                                                {teamCounts(selectedTeamItems).map(c => (
-                                                    <div key={c.label} className={styles.statCard} style={{['--accent' as string]: c.color} as CSSProperties}>
-                                                        <span className={styles.statLabel}>{c.label}</span>
-                                                        <span className={styles.statValue}>{c.value}</span>
-                                                    </div>
-                                                ))}
+                                            <div className={styles.statCard} style={{['--accent' as string]: '#EDEDE4'} as CSSProperties}>
+                                                <span className={styles.statLabel}>Total</span>
+                                                <span className={styles.statValue}>{selectedTeamItems.length}</span>
                                             </div>
-                                            <div className={styles.mix} aria-hidden="true">
-                                                {teamTypeChips(selectedTeamItems).map(chip => <span key={chip.type} style={{flex: `${chip.count} 1 0`, background: typeColor(chip.type, true)}} />)}
+                                            <div className={styles.teamDetailTypes}>
+                                                <div className={styles.statRow}>
+                                                    {teamTypeCounts(selectedTeamItems).map(c => (
+                                                        <div key={c.type} className={styles.statCard} style={{['--accent' as string]: c.color} as CSSProperties}>
+                                                            <span className={styles.statLabel}>{c.label}</span>
+                                                            <span className={styles.statValue}>{c.value}</span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                                <div className={styles.mix} aria-hidden="true">
+                                                    {teamTypeCounts(selectedTeamItems).map(c => <span key={c.type} style={{flex: `${c.value} 1 0`, background: typeColor(c.type, true)}} />)}
+                                                </div>
                                             </div>
                                         </div>
                                     </section>
