@@ -125,8 +125,8 @@
 .welcome { margin: 0; font-weight: 400; font-family: var(--f-display); font-size: 64px; line-height: 0.84; text-transform: uppercase; color: #FFFFFF; padding-top: 4px; }
 .description { margin: 0; color: var(--ink-mid); font-size: 16px; margin-top: 10px; }
 .statRow { display: flex; }
-.statCard { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; padding: 2px 22px; min-width: 0; border-left: 1px solid rgba(237, 237, 228, 0.12); }
-.statCard:first-child { border-left: 0; padding-left: 0; }
+.statCard { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px; padding: 2px 22px; min-width: 0; border-left: 1px solid rgba(237, 237, 228, 0.12); }
+.statCard:first-child { border-left: 0; }
 .statLabel { font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-dim); white-space: nowrap; }
 .statShort { display: none; }
 .statValue { font-weight: 400; font-family: var(--f-display); font-size: 44px; line-height: 0.8; color: var(--accent, var(--ink)); padding-top: 4px; }
@@ -231,8 +231,7 @@
     .hero, .teamDetailHead { padding: 18px 16px; }
     .welcome, .teamDetailTitle { font-size: 46px; white-space: normal; }
     .statRow { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); width: 100%; }
-    .statCard { padding: 2px 8px; gap: 6px; }
-    .statCard:first-child { padding-left: 0; }
+    .statCard { padding: 2px 6px; gap: 6px; }
     .statLabel { font-size: 11px; letter-spacing: 0.06em; }
     .statFull { display: none; }
     .statShort { display: inline; }
