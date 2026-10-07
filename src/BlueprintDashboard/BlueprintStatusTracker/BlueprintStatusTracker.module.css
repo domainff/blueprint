@@ -1,282 +1,160 @@
-.blueprintStatusTracker {
-    background-color: rgba(14, 44, 82, 0.86);
-
-    border: 1px solid rgba(234, 243, 255, 0.62);
-    border-radius: 0;
-
-    padding: 20px;
-
+/* Status tracker — the right column's lower half. Tokens come from .page (BlueprintDashboard.module.css). */
+.tracker {
+    flex: 1 1 auto;
     display: flex;
     flex-direction: column;
-    gap: 12px;
-
-    height: fit-content;
+    gap: 14px;
+    padding: 20px;
+    min-height: 0;
+    color: #EDEDE4;
+    font-family: 'Acumin Pro Condensed', 'Roboto Condensed', 'Arial Narrow', sans-serif;
+}
+.head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.title {
+    margin: 0;
+    font-family: 'Prohibition', 'Arial Narrow', sans-serif;
+    font-weight: 400;
+    font-size: 30px;
+    line-height: 0.9;
+    text-transform: uppercase;
+    padding-top: 3px;
+}
+.ey {
+    display: block;
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(237, 237, 228, 0.6);
+}
+.selectWrap { position: relative; margin-top: -6px; }
+.select {
     width: 100%;
     box-sizing: border-box;
-}
-
-.blueprintStatusTrackerMobile {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    align-items: center;
-}
-
-.title {
-    color: #FFF;
-    font-family: Prohibition;
-    font-size: 28px;
-    font-style: normal;
-    font-weight: 400;
-    line-height: normal;
-}
-
-.statusImage {
-    width: 100%;
-    height: auto;
-}
-
-.statusImageMobile {
-    width: 85%;
-    height: auto;
-}
-
-.lastUpdated {
-    color: #FFF;
-    font-family: "Acumin Pro";
-    font-size: 12px;
-    font-style: normal;
-    font-weight: 400;
-    line-height: normal;
-
-    align-self: flex-end;
-}
-
-.currentStatus {
-    color: #FFF;
-    font-family: Erbaum;
-    font-size: 14px;
-    font-style: normal;
-    font-weight: 400;
-    line-height: normal;
-    background-color: rgba(255, 255, 255, 0.13);
-    border-radius: 0;
-    width: fit-content;
-
-    padding: 6px;
-
-    .deliveryStatus {
-        font-weight: 1000;
-        text-transform: uppercase;
-    }
-}
-
-.mobileDeliveryStatus {
-    font-family: Erbaum;
-    font-size: 14px;
-    font-style: normal;
-    line-height: normal;
-    background-color: rgba(255, 255, 255, 0.13);
-    border-radius: 0;
-    width: 80%;
-    font-weight: 1000;
-    text-transform: uppercase;
-    text-align: center;
-
-    padding: 6px;
-}
-
-.cardContainer {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 12px;
-}
-
-
-.buyABlueprint {
-    background-color: #1AE069;
-
-    border-radius: 25px;
-
-    height: 92px;
-
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-
-    width: fit-content;
-}
-
-.buyABlueprint:hover {
-    cursor: pointer;
-    background-color: #58f095;
-}
-
-.buyABlueprintText {
-    color: #04121C;
-    font-family: Prohibition;
-    font-size: 28px;
-    font-style: normal;
-    font-weight: 400;
-    line-height: normal;
-    text-align: left;
-
-    width: 150px;
-
-    margin-left: -10px;
-}
-
-.currentWaitTime {
-    background-color: #00B1FF;
-
-    border-radius: 25px;
-
-    height: 92px;
-
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-
-    flex: 1 1 180px;
-    min-width: 0;
-
-    padding: 0 14px;
-}
-
-.waitTimeLabelMobile {
-    color: #FFF;
-    font-family: Prohibition;
-    font-size: 20.67px;
-    font-style: normal;
-    font-weight: 400;
-    line-height: normal;
-}
-
-.waitTimeMobile {
-    color: #28ABE2;
-    font-family: Prohibition;
-    font-size: 56.67px;
-    font-style: normal;
-    font-weight: 400;
-    line-height: 0.8;
-}
-
-.waitTimeText {
-    color: #04121C;
-    text-transform: uppercase;
-
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-}
-
-.waitTimeTextTitle {
-    font-family: "Acumin Pro ExtraCondensed";
-    font-size: 20px;
+    appearance: none;
+    -webkit-appearance: none;
+    font-family: inherit;
     font-weight: 700;
-}
-
-.waitTimeTextValue {
-    font-family: Prohibition;
-    font-size: 40px;
-    font-weight: 400;
-    line-height: 0.8;
-}
-
-.buttonContainer {
-    display: flex;
-    flex-direction: row;
-    gap: 10px;
-}
-
-.submitTicket, .dynastyCommunity {
-    flex: 1 1 0;
-    min-width: 0;
-
-    display: flex;
-    flex-direction: row;
-    gap: 8px;
-    align-items: center;
-    justify-content: center;
-
-    min-height: 48px;
-    background-color: rgba(14, 44, 82, 0.86);
-
-    text-transform: uppercase;
-
-    color: #FFF;
-    font-family: Prohibition;
     font-size: 16px;
-    font-style: normal;
-    font-weight: 400;
-    line-height: 1.05;
-
-    border: #FFF 2px solid;
-    border-radius: 0;
-
-    padding: 6px 10px;
-}
-
-.submitTicketText, .dynastyCommunityText {
-    padding-bottom: 2px;
-    text-align: center;
-}
-
-.submitTicket:hover, .dynastyCommunity:hover {
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: #EDEDE4;
+    background: #0A2438;
+    border: 1px solid rgba(237, 237, 228, 0.12);
+    border-radius: 4px;
+    padding: 10px 36px 8px 14px;
+    min-height: 42px;
     cursor: pointer;
-    background-color: #50585d;
 }
+.select:focus-visible { outline: 2px solid #FF7700; outline-offset: 2px; }
+.selectChevron { position: absolute; right: 12px; top: 50%; width: 16px; height: 16px; transform: translateY(-50%); color: #FF7700; pointer-events: none; }
 
-.mobileButtonRow {
-    display: flex;
-    flex-direction: row;
-    gap: 20px;
-}
-
-.buyABlueprintButtonMobile {
-    width: 122px;
-    height: 117px;
-    border-radius: 18px;
-    background: #1AE069;
-}
-
-.openTicketMobile {
-    width: 122px;
-    height: 117px;
-    border-radius: 18px;
-    background: #F47F20;
-}
-
-.discordButtonMobile {
-    width: 122px;
-    height: 117px;
-    border-radius: 18px;
-    background: #B139E2;
-}
-
-.faqButtonMobile {
-    width: 122px;
-    height: 117px;
-    border-radius: 18px;
-    background: #E84D57;
-}
-
-.buttonContainerMobile {
+.card {
+    background: rgba(10, 36, 56, 0.82);
+    border: 1px solid rgba(237, 237, 228, 0.08);
+    border-radius: 6px;
+    padding: 16px;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 10px
+    gap: 16px;
+}
+.statusRow { display: grid; grid-template-columns: 48px minmax(0, 1fr) auto; gap: 14px; align-items: center; }
+.iconTile {
+    width: 48px; height: 48px;
+    border-radius: 4px;
+    background: var(--sc);
+    color: #020C12;
+    display: grid; place-items: center;
+}
+.iconTile svg { width: 22px; height: 22px; }
+.statusText { display: grid; gap: 4px; min-width: 0; }
+.statusWord {
+    font-family: 'Prohibition', 'Arial Narrow', sans-serif;
+    font-size: 40px;
+    line-height: 0.85;
+    text-transform: uppercase;
+    color: var(--sc);
+    padding-top: 4px;
+}
+.stepCount { text-align: right; display: grid; gap: 4px; }
+.stepNum { font-family: 'Prohibition', 'Arial Narrow', sans-serif; font-size: 28px; line-height: 0.9; padding-top: 3px; }
+.stepOf { opacity: 0.45; }
+.line { margin: 0; font-size: 15px; line-height: 1.35; color: rgba(237, 237, 228, 0.75); }
+
+.stepwrap { position: relative; }
+.track, .fill { position: absolute; top: 15px; left: 12.5%; height: 4px; border-radius: 1px; }
+.track { right: 12.5%; background: rgba(237, 237, 228, 0.12); }
+.fill { max-width: 75%; background: linear-gradient(90deg, #E8263A, #FF4200 33%, #00B1FF 66%, #1AE069); }
+.stepper {
+    position: relative;
+    list-style: none;
+    margin: 0; padding: 0;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 4px;
+}
+.stepper li {
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    text-align: center;
+    font-size: 13px; line-height: 1.1; letter-spacing: 0.04em; text-transform: uppercase;
+    color: rgba(237, 237, 228, 0.5);
+}
+.nd {
+    width: 34px; height: 34px; box-sizing: border-box;
+    border-radius: 4px;
+    display: grid; place-items: center;
+    background: #04121C;
+    border: 2px solid rgba(237, 237, 228, 0.2);
+    color: rgba(237, 237, 228, 0.5);
+}
+.nd svg { width: 18px; height: 18px; }
+.done { color: rgba(237, 237, 228, 0.82); }
+.done .nd, .cur .nd { background: var(--sc); border-color: var(--sc); color: #020C12; }
+.cur { color: #EDEDE4; }
+.cur .nd { box-shadow: 0 0 0 4px color-mix(in srgb, var(--sc) 28%, transparent); }
+.updated {
+    font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: rgba(237, 237, 228, 0.6);
+    padding-top: 12px;
+    border-top: 1px solid rgba(237, 237, 228, 0.09);
 }
 
-.buttonLabelMobile {
-    color: #FFF;
-    text-align: center;
-    font-family: "Acumin Pro ExtraCondensed";
-    font-size: 40px;
-    font-style: normal;
-    font-weight: 700;
-    line-height: normal;
-    text-transform: uppercase;
+.waitCard {
+    background: rgba(10, 36, 56, 0.82);
+    border: 1px solid rgba(237, 237, 228, 0.08);
+    border-radius: 6px;
+    padding: 14px 16px;
+    display: flex; align-items: center; gap: 14px;
 }
+.waitIcon { width: 40px; height: 40px; border-radius: 4px; background: #00B1FF; color: #020C12; display: grid; place-items: center; flex: 0 0 auto; }
+.waitIcon svg { width: 20px; height: 20px; }
+.waitValue { display: block; font-family: 'Prohibition', 'Arial Narrow', sans-serif; font-size: 32px; line-height: 0.9; text-transform: uppercase; padding-top: 4px; }
+
+.actions { margin-top: auto; display: flex; flex-direction: column; gap: 10px; padding-top: 10px; }
+.twoUp { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    min-height: 38px; box-sizing: border-box;
+    padding: 0 14px;
+    border-radius: 4px;
+    font-family: inherit; font-weight: 400; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase;
+    cursor: pointer;
+    background: #12324D; border: 0; color: #EDEDE4;
+    text-decoration: none;
+    transition: background 0.15s;
+    white-space: nowrap;
+}
+.btn:hover, .actions a.btn:hover { background: #1A4366; color: #EDEDE4; }
+.actions a.btn { color: #EDEDE4; font-weight: 400; }
+.btn:focus-visible { outline: 2px solid #FF7700; outline-offset: 2px; }
+.btn svg { width: 16px; height: 16px; flex: 0 0 auto; }
+.btnHot, .actions a.btnHot { min-height: 48px; background: linear-gradient(180deg, #FF7700, #FF2000); color: #020C12; font-weight: 400; }
+.btnHot:hover, .actions a.btnHot:hover { background: linear-gradient(180deg, #FF8A1F, #FF3A14); color: #020C12; }
+.help, .actions a.help {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: rgba(237, 237, 228, 0.7);
+    text-decoration: none;
+    padding: 6px 0;
+}
+.help:hover, .actions a.help:hover { color: #FF7700; }
+.help svg { width: 16px; height: 16px; }
