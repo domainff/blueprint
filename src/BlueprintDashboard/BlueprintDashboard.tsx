@@ -1186,7 +1186,7 @@ export default function BlueprintDashboard() {
                                     <section className={`${styles.tile} ${styles.tileHero} ${styles.teamDetailHead}`}>
                                         <div className={styles.teamDetailId}>
                                             <span className={`${styles.ini} ${styles.iniLg}`} style={{['--lc' as string]: teamColor(selectedGroup.leagueId)} as CSSProperties}><DomainShield color="currentColor" /></span>
-                                            <div className={styles.teamDetailText}>
+                                            <div style={{minWidth: 0}}>
                                                 <h1 className={styles.teamDetailTitle} title={selectedGroup.teamName}>{selectedGroup.teamName}</h1>
                                                 <div className={styles.teamDetailSubtitle}>{leagueOf(selectedGroup.leagueId)}</div>
                                             </div>
