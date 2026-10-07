@@ -196,7 +196,10 @@
 .teamDetailText { min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 8px; }
 .teamDetailTitle { margin: 0; font-weight: 400; font-family: var(--f-display); font-size: 64px; line-height: 0.84; text-transform: uppercase; color: #FFFFFF; padding-top: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .teamDetailSubtitle { font-size: 15px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-mid); line-height: 1; }
-.teamDetailCounts { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.teamDetailCounts { display: flex; align-items: center; min-width: 0; }
+.teamDetailCounts > .statCard { border-left: 0; }
+.teamDetailTypes { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.teamDetailTypes .statCard:first-child { border-left: 1px solid rgba(237, 237, 228, 0.12); }
 
 /* ---- right column: brand block ---- */
 .brand { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 12px; min-height: 176px; padding: 20px; border-bottom: 1px solid var(--line); }
