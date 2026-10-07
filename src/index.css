@@ -117,3 +117,18 @@
         url('fonts/prohibition/Prohibition-Regular.woff2') format('woff2'),
         url('fonts/prohibition/Prohibition-Regular.woff') format('woff'),
 }
+
+/* Dashboard redesign: Prohibition Oblique as the italic face, Acumin Pro Condensed Bold as weight 700. */
+@font-face {
+    font-family: 'Prohibition';
+    font-style: italic;
+    font-weight: 400;
+    src: url('fonts/prohibition/Prohibition-Oblique.woff2') format('woff2'),
+        url('fonts/prohibition/Prohibition-Oblique.woff') format('woff');
+}
+@font-face {
+    font-family: 'Acumin Pro Condensed';
+    font-style: normal;
+    font-weight: 700;
+    src: url('fonts/AcuminProCond-Bold.woff') format('woff');
+}

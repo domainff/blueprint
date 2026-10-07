@@ -8,7 +8,7 @@ export default function BodyBackgroundController() {
         // The dashboard is served at the site root ("/"); every other
         // route gets the plain white background.
         const isDashboard = location.pathname === '/';
-        document.body.style.backgroundColor = isDashboard ? '#0B2545' : '#ffffff';
+        document.body.style.backgroundColor = isDashboard ? '#020C12' : '#ffffff';
 
         if (isDashboard) {
             // A global `body { display:grid; place-items:center; padding:2rem 1rem }`
