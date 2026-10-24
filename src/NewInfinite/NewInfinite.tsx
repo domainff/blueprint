@@ -1,18 +1,6 @@
-import {CSSProperties, useCallback, useEffect, useState} from 'react';
+import {CSSProperties, useEffect, useState} from 'react';
 import styles from './NewInfinite.module.css';
-import {
-    bakeryCardApr,
-    bakeryCardFeb,
-    bakeryCardJun,
-    bakeryCardMar,
-    bakeryCardMay,
-    bakeryCardJul,
-    bakeryCardAug,
-    bakeryCardSep,
-    domainShield,
-    newInfiniteBg,
-    nflSilhouette,
-} from '../consts/images';
+import {domainShield, newInfiniteBg, nflSilhouette} from '../consts/images';
 import {
     LeagueSettings,
     RosterPlayer,
@@ -235,30 +223,6 @@ export function WrappedNewInfinite({blueprintId}: {blueprintId: string}) {
     const [fallers, setFallers] = useState<string[]>([]);
     const [createdDate, setCreatedDate] = useState(new Date());
     const [monthList, setMonthList] = useState<string[]>([]);
-
-    const getBakeryCard = useCallback(() => {
-        const month = createdDate.getMonth();
-        switch (month) {
-            case 1:
-                return bakeryCardFeb;
-            case 2:
-                return bakeryCardMar;
-            case 3:
-                return bakeryCardApr;
-            case 4:
-                return bakeryCardMay;
-            case 5:
-                return bakeryCardJun;
-            case 6:
-                return bakeryCardJul;
-            case 7:
-                return bakeryCardAug;
-            case 8:
-                return bakeryCardSep;
-            default:
-                return '';
-        }
-    }, [createdDate]);
 
     useEffect(() => {
         // In-season (2026+) Infinites have no legacy satellite; they render via
@@ -591,7 +555,19 @@ export function WrappedNewInfinite({blueprintId}: {blueprintId: string}) {
                 </div>
             )}
             <div className={styles.benchString}>{benchString}</div>
-            <img src={getBakeryCard()} className={styles.bakeryCard} />
+            {/*
+              The featured card ("player of the month") belongs to the blueprint's Infinite refresh
+              run and is uploaded from the admin, so it is served by URL instead of bundled here.
+              crossOrigin keeps the image usable by the html-to-image export (the blob storage
+              account carries a CORS rule for this site); no card, no element.
+            */}
+            {blueprint?.featuredCardUrl && (
+                <img
+                    src={blueprint.featuredCardUrl}
+                    crossOrigin="anonymous"
+                    className={styles.bakeryCard}
+                />
+            )}
             <img src={newInfiniteBg} className={styles.blankBp} />
         </div>
     );
