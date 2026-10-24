@@ -36,14 +36,6 @@ import nfl from '../assets/logos/standard/nfl.png';
 
 // New Infinite
 import newInfiniteBg from '../assets/newinfinite/Infinite.png';
-import bakeryCardFeb from '../assets/newinfinite/bakery/bakery_feb.png';
-import bakeryCardMar from '../assets/newinfinite/bakery/bakery_mar.png';
-import bakeryCardApr from '../assets/newinfinite/bakery/bakery_apr.jpg';
-import bakeryCardMay from '../assets/newinfinite/bakery/bakery_may.png';
-import bakeryCardJun from '../assets/newinfinite/bakery/bakery_jun.png';
-import bakeryCardJul from '../assets/newinfinite/bakery/bakery_jul.png';
-import bakeryCardAug from '../assets/newinfinite/bakery/bakery_aug.png';
-import bakeryCardSep from '../assets/newinfinite/bakery/bakery_sep.png';
 import domainShield from '../assets/newinfinite/domain_shield.png';
 import nflSilhouette from '../assets/newinfinite/nfl_logo.png';
 
@@ -404,15 +396,12 @@ import premiumAssets from '../assets/premium/premiumAssets.png';
 export {
     logo,
     newInfiniteBg,
-    bakeryCardFeb,
     flockDomainLogo,
     domainShield,
     nflSilhouette,
     logoHorizontal,
     teamLogos,
     blankLogo,
-    bakeryCardMar,
-    bakeryCardApr,
     newRookieBg,
     oneQb8TeamCliffMap,
     oneQb10TeamCliffMap,
@@ -451,9 +440,4 @@ export {
     shoppingCart,
     expiredMembershipPromo,
     dashboardBg,
-    bakeryCardMay,
-    bakeryCardJun,
-    bakeryCardJul,
-    bakeryCardAug,
-    bakeryCardSep,
 };

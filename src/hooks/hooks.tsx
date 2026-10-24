@@ -200,6 +200,14 @@ export type Blueprint = {
     inSeasonInfiniteFeatures: InSeasonInfiniteFeatures | null;
     premiumFeatures: PremiumFeatures;
     createdUtc: string;
+    /**
+     * The Infinite refresh run (release) this blueprint belongs to, and the public URL of
+     * that run's featured card PNG. Both null outside Infinite, for Infinites never linked
+     * to a run, and while the run has no card. The legacy renderer shows the card; the
+     * in-season format does not use it.
+     */
+    infiniteRefreshRunId: string | null;
+    featuredCardUrl: string | null;
     rookieDraftFeatures: RookieDraftFeatures | null;
     overallGrade: number;
 };
