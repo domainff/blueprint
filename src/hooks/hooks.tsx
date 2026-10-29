@@ -45,7 +45,7 @@ export function useDomainAppUser() {
         queryFn: async () => {
             const options = {
                 method: 'GET',
-                url: `${AZURE_API_URL}DomainAppUsers/${appUserId}`,
+                url: `${AZURE_API_URL}DomainAppUsers/me`,
                 headers: {
                     Authorization: `Bearer ${authToken}`,
                 },
@@ -82,13 +82,12 @@ export type InfiniteSubscriptionsResponse = {
 export function useInfiniteSubscriptions() {
     const [subscriptions, setSubscriptions] = useState<Subscription[]>();
     const authToken = localStorage.getItem('flockAuthToken');
-    const appUserId = localStorage.getItem('domainUserId');
     const {data} = useQuery({
         queryKey: ['infinitesubscriptions'],
         queryFn: async () => {
             const options = {
                 method: 'GET',
-                url: `${AZURE_API_URL}InfiniteSubscriptions/?AppUserId=${appUserId}`,
+                url: `${AZURE_API_URL}InfiniteSubscriptions/mine`,
                 headers: {
                     Authorization: `Bearer ${authToken}`,
                 },
